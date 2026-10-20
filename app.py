@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Detailed Characters HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Helicopter & Wide Cam HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - TẠO HÌNH CHI TIẾT 🧟</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Tạo hình Zombie mắt lồi, miệng nhe răng nhọn, áo đỏ quần vàng chuẩn ảnh mẫu (không mũ)!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - TRỰC THĂNG QUÂN SỰ 🚁</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Góc cam rộng bao quát, té vực lần lượt, nhà họa tiết chi tiết & Phương tiện Trực thăng (0/8)!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -30,8 +30,8 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
-        // Zombie Horde
-        let zombies = [{ x: 160, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+        // Zombie Horde (Đàn Zombie xếp hàng dối đuôi)
+        let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
 
         let humans = [];
         let obstacles = [];
@@ -62,7 +62,7 @@ game_code = """
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        z.vy = -13.5 - (idx * 0.08);
+                        z.vy = -13.5 - (idx * 0.05); // Nhảy theo thứ tự
                         z.isGrounded = false;
                     }
                 });
@@ -78,7 +78,7 @@ game_code = """
             coins = 0;
             speed = 4.5;
             frame = 0;
-            zombies = [{ x: 160, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+            zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
             humans = [];
             obstacles = [];
             pits = [];
@@ -99,20 +99,20 @@ game_code = """
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
             bgOffset += speed;
 
-            // Xử lý Sóng Thần
+            // Sóng Thần
             if (tsunamiActive) {
                 tsunamiTimer--;
                 if (tsunamiTimer <= 0) tsunamiActive = false;
             }
 
-            // Spawn Hố / Vách Ngăn
-            if (frame % 230 === 0 && Math.random() > 0.35) {
-                let pitWidth = 80 + Math.random() * 75;
+            // Spawn Hố
+            if (frame % 220 === 0 && Math.random() > 0.35) {
+                let pitWidth = 85 + Math.random() * 80;
                 let pitDepthOffset = Math.floor(Math.random() * 20);
                 pits.push({ x: 850, width: pitWidth, depthOffset: pitDepthOffset });
             }
 
-            // Spawn Vòng Tròn Bổ Trợ Sóng Thần (Hiếm)
+            // Spawn Vòng Tròn Sóng Thần
             if (frame % 900 === 0 && !tsunamiActive && Math.random() < 0.5) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX)) {
@@ -120,19 +120,25 @@ game_code = """
                 }
             }
 
-            // Spawn Chướng ngại vật & Người
-            if (frame % 115 === 0) {
+            // Spawn Chướng ngại vật (Tăng nhẹ tần suất Bom, Thêm Trực Thăng 0/8)
+            if (frame % 110 === 0) {
                 let spawnX = 850;
-                if (!isOverPit(spawnX) && !isOverPit(spawnX + 130)) {
+                if (!isOverPit(spawnX) && !isOverPit(spawnX + 140)) {
                     let rand = Math.random();
-                    if (rand < 0.35) {
+                    if (rand < 0.30) {
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
-                    } else if (rand < 0.75) {
+                    } else if (rand < 0.58) {
+                        // Xe Hơi (4 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 95, h: 45, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
-                    } else if (rand < 0.88) {
+                    } else if (rand < 0.73) {
+                        // Xe Buýt (6 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 65, w: 135, h: 65, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
+                    } else if (rand < 0.85) {
+                        // TRỰC THĂNG QUÂN SỰ (8 Zombie)
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 90, w: 140, h: 60, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
                     } else {
+                        // BOM 3D (Tăng tần suất xuất hiện)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
                     }
                 }
@@ -154,7 +160,7 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // Update Zombies & Physics
+            // Update Zombies & Té Vực Từng Con Một Lần Lượt
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
@@ -170,7 +176,7 @@ game_code = """
                     let standingOnVehicle = false;
 
                     obstacles.forEach((obs) => {
-                        if (obs.type === 'CAR' || obs.type === 'BUS') {
+                        if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                             if (z.x >= obs.x - 8 && z.x <= obs.x + obs.w + 8) {
                                 let roofY = obs.y - 18;
                                 if (z.y >= roofY - 5 && z.y <= obs.y + 12 && z.vy >= 0) {
@@ -189,6 +195,7 @@ game_code = """
                             z.vy = 0;
                             z.isGrounded = true;
                         } else if (onPit) {
+                            // Rơi vực
                             z.isGrounded = false;
                         }
                     }
@@ -196,6 +203,7 @@ game_code = """
 
                 z.legAngle += 0.2;
 
+                // Rơi xuống hố -> Mất từng con một khi trôi đến vị trí hố
                 if (z.y > canvas.height + 30) {
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 10);
                     zombies.splice(i, 1);
@@ -207,7 +215,7 @@ game_code = """
                 return;
             }
 
-            // Update Humans & Xử lý khi bị nuốt chửng
+            // Update Humans
             humans.forEach((h) => {
                 h.x -= speed;
                 h.armAngle += 0.15;
@@ -217,14 +225,14 @@ game_code = """
                     score += 1;
                     coins += 5;
                     addParticles(h.x, h.y - 10, '#76ba1b', 15);
-                    if (zombies.length < 25) {
+                    if (zombies.length < 30) {
                         let tail = zombies[zombies.length - 1];
-                        zombies.push({ x: tail.x - 24, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
+                        zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                     }
                 }
             });
 
-            // Update Obstacles & Sóng Thần
+            // Update Obstacles & Càn quét / Tông Xe / Chiếm Trực Thăng
             obstacles.forEach((obs, obsIdx) => {
                 obs.x -= speed;
                 if (obs.cooldown > 0) obs.cooldown--;
@@ -234,13 +242,13 @@ game_code = """
                         addParticles(obs.x + obs.w/2, obs.y, '#00e5ff', 30);
                         addParticles(obs.x + obs.w/2, obs.y, '#76ba1b', 20);
 
-                        if (obs.type === 'CAR' || obs.type === 'BUS') {
+                        if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                             score += obs.peopleInside;
                             coins += obs.peopleInside * 10;
                             for (let k = 0; k < obs.peopleInside; k++) {
-                                if (zombies.length < 25) {
+                                if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
-                                    zombies.push({ x: tail.x - 24, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                    zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
                                 }
                             }
                         } else if (obs.type === 'BOMB') {
@@ -250,23 +258,25 @@ game_code = """
                         obstacles.splice(obsIdx, 1);
                     }
                 } else {
-                    if (obs.type === 'CAR' || obs.type === 'BUS') {
+                    if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                         for (let i = zombies.length - 1; i >= 0; i--) {
                             let z = zombies[i];
                             if (z.x + 12 > obs.x && z.x - 12 < obs.x + 20 && z.y > obs.y + 10) {
                                 if (zombies.length >= obs.reqZombies) {
-                                    addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 30);
+                                    // Đủ Zombie -> Chiếm/Phá vỡ phương tiện
+                                    addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 35);
                                     score += obs.peopleInside;
                                     coins += obs.peopleInside * 10;
                                     for (let k = 0; k < obs.peopleInside; k++) {
-                                        if (zombies.length < 25) {
+                                        if (zombies.length < 30) {
                                             let tail = zombies[zombies.length - 1];
-                                            zombies.push({ x: tail.x - 24, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
+                                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                                         }
                                     }
                                     obstacles.splice(obsIdx, 1);
                                     break;
                                 } else {
+                                    // Không đủ Zombie -> Cản lại & mất 1 zombie
                                     if (obs.cooldown === 0) {
                                         obs.cooldown = 20;
                                         addParticles(z.x, z.y, '#ff4444', 20);
@@ -303,7 +313,7 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // Render Map Bãi Biển
+        // Render Map & Họa Tiết Ngôi Nhà
         function drawBackground() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
             skyGrad.addColorStop(0, '#1976d2');
@@ -311,6 +321,7 @@ game_code = """
             ctx.fillStyle = skyGrad;
             ctx.fillRect(0, 0, canvas.width, 240);
 
+            // Mây
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             let cloudX = (300 - bgOffset * 0.2) % 900;
             if (cloudX < -100) cloudX += 900;
@@ -320,23 +331,41 @@ game_code = """
             ctx.arc(cloudX + 70, 60, 25, 0, Math.PI*2);
             ctx.fill();
 
+            // Biển
             let seaGrad = ctx.createLinearGradient(0, 210, 0, 330);
             seaGrad.addColorStop(0, '#00838f');
             seaGrad.addColorStop(1, '#00acc1');
             ctx.fillStyle = seaGrad;
             ctx.fillRect(0, 210, canvas.width, 120);
 
+            // Bãi Cát
             ctx.fillStyle = '#ffe082';
             ctx.fillRect(0, 290, canvas.width, 40);
 
+            // NGÔI NHÀ VỚI HỌA TIẾT CHI TIẾT (Cửa sổ, Ống khói, Cửa gỗ)
             for (let hIdx = 0; hIdx < 3; hIdx++) {
                 let houseX = (220 + hIdx * 280 - bgOffset * 0.6) % 900;
                 if (houseX < -120) houseX += 900;
-                ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 210, 80, 80);
+
+                // Thân nhà
+                ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 200, 85, 90);
+                // Ống khói
+                ctx.fillStyle = '#8d6e63'; ctx.fillRect(houseX + 60, 150, 12, 30);
+                // Mái nhà đỏ
                 ctx.fillStyle = '#e57373'; ctx.beginPath();
-                ctx.moveTo(houseX - 10, 210); ctx.lineTo(houseX + 40, 160); ctx.lineTo(houseX + 90, 210); ctx.fill();
+                ctx.moveTo(houseX - 10, 200); ctx.lineTo(houseX + 42, 145); ctx.lineTo(houseX + 95, 200); ctx.fill();
+
+                // Cửa sổ kính có rèm
+                ctx.fillStyle = '#81d4fa'; ctx.fillRect(houseX + 12, 215, 22, 22);
+                ctx.fillStyle = '#e57373'; ctx.fillRect(houseX + 12, 215, 6, 22); // Rèm đỏ
+                ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.strokeRect(houseX + 12, 215, 22, 22);
+
+                // Cửa chính gỗ
+                ctx.fillStyle = '#6d4c41'; ctx.fillRect(houseX + 48, 240, 22, 50);
+                ctx.fillStyle = '#fbc02d'; ctx.beginPath(); ctx.arc(x = houseX + 53, 265, 2, 0, Math.PI*2); ctx.fill(); // Tay cầm cửa
             }
 
+            // Cây dừa
             for (let tIdx = 0; tIdx < 2; tIdx++) {
                 let treeX = (80 + tIdx * 450 - bgOffset * 0.8) % 900;
                 if (treeX < -100) treeX += 900;
@@ -347,6 +376,7 @@ game_code = """
                 ctx.arc(treeX + 8, 150, 32, 0, Math.PI*2); ctx.fill();
             }
 
+            // Đất & Lộ trình
             ctx.fillStyle = '#261c14';
             ctx.fillRect(0, defaultGroundY, canvas.width, canvas.height - defaultGroundY);
             ctx.fillStyle = '#37474f';
@@ -354,6 +384,7 @@ game_code = """
             ctx.fillStyle = '#455a64';
             ctx.fillRect(0, defaultGroundY + 12, canvas.width, canvas.height - defaultGroundY - 12);
 
+            // Vách ngăn / Hố
             pits.forEach(p => {
                 let depth = defaultGroundY + (p.depthOffset || 0);
                 ctx.clearRect(p.x, depth, p.width, canvas.height - depth);
@@ -362,6 +393,7 @@ game_code = """
                 ctx.fillRect(p.x + p.width, depth, 6, canvas.height - depth);
             });
 
+            // Vạch kẻ đường
             ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
             let dashWidth = 30; let dashGap = 20;
             let startX = - (bgOffset % (dashWidth + dashGap));
@@ -371,7 +403,7 @@ game_code = """
                 }
             }
 
-            // Sóng thần
+            // Sóng Thần
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
@@ -414,58 +446,41 @@ game_code = """
             ctx.save();
             ctx.translate(z.x, z.y);
 
-            // Chân xanh lá chạy vắt vẻo
             ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 5;
             ctx.beginPath();
             ctx.moveTo(-4, 8); ctx.lineTo(-4 + Math.sin(z.legAngle)*8, 20);
             ctx.moveTo(4, 8); ctx.lineTo(4 - Math.sin(z.legAngle)*8, 20);
             ctx.stroke();
 
-            // Quần vàng rực
-            ctx.fillStyle = '#fbc02d';
-            ctx.fillRect(-8, 4, 16, 8);
+            ctx.fillStyle = '#fbc02d'; ctx.fillRect(-8, 4, 16, 8);
+            ctx.fillStyle = '#8d2626'; ctx.fillRect(-9, -4, 18, 10);
 
-            // Áo màu đỏ đô (Mâu đỏ chuẩn ảnh)
-            ctx.fillStyle = '#8d2626';
-            ctx.fillRect(-9, -4, 18, 10);
-
-            // Đầu Zombie xanh lá cây bỉ ngạn
             ctx.fillStyle = '#76ba1b';
             ctx.beginPath(); ctx.arc(0, -16, 17, 0, Math.PI * 2); ctx.fill();
 
-            // MẮT LỒI CỰC TO
-            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(7, -18, 10, 0, Math.PI * 2); ctx.fill(); // Viền mắt
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(7, -18, 8.5, 0, Math.PI * 2); ctx.fill(); // Tròng trắng
-            ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(9, -18, 4, 0, Math.PI * 2); ctx.fill();   // Con ngươi đỏ
-            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(9.5, -18, 2, 0, Math.PI * 2); ctx.fill(); // Nhân mắt
+            // Mắt lồi to
+            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(7, -18, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(7, -18, 8.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(9, -18, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(9.5, -18, 2, 0, Math.PI * 2); ctx.fill();
 
-            // MIỆNG HÁ TO NHE RĂNG NHỌN
-            ctx.fillStyle = '#1b5e20';
-            ctx.beginPath(); ctx.arc(8, -8, 6, 0, Math.PI); ctx.fill();
-            // Răng nanh trắng nhọn
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.moveTo(5, -8); ctx.lineTo(7, -4); ctx.lineTo(9, -8); ctx.fill();
+            // Miệng nhe răng
+            ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(8, -8, 6, 0, Math.PI); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(5, -8); ctx.lineTo(7, -4); ctx.lineTo(9, -8); ctx.fill();
 
-            // Tay vươn về phía trước
             ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4;
             ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(14, 2); ctx.stroke();
 
             ctx.restore();
         }
 
-        // Vẽ Con Người Dân Chi Tiết
         function drawHuman(h) {
             ctx.save();
             ctx.translate(h.x, h.y);
-
             ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, -18, 8, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d'; ctx.beginPath(); ctx.arc(0, -21, 8, Math.PI, Math.PI*2); ctx.fill();
-
             ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-3, -18, 1.5, 0, Math.PI*2); ctx.arc(3, -18, 1.5, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(0, -14, 3, 0, Math.PI*2); ctx.fill();
-
             ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63'; ctx.fillRect(-6, -10, 12, 12);
-
             ctx.restore();
         }
 
@@ -487,8 +502,6 @@ game_code = """
             ctx.fillStyle = '#81d4fa'; ctx.fillRect(22, 7, 20, 10); ctx.fillRect(48, 7, 22, 10);
             ctx.fillStyle = '#ffeb3b'; ctx.fillRect(0, 22, 4, 8);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 38, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 38, 9, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(45, -8, 8, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(45, -5, 3, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#111'; ctx.fillRect(18, -48, 58, 26);
             ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(`0/${o.reqZombies}`, 47, -30);
@@ -502,11 +515,57 @@ game_code = """
             ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 32, o.w, 6);
             ctx.fillStyle = '#81d4fa';
             for(let k=0; k<4; k++) ctx.fillRect(12 + (k * 28), 8, 20, 18);
-            ctx.fillStyle = '#ffeb3b'; ctx.fillRect(0, 40, 5, 8);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(26, 54, 10, 0, Math.PI*2); ctx.arc(o.w - 26, 54, 10, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#111'; ctx.fillRect(38, -45, 60, 28);
             ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(`0/${o.reqZombies}`, 68, -25);
+            ctx.restore();
+        }
+
+        // VẼ TRỰC THĂNG QUÂN SỰ CHUẨN ẢNH MẪU (0/8)
+        function drawHelicopter(o) {
+            ctx.save();
+            ctx.translate(o.x, o.y);
+
+            // Thân máy bay màu xanh quân đèo
+            ctx.fillStyle = '#3e4a36';
+            ctx.beginPath();
+            ctx.ellipse(70, 30, 60, 24, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Đuôi trực thăng & Cánh quạt đuôi
+            ctx.fillRect(110, 22, 45, 12);
+            ctx.fillStyle = '#111';
+            ctx.fillRect(150, 10, 6, 30);
+
+            // Cửa kính trực thăng
+            ctx.fillStyle = '#81d4fa';
+            ctx.fillRect(25, 18, 28, 16);
+            ctx.fillRect(60, 20, 14, 12);
+            ctx.fillRect(80, 20, 14, 12);
+
+            // Cánh quạt chính phía trên (Đang quay)
+            ctx.fillStyle = '#111';
+            ctx.fillRect(65, 0, 8, 10); // Trục cánh
+            let bladeW = 110 + Math.sin(frame * 0.5) * 20;
+            ctx.fillRect(70 - bladeW/2, 0, bladeW, 4);
+
+            // Chân đáp trực thăng
+            ctx.strokeStyle = '#222'; ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(35, 50); ctx.lineTo(35, 58); ctx.lineTo(105, 58); ctx.lineTo(105, 50);
+            ctx.stroke();
+
+            // Mã hiệu T-315
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 11px monospace';
+            ctx.fillText('T-315', 70, 34);
+
+            // Bảng chỉ dẫn Yêu cầu 0/8
+            ctx.fillStyle = '#111'; ctx.fillRect(40, -42, 60, 28);
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(`0/${o.reqZombies}`, 70, -22);
+
             ctx.restore();
         }
 
@@ -529,6 +588,7 @@ game_code = """
                 if (o.type === 'BOMB') drawBomb(o);
                 else if (o.type === 'CAR') drawCar(o);
                 else if (o.type === 'BUS') drawBus(o);
+                else if (o.type === 'HELI') drawHelicopter(o);
             });
 
             zombies.forEach(z => drawZombie(z));
