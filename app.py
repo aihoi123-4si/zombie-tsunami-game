@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Perfect Animation HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Fixed Stretch HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - FIXED ANIMATION & STRETCH 🏙️🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã sửa hoàn toàn lỗi xe/người bị kéo dài và lỗi đơ hoạt ảnh khi nhảy!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - STRETCH FIX 🏙️🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã khắc phục lỗi kéo dài hình ảnh, xe và người hiển thị chuẩn xác từng pixel!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -17,10 +17,8 @@ game_code = """
             border-radius: 12px; 
             box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); 
             background: #111; 
-            width: 100%; 
-            max-width: 800px; 
-            height: auto; 
-            display: block; 
+            width: 800px; 
+            height: 450px; 
         }
     </style>
 </head>
@@ -142,13 +140,13 @@ game_code = """
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
                     } else if (rand < 0.65) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 90, h: 42, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 42, w: 75, h: 40, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
                     } else if (rand < 0.82) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 62, w: 125, h: 58, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 58, w: 110, h: 55, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
                     } else if (rand < 0.87) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 130, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 80, w: 115, h: 52, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
                     } else {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 38, w: 38, h: 38, type: 'BOMB' });
                     }
                 }
             }
@@ -166,7 +164,7 @@ game_code = """
                     addParticles(pw.x, pw.y, '#00e5ff', 30);
                 }
             });
-            powerups = powerups.filter(p => p.x > -50 && !pw.collected);
+            powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
@@ -207,7 +205,6 @@ game_code = """
                     }
                 }
 
-                // Hoạt ảnh chân chạy mượt mà ngay cả khi nhảy
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
 
                 if (z.y > canvas.height + 30) {
@@ -465,7 +462,6 @@ game_code = """
             ctx.restore();
         }
 
-        // Vẽ Zombie chuẩn tỷ lệ, không bị kéo dài và hoạt ảnh chân tay mượt mà
         function drawZombie(z) {
             ctx.save();
             ctx.translate(z.x, z.y);
@@ -609,4 +605,5 @@ game_code = """
 </html>
 """
 
-components.html(game_code, height=480)
+components.html(game_code, height=480, scrolling=False)
+
