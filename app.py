@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Static Road HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Classic Beach HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - BEACH MAP 🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã tắt hiệu ứng đường chạy, mặt đường tĩnh ổn định, góc nhìn rộng bao quát!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - CLASSIC BEACH 🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã khôi phục hoàn toàn map bãi biển nguyên bản chuẩn đẹp và ổn định!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -34,14 +34,13 @@ game_code = """
         let speed = 4.5;
         let frame = 0;
 
-        const gravity = 0.55;
+        const gravity = 0.65;
         const defaultGroundY = 330;
 
-        let zombies = [{ x: 150, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+        let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
 
         let humans = [];
         let obstacles = [];
-        let terrainSegments = [];
         let pits = [];
         let powerups = [];
         let particles = [];
@@ -68,7 +67,7 @@ game_code = """
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        z.vy = -12.5 - (idx * 0.03);
+                        z.vy = -13.5 - (idx * 0.04);
                         z.isGrounded = false;
                     }
                 });
@@ -84,22 +83,14 @@ game_code = """
             coins = 0;
             speed = 4.5;
             frame = 0;
-            zombies = [{ x: 150, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+            zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
             humans = [];
             obstacles = [];
             pits = [];
-            terrainSegments = [
-                { x: 0, width: 1200, groundY: defaultGroundY }
-            ];
             powerups = [];
             particles = [];
             tsunamiActive = false;
             tsunamiTimer = 0;
-        }
-
-        function getGroundYAt(x) {
-            let seg = terrainSegments.find(s => x >= s.x && x < s.x + s.width);
-            return seg ? seg.groundY : defaultGroundY;
         }
 
         function isOverPit(x, width = 50) {
@@ -118,52 +109,39 @@ game_code = """
                 if (tsunamiTimer <= 0) tsunamiActive = false;
             }
 
-            if (terrainSegments.length > 0 && terrainSegments[terrainSegments.length - 1].x + terrainSegments[terrainSegments.length - 1].width < 1000) {
-                let lastSeg = terrainSegments[terrainSegments.length - 1];
-                let nextX = lastSeg.x + lastSeg.width;
-                let heights = [290, 320, 350];
-                let randomH = heights[Math.floor(Math.random() * heights.length)];
-                terrainSegments.push({ x: nextX, width: 400 + Math.random() * 250, groundY: randomH });
+            if (frame % 230 === 0 && Math.random() > 0.35) {
+                let pitWidth = 80 + Math.random() * 70;
+                pits.push({ x: 850, width: pitWidth });
             }
 
-            terrainSegments.forEach(s => s.x -= speed);
-            terrainSegments = terrainSegments.filter(s => s.x + s.width > -100);
+            if (frame % 950 === 0 && !tsunamiActive && Math.random() < 0.5) {
+                let spawnX = 850;
+                if (!isOverPit(spawnX, 40)) {
+                    powerups.push({ x: spawnX, y: defaultGroundY - 60, r: 18, collected: false });
+                }
+            }
 
-            if (frame % 240 === 0 && Math.random() > 0.3) {
-                let pitWidth = 80 + Math.random() * 60;
-                pits.push({ x: 900, width: pitWidth });
+            if (frame % 115 === 0) {
+                let spawnX = 850;
+                if (!isOverPit(spawnX, 150)) {
+                    let rand = Math.random();
+                    if (rand < 0.32) {
+                        let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
+                        humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
+                    } else if (rand < 0.65) {
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 90, h: 42, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
+                    } else if (rand < 0.82) {
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 62, w: 125, h: 58, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
+                    } else if (rand < 0.87) {
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 130, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
+                    } else {
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
+                    }
+                }
             }
 
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
-
-            if (frame % 1000 === 0 && !tsunamiActive && Math.random() < 0.5) {
-                let spawnX = 900;
-                if (!isOverPit(spawnX, 40)) {
-                    let gY = getGroundYAt(spawnX);
-                    powerups.push({ x: spawnX, y: gY - 60, r: 18, collected: false });
-                }
-            }
-
-            if (frame % 120 === 0) {
-                let spawnX = 900;
-                if (!isOverPit(spawnX, 140)) {
-                    let gY = getGroundYAt(spawnX);
-                    let rand = Math.random();
-                    if (rand < 0.32) {
-                        let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
-                        humans.push({ x: spawnX, y: gY - 20, gender: gender, eaten: false, armAngle: 0 });
-                    } else if (rand < 0.65) {
-                        obstacles.push({ x: spawnX, y: gY - 42, w: 75, h: 40, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
-                    } else if (rand < 0.82) {
-                        obstacles.push({ x: spawnX, y: gY - 58, w: 110, h: 55, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
-                    } else if (rand < 0.87) {
-                        obstacles.push({ x: spawnX, y: gY - 80, w: 115, h: 52, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
-                    } else {
-                        obstacles.push({ x: spawnX, y: gY - 38, w: 38, h: 38, type: 'BOMB' });
-                    }
-                }
-            }
 
             powerups.forEach((pw) => {
                 pw.x -= speed;
@@ -175,14 +153,13 @@ game_code = """
                     addParticles(pw.x, pw.y, '#00e5ff', 30);
                 }
             });
-            powerups = powerups.filter(p => p.x > -50 && !p.collected);
+            powerups = powerups.filter(p => p.x > -50 && !pw.collected);
 
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
-                let currentGroundY = getGroundYAt(z.x);
 
                 if (tsunamiActive) {
-                    z.y = currentGroundY - 110 + Math.sin(frame * 0.15 + i * 0.4) * 8;
+                    z.y = defaultGroundY - 110 + Math.sin(frame * 0.15 + i * 0.4) * 8;
                     z.vy = 0;
                     z.isGrounded = true;
                 } else {
@@ -207,8 +184,8 @@ game_code = """
                     });
 
                     if (!standingOnVehicle) {
-                        if (!onPit && z.y >= currentGroundY - 20) {
-                            z.y = currentGroundY - 20;
+                        if (!onPit && z.y >= defaultGroundY - 20) {
+                            z.y = defaultGroundY - 20;
                             z.vy = 0;
                             z.isGrounded = true;
                         } else if (onPit) {
@@ -239,10 +216,9 @@ game_code = """
                     score += 1;
                     coins += 5;
                     addParticles(h.x, h.y - 10, '#76ba1b', 15);
-                    if (zombies.length < 35) {
+                    if (zombies.length < 30) {
                         let tail = zombies[zombies.length - 1];
-                        let tailGroundY = getGroundYAt(tail.x);
-                        zombies.push({ x: tail.x - 20, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
+                        zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                     }
                 }
             });
@@ -260,10 +236,9 @@ game_code = """
                             score += obs.peopleInside;
                             coins += obs.peopleInside * 10;
                             for (let k = 0; k < obs.peopleInside; k++) {
-                                if (zombies.length < 35) {
+                                if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
-                                    let tailGroundY = getGroundYAt(tail.x);
-                                    zombies.push({ x: tail.x - 20, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
+                                    zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
                                 }
                             }
                         } else if (obs.type === 'BOMB') {
@@ -282,10 +257,9 @@ game_code = """
                                     score += obs.peopleInside;
                                     coins += obs.peopleInside * 10;
                                     for (let k = 0; k < obs.peopleInside; k++) {
-                                        if (zombies.length < 35) {
+                                        if (zombies.length < 30) {
                                             let tail = zombies[zombies.length - 1];
-                                            let tailGroundY = getGroundYAt(tail.x);
-                                            zombies.push({ x: tail.x - 20, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
+                                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
                                         }
                                     }
                                     obstacles.splice(obsIdx, 1);
@@ -327,44 +301,72 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        function drawBackground() {
-            let skyGrad = ctx.createLinearGradient(0, 0, 0, 260);
-            skyGrad.addColorStop(0, '#0288d1'); skyGrad.addColorStop(1, '#b3e5fc');
-            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function drawBeachMap() {
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
+            skyGrad.addColorStop(0, '#1976d2'); skyGrad.addColorStop(1, '#64b5f6');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
 
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-            let cloudX = (300 - bgOffset * 0.18) % 1000;
-            if (cloudX < -150) cloudX += 1000;
-            ctx.beginPath(); ctx.arc(cloudX, 55, 25, 0, Math.PI*2); ctx.arc(cloudX + 35, 45, 35, 0, Math.PI*2); ctx.arc(cloudX + 75, 55, 25, 0, Math.PI*2); ctx.fill();
+            let cloudX = (300 - bgOffset * 0.2) % 900;
+            if (cloudX < -100) cloudX += 900;
+            ctx.beginPath();
+            ctx.arc(cloudX, 60, 25, 0, Math.PI*2);
+            ctx.arc(cloudX + 30, 50, 35, 0, Math.PI*2);
+            ctx.arc(cloudX + 70, 60, 25, 0, Math.PI*2); ctx.fill();
 
-            let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
-            seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(1, '#00bcd4');
-            ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
+            let seaGrad = ctx.createLinearGradient(0, 210, 0, 330);
+            seaGrad.addColorStop(0, '#00838f'); seaGrad.addColorStop(1, '#00acc1');
+            ctx.fillStyle = seaGrad; ctx.fillRect(0, 210, canvas.width, 120);
+
+            ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 290, canvas.width, 40);
 
             for (let hIdx = 0; hIdx < 3; hIdx++) {
-                let houseX = (150 + hIdx * 350 - bgOffset * 0.5) % 1050;
-                if (houseX < -120) houseX += 1050;
-                ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 180, 75, 80);
+                let houseX = (220 + hIdx * 280 - bgOffset * 0.6) % 900;
+                if (houseX < -120) houseX += 900;
+                ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 200, 85, 90);
+                ctx.fillStyle = '#8d6e63'; ctx.fillRect(houseX + 60, 150, 12, 30);
                 ctx.fillStyle = '#e57373'; ctx.beginPath();
-                ctx.moveTo(houseX - 8, 180); ctx.lineTo(houseX + 37, 135); ctx.lineTo(houseX + 83, 180); ctx.fill();
+                ctx.moveTo(houseX - 10, 200); ctx.lineTo(houseX + 42, 145); ctx.lineTo(houseX + 95, 200); ctx.fill();
+                ctx.fillStyle = '#81d4fa'; ctx.fillRect(houseX + 12, 215, 22, 22);
+                ctx.fillStyle = '#6d4c41'; ctx.fillRect(houseX + 48, 240, 22, 50);
             }
 
-            // Vẽ khối đất (Bỏ vạch kẻ đường chạy động)
-            terrainSegments.forEach(s => {
-                ctx.fillStyle = '#ffe082';
-                ctx.fillRect(s.x, s.groundY, s.width, canvas.height - s.groundY);
-                ctx.fillStyle = '#ffd54f';
-                ctx.fillRect(s.x, s.groundY, s.width, 10);
-            });
+            for (let tIdx = 0; tIdx < 2; tIdx++) {
+                let treeX = (80 + tIdx * 450 - bgOffset * 0.8) % 900;
+                if (treeX < -100) treeX += 900;
+                ctx.fillStyle = '#5d4037'; ctx.fillRect(treeX, 180, 16, 120);
+                ctx.fillStyle = '#2e7d32'; ctx.beginPath();
+                ctx.arc(treeX - 20, 170, 28, 0, Math.PI*2); ctx.arc(treeX + 35, 170, 28, 0, Math.PI*2); ctx.arc(treeX + 8, 150, 32, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        function drawBackground() {
+            drawBeachMap();
+
+            ctx.fillStyle = '#261c14';
+            ctx.fillRect(0, defaultGroundY, canvas.width, canvas.height - defaultGroundY);
+            ctx.fillStyle = '#37474f';
+            ctx.fillRect(0, defaultGroundY, canvas.width, 12);
+            ctx.fillStyle = '#455a64';
+            ctx.fillRect(0, defaultGroundY + 12, canvas.width, canvas.height - defaultGroundY - 12);
 
             pits.forEach(p => {
-                let gY = getGroundYAt(p.x);
                 ctx.fillStyle = '#110a06';
-                ctx.fillRect(p.x, gY, p.width, canvas.height - gY);
-                ctx.fillStyle = '#ffcc80';
-                ctx.fillRect(p.x - 5, gY, 5, canvas.height - gY);
-                ctx.fillRect(p.x + p.width, gY, 5, canvas.height - gY);
+                ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
+
+                ctx.fillStyle = '#1a100a';
+                ctx.fillRect(p.x - 6, defaultGroundY, 6, canvas.height - defaultGroundY);
+                ctx.fillRect(p.x + p.width, defaultGroundY, 6, canvas.height - defaultGroundY);
             });
+
+            ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
+            let dashWidth = 30; let dashGap = 20;
+            let startX = - (bgOffset % (dashWidth + dashGap));
+            for (let x = startX; x < canvas.width; x += dashWidth + dashGap) {
+                if (!isOverPit(x, dashWidth)) {
+                    ctx.beginPath(); ctx.moveTo(x, defaultGroundY + 45); ctx.lineTo(x + dashWidth, defaultGroundY + 45); ctx.stroke();
+                }
+            }
 
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
@@ -493,7 +495,7 @@ game_code = """
             if (gameState === 'START') {
                 ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#76ba1b'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('ZOMBIE TSUNAMI - BEACH', 400, 180);
+                ctx.fillText('ZOMBIE TSUNAMI', 400, 180);
                 ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif';
                 ctx.fillText('Nhấn Space / Chạm màn hình để bắt đầu chơi!', 400, 230);
                 return;
