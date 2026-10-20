@@ -1,18 +1,19 @@
+
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Pit Jump HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami City Night HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - VÁCH NGĂN 🧟</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Nhấn <b>Space</b> hoặc <b>Chạm màn hình</b> để nhảy qua các <b>vực thẳm / vách ngăn</b>, né vật cản và nuốt chửng người dân!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - CITY NIGHT 🧟</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Gom đủ đàn Zombie để **tông lật xe hơi (cần 4 zombie)** hoặc nhảy né chướng ngại vật!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
 <html>
 <head>
     <style>
-        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        canvas { border: 4px solid #76ba1b; border-radius: 12px; box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); background: #111; }
+        body { margin: 0; padding: 0; background-color: #0b132b; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { border: 4px solid #76ba1b; border-radius: 12px; box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); background: #0b132b; }
     </style>
 </head>
 <body>
@@ -35,7 +36,7 @@ game_code = """
 
         let humans = [];
         let obstacles = [];
-        let pits = []; // Danh sách các vực thẳm / vách ngăn
+        let pits = [];
         let particles = [];
         let bgOffset = 0;
 
@@ -43,9 +44,9 @@ game_code = """
             for(let i=0; i<count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
-                    life: 25, color: color
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 30, color: color
                 });
             }
         }
@@ -57,7 +58,7 @@ game_code = """
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        z.vy = -13 - (idx * 0.12);
+                        z.vy = -13.5 - (idx * 0.12);
                         z.isGrounded = false;
                     }
                 });
@@ -80,7 +81,6 @@ game_code = """
             particles = [];
         }
 
-        // Kiểm tra vị trí x có nằm trên vực không
         function isOverPit(x) {
             return pits.some(p => x > p.x && x < p.x + p.width);
         }
@@ -92,24 +92,30 @@ game_code = """
             speed = 4.5 + Math.floor(frame / 500) * 0.4;
             bgOffset += speed;
 
-            // Spawn Vực Thẳm (Pits)
-            if (frame % 220 === 0 && Math.random() > 0.3) {
+            // Spawn Pits
+            if (frame % 250 === 0 && Math.random() > 0.4) {
                 pits.push({ x: 850, width: 110 + Math.random() * 40 });
             }
 
-            // Spawn Humans & Obstacles (chỉ tạo ở vùng có đường)
-            if (frame % 110 === 0) {
+            // Spawn Entities
+            if (frame % 120 === 0) {
                 let spawnX = 850;
-                if (!isOverPit(spawnX) && !isOverPit(spawnX + 60)) {
-                    if (Math.random() > 0.45) {
-                        humans.push({ x: spawnX, y: groundY - 20, eaten: false });
+                if (!isOverPit(spawnX) && !isOverPit(spawnX + 130)) {
+                    let rand = Math.random();
+                    if (rand < 0.35) {
+                        let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
+                        humans.push({ x: spawnX, y: groundY - 20, gender: gender, eaten: false, armAngle: 0 });
+                    } else if (rand < 0.7) {
+                        // Xe hơi xám nâu kiểu cổ điển với cửa nóc thò người ra (Yêu cầu 4 Zombie để phá)
+                        obstacles.push({ x: spawnX, y: groundY - 50, w: 90, h: 50, type: 'FLIP_CAR', reqZombies: 4, hit: false });
+                    } else if (rand < 0.85) {
+                        obstacles.push({ x: spawnX, y: groundY - 70, w: 140, h: 70, type: 'BUS', reqZombies: 8, hit: false });
                     } else {
-                        obstacles.push({ x: spawnX, y: groundY - 40, w: 55, h: 35, type: Math.random() > 0.5 ? 'BOMB' : 'CAR' });
+                        obstacles.push({ x: spawnX, y: groundY - 40, w: 35, h: 40, type: 'BOMB' });
                     }
                 }
             }
 
-            // Move Pits
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
 
@@ -126,12 +132,11 @@ game_code = """
                     z.vy = 0;
                     z.isGrounded = true;
                 } else if (onPit) {
-                    z.isGrounded = false; // Rơi xuống vực nếu đang trên vực
+                    z.isGrounded = false;
                 }
 
                 z.legAngle += 0.2;
 
-                // Nếu zombie rơi quá sâu dưới vực -> Bị tiêu diệt
                 if (z.y > canvas.height + 40) {
                     addParticles(z.x, canvas.height - 20, '#76ba1b', 10);
                     zombies.splice(i, 1);
@@ -141,32 +146,58 @@ game_code = """
             // Update Humans
             humans.forEach((h) => {
                 h.x -= speed;
+                h.armAngle += 0.15;
                 let leader = zombies[0];
                 if (!h.eaten && leader && Math.abs(leader.x - h.x) < 30 && Math.abs(leader.y - h.y) < 35) {
                     h.eaten = true;
                     score += 1;
                     coins += 5;
                     addParticles(h.x, h.y, '#76ba1b', 12);
-                    if (zombies.length < 10) {
+                    if (zombies.length < 12) {
                         let tail = zombies[zombies.length - 1];
                         zombies.push({ x: tail.x - 26, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                     }
                 }
             });
 
-            // Update Obstacles
-            obstacles.forEach((obs) => {
+            // Update Obstacles & Car Flipping Mechanics
+            obstacles.forEach((obs, obsIdx) => {
                 obs.x -= speed;
-                zombies.forEach((z, zIdx) => {
-                    if (Math.abs(z.x - obs.x) < 25 && z.y > obs.y - 20) {
-                        addParticles(z.x, z.y, '#ff4444', 15);
-                        zombies.splice(zIdx, 1);
+                if (obs.type === 'FLIP_CAR' || obs.type === 'BUS') {
+                    let leader = zombies[0];
+                    if (leader && Math.abs(leader.x - obs.x) < 35 && !obs.hit) {
+                        if (zombies.length >= obs.reqZombies) {
+                            // Đủ số lượng Zombie -> Tông nổ lật xe & cộng thêm zombie!
+                            obs.hit = true;
+                            addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 25);
+                            score += obs.reqZombies;
+                            coins += 20;
+                            for (let k = 0; k < 2; k++) {
+                                if (zombies.length < 12) {
+                                    let tail = zombies[zombies.length - 1];
+                                    zombies.push({ x: tail.x - 26, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
+                                }
+                            }
+                            obstacles.splice(obsIdx, 1);
+                        } else {
+                            // Không đủ zombie -> Mất zombie khi đâm vào
+                            obs.hit = true;
+                            addParticles(leader.x, leader.y, '#ff4444', 15);
+                            zombies.shift(); // Mất 1 zombie
+                        }
                     }
-                });
+                } else if (obs.type === 'BOMB') {
+                    zombies.forEach((z, zIdx) => {
+                        if (Math.abs(z.x - obs.x) < 20 && z.y > obs.y - 20) {
+                            addParticles(z.x, z.y, '#ff4444', 15);
+                            zombies.splice(zIdx, 1);
+                        }
+                    });
+                }
             });
 
             humans = humans.filter(h => h.x > -50 && !h.eaten);
-            obstacles = obstacles.filter(o => o.x > -50);
+            obstacles = obstacles.filter(o => o.x > -150);
 
             if (zombies.length === 0) {
                 gameState = 'GAMEOVER';
@@ -176,71 +207,70 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // Vẽ Background & Mặt đường có vách vực
+        // Background Thành Phố Ban Đêm
         function drawBackground() {
-            // Sky
+            // Sky gradient (Đêm tà)
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 250);
-            skyGrad.addColorStop(0, '#1976d2');
-            skyGrad.addColorStop(1, '#64b5f6');
+            skyGrad.addColorStop(0, '#0b132b');
+            skyGrad.addColorStop(1, '#1c2541');
             ctx.fillStyle = skyGrad;
             ctx.fillRect(0, 0, canvas.width, 250);
 
-            // Sea
-            let seaGrad = ctx.createLinearGradient(0, 200, 0, 340);
-            seaGrad.addColorStop(0, '#00838f');
-            seaGrad.addColorStop(1, '#00acc1');
-            ctx.fillStyle = seaGrad;
-            ctx.fillRect(0, 200, canvas.width, 140);
+            // Buildings in Background with Lights
+            ctx.fillStyle = '#141d36';
+            for (let i = 0; i < 8; i++) {
+                let bX = (i * 120 - (bgOffset * 0.3) % 120);
+                ctx.fillRect(bX, 120, 80, 180);
+                // Windows
+                ctx.fillStyle = '#ffb74d';
+                for (let wY = 130; wY < 260; wY += 20) {
+                    for (let wX = bX + 10; wX < bX + 70; wX += 20) {
+                        if ((wX + wY) % 3 === 0) ctx.fillRect(wX, wY, 10, 12);
+                    }
+                }
+                ctx.fillStyle = '#141d36';
+            }
 
-            // Beach Sand
-            ctx.fillStyle = '#ffe082';
-            ctx.fillRect(0, 300, canvas.width, 40);
+            // Blue Overpass Bridge (Cầu vượt xanh nước biển như ảnh)
+            ctx.fillStyle = '#1e3d59';
+            let bridgeX = -(bgOffset * 0.6) % 300;
+            for (let b = bridgeX - 300; b < canvas.width + 300; b += 160) {
+                // Bridge Pillars & Arches
+                ctx.beginPath();
+                ctx.arc(b + 80, 260, 60, Math.PI, 0);
+                ctx.lineWidth = 12;
+                ctx.strokeStyle = '#17b978';
+                ctx.stroke();
+                ctx.fillRect(b, 200, 20, 100);
+            }
+            ctx.fillRect(0, 200, canvas.width, 16); // Bridge Deck
 
-            // House in Background
-            let houseX = 520 - (bgOffset*0.6)%800;
-            ctx.fillStyle = '#e0f2f1';
-            ctx.fillRect(houseX, 220, 90, 80);
-            ctx.fillStyle = '#e57373';
-            ctx.beginPath();
-            ctx.moveTo(houseX - 10, 220);
-            ctx.lineTo(houseX + 45, 170);
-            ctx.lineTo(houseX + 100, 220);
-            ctx.fill();
+            // Traffic Light Post
+            let poleX = 400 - (bgOffset % 800);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(poleX, 150, 8, 190);
+            ctx.fillStyle = '#fbc02d';
+            ctx.fillRect(poleX - 10, 150, 28, 45);
+            ctx.fillStyle = '#4caf50';
+            ctx.beginPath(); ctx.arc(poleX + 4, 183, 6, 0, Math.PI*2); ctx.fill();
 
-            // Palm Tree
-            let treeX = 120 - (bgOffset*0.8)%800;
-            ctx.fillStyle = '#5d4037';
-            ctx.fillRect(treeX, 200, 14, 110);
-            ctx.fillStyle = '#2e7d32';
-            ctx.beginPath();
-            ctx.arc(treeX - 15, 190, 25, 0, Math.PI*2);
-            ctx.arc(treeX + 30, 190, 25, 0, Math.PI*2);
-            ctx.arc(treeX + 7, 175, 30, 0, Math.PI*2);
-            ctx.fill();
-
-            // --- VẼ ĐƯỜNG VÀ VẠCH VỰC THẲM ---
-            // 1. Lớp đất đá bên dưới
-            ctx.fillStyle = '#261c14';
+            // Ground & Dark Asphalt
+            ctx.fillStyle = '#111827';
             ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
-
-            // 2. Mặt đường Asphalt
-            ctx.fillStyle = '#37474f';
+            ctx.fillStyle = '#1f2937';
             ctx.fillRect(0, groundY, canvas.width, 12);
-            ctx.fillStyle = '#455a64';
-            ctx.fillRect(0, groundY + 12, canvas.width, canvas.height - groundY - 12);
 
-            // 3. Cắt tỉa tạo các Vực Thẳm (Pits)
+            // Cut Pits
             pits.forEach(p => {
                 ctx.clearRect(p.x, groundY, p.width, canvas.height - groundY);
-                // Vẽ vách đá 2 bên vực
-                ctx.fillStyle = '#1a100a';
+                ctx.fillStyle = '#050811';
                 ctx.fillRect(p.x - 6, groundY, 6, canvas.height - groundY);
                 ctx.fillRect(p.x + p.width, groundY, 6, canvas.height - groundY);
             });
 
-            // Vạch kẻ đường (Tránh vẽ đè lên vực)
-            ctx.strokeStyle = '#fbc02d';
-            ctx.lineWidth = 4;
+            // Road Lines
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
             let dashWidth = 30;
             let dashGap = 20;
             let startX = - (bgOffset % (dashWidth + dashGap));
@@ -260,7 +290,6 @@ game_code = """
             ctx.save();
             ctx.translate(z.x, z.y);
 
-            // Legs
             ctx.strokeStyle = '#1a237e';
             ctx.lineWidth = 5;
             ctx.beginPath();
@@ -270,33 +299,102 @@ game_code = """
             ctx.lineTo(4 - Math.sin(z.legAngle)*8, 22);
             ctx.stroke();
 
-            // Body
-            ctx.fillStyle = '#c62828';
-            ctx.fillRect(-10, -2, 20, 14);
-
-            // Head
+            ctx.fillStyle = '#3f51b5'; ctx.fillRect(-10, -2, 20, 14);
             ctx.fillStyle = '#76ba1b';
-            ctx.beginPath();
-            ctx.ellipse(0, -16, 18, 16, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eye
+            ctx.beginPath(); ctx.ellipse(0, -16, 18, 16, 0, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(6, -18, 8, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(6, -18, 8, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#283593';
+            ctx.beginPath(); ctx.arc(8, -18, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#1b5e20';
+            ctx.beginPath(); ctx.arc(6, -10, 5, 0, Math.PI); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(5, -10, 3, 3);
+
+            ctx.restore();
+        }
+
+        // Vẽ Người Dân
+        function drawHuman(h) {
+            ctx.save();
+            ctx.translate(h.x, h.y);
+
+            ctx.fillStyle = '#ffcc80';
+            ctx.beginPath(); ctx.arc(0, -18, 9, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d';
+            ctx.beginPath(); ctx.arc(0, -21, 9, Math.PI, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.arc(-3, -18, 1.5, 0, Math.PI*2); ctx.arc(3, -18, 1.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, -14, 3, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63';
+            ctx.fillRect(-7, -9, 14, 12);
+            ctx.strokeStyle = '#ffcc80'; ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc(8, -18, 3.5, 0, Math.PI * 2);
+            ctx.moveTo(-6, -6); ctx.lineTo(-12, -18 + Math.sin(h.armAngle)*4);
+            ctx.moveTo(6, -6); ctx.lineTo(12, -18 - Math.sin(h.armAngle)*4);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Vẽ Xe Hơi Cổ Có Người Thò Đầu Ra Cửa Nóc (Sunroof) & Bảng Yêu Cầu Zombie (0/4)
+        function drawFlipCar(o) {
+            ctx.save();
+            ctx.translate(o.x, o.y);
+
+            // Thân Xe Xám Nâu Cổ Đổi Kích Thước Giống Ảnh Mẫu
+            ctx.fillStyle = '#4a3f35';
+            ctx.beginPath();
+            ctx.roundRect(0, 15, o.w, 28, [12, 12, 4, 4]);
             ctx.fill();
 
-            // Mouth
-            ctx.fillStyle = '#1b5e20';
+            // Mui Xe Bầu Dục
+            ctx.fillStyle = '#362d26';
             ctx.beginPath();
-            ctx.arc(6, -10, 5, 0, Math.PI);
+            ctx.roundRect(15, 0, 55, 20, [15, 15, 0, 0]);
             ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(5, -10, 3, 3);
+
+            // Đèn Pha Đỏ Sau & Bánh Xe
+            ctx.fillStyle = '#ff1744'; ctx.fillRect(2, 22, 6, 8);
+            ctx.fillStyle = '#111';
+            ctx.beginPath();
+            ctx.arc(20, 42, 10, 0, Math.PI*2);
+            ctx.arc(o.w - 20, 42, 10, 0, Math.PI*2);
+            ctx.fill();
+
+            // Cửa Nóc (Sunroof Open) & Người Dân Thò Người Ra Ngoại Hoảng Sợ
+            ctx.fillStyle = '#111';
+            ctx.fillRect(28, 0, 28, 4);
+
+            // Người Thò Đầu Há Miệng To Đang Kêu Cứu (Mô phỏng chuẩn ảnh)
+            ctx.fillStyle = '#ffcc80';
+            ctx.beginPath(); ctx.arc(42, -14, 11, 0, Math.PI*2); ctx.fill(); // Đầu to
+            ctx.fillStyle = '#5d4037'; ctx.beginPath(); ctx.arc(42, -18, 11, Math.PI, Math.PI*2); ctx.fill(); // Tóc
+            // Mắt to tròn lồi
+            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(38, -16, 4, 0, Math.PI*2); ctx.arc(46, -16, 4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(38, -16, 2, 0, Math.PI*2); ctx.arc(46, -16, 2, 0, Math.PI*2); ctx.fill();
+            // Miệng há to đen thui
+            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(42, -9, 5, 0, Math.PI*2); ctx.fill();
+            // Tay giơ sang 2 bên
+            ctx.strokeStyle = '#ffcc80'; ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(34, -8); ctx.lineTo(24, -18);
+            ctx.moveTo(50, -8); ctx.lineTo(60, -18);
+            ctx.stroke();
+
+            // BÓNG THOẠI YÊU CẦU ZOMBIE (Ví dụ: x/4)
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.roundRect(15, -60, 60, 32, [8, 8, 8, 8]);
+            ctx.fill();
+            // Mũi tên bóng thoại
+            ctx.beginPath();
+            ctx.moveTo(40, -28); ctx.lineTo(48, -28); ctx.lineTo(42, -20); ctx.fill();
+
+            // Chữ hiển thị số Zombie cần: (Số Zombie hiện tại / 4)
+            ctx.fillStyle = '#ff9800';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${zombies.length}/${o.reqZombies}`, 45, -38);
 
             ctx.restore();
         }
@@ -305,7 +403,7 @@ game_code = """
             drawBackground();
 
             if (gameState === 'START') {
-                ctx.fillStyle = 'rgba(0,0,0,0.55)';
+                ctx.fillStyle = 'rgba(0,0,0,0.65)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#76ba1b';
                 ctx.font = 'bold 36px sans-serif';
@@ -313,55 +411,38 @@ game_code = """
                 ctx.fillText('ZOMBIE TSUNAMI', 400, 180);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = '20px sans-serif';
-                ctx.fillText('Nhấn Space / Chạm màn hình để nhảy qua Vách Ngăn!', 400, 230);
+                ctx.fillText('Nhấn Space / Chạm màn hình để bắt đầu chơi!', 400, 230);
                 return;
             }
 
-            // Humans
-            humans.forEach(h => {
-                ctx.fillStyle = '#ffcc80';
-                ctx.beginPath(); ctx.arc(h.x, h.y - 12, 9, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#e91e63';
-                ctx.fillRect(h.x - 7, h.y - 3, 14, 18);
-            });
+            humans.forEach(h => drawHuman(h));
 
-            // Obstacles
             obstacles.forEach(o => {
                 if (o.type === 'BOMB') {
                     ctx.fillStyle = '#212121';
                     ctx.beginPath(); ctx.arc(o.x + 15, o.y + 15, 16, 0, Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#ff1744';
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText('💣', o.x + 6, o.y + 20);
-                } else {
-                    ctx.fillStyle = '#e53935';
-                    ctx.fillRect(o.x, o.y + 10, o.w, 20);
-                    ctx.fillStyle = '#b71c1c';
-                    ctx.beginPath();
-                    ctx.roundRect(o.x + 10, o.y, 35, 12, [6, 6, 0, 0]);
-                    ctx.fill();
-                    ctx.fillStyle = '#90caf9';
-                    ctx.fillRect(o.x + 14, o.y + 2, 12, 9);
-                    ctx.fillRect(o.x + 28, o.y + 2, 14, 9);
-                    ctx.fillStyle = '#212121';
-                    ctx.beginPath();
-                    ctx.arc(o.x + 12, o.y + 30, 6, 0, Math.PI*2);
-                    ctx.arc(o.x + 43, o.y + 30, 6, 0, Math.PI*2);
-                    ctx.fill();
+                    ctx.fillStyle = '#ff1744'; ctx.font = 'bold 14px sans-serif'; ctx.fillText('💣', o.x + 6, o.y + 20);
+                } else if (o.type === 'FLIP_CAR') {
+                    drawFlipCar(o);
+                } else if (o.type === 'BUS') {
+                    ctx.fillStyle = '#fbc02d';
+                    ctx.beginPath(); ctx.roundRect(o.x, o.y, o.w, 58, [8, 8, 0, 0]); ctx.fill();
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath(); ctx.roundRect(o.x + 40, o.y - 45, 60, 30, [6, 6, 6, 6]); ctx.fill();
+                    ctx.fillStyle = '#ff9800'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(`${zombies.length}/${o.reqZombies}`, o.x + 70, o.y - 25);
                 }
             });
 
-            // Zombies
             zombies.forEach(z => drawZombie(z));
 
-            // Particles
             particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.fillRect(p.x, p.y, 4, 4);
             });
 
-            // HUD UI
-            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            // UI HUD
+            ctx.fillStyle = 'rgba(0,0,0,0.55)';
             ctx.fillRect(15, 12, 160, 70);
             ctx.fillStyle = '#fbc02d';
             ctx.font = 'bold 22px sans-serif';
@@ -371,7 +452,7 @@ game_code = """
             ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
 
             if (gameState === 'GAMEOVER') {
-                ctx.fillStyle = 'rgba(0,0,0,0.75)';
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#ff1744';
                 ctx.font = 'bold 42px sans-serif';
