@@ -1,18 +1,29 @@
+
+
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Final City Fix HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Responsive Fixed HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - COMPLETE FIX 🏙️🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã hoàn thiện toàn bộ mã nguồn, sửa lỗi kéo dài ở Map Thành Phố và cố định khung hình chuẩn xác!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - RESPONSIVE FIX 🏙️🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã thêm CSS chuẩn tỷ lệ Canvas, khắc phục triệt để lỗi kéo dài hình ảnh trên mọi màn hình!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
 <html>
 <head>
     <style>
-        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: sans-serif; }
-        canvas { border: 4px solid #76ba1b; border-radius: 12px; box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); background: #111; }
+        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: sans-serif; height: 100vh; overflow: hidden; }
+        canvas { 
+            border: 4px solid #76ba1b; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); 
+            background: #111; 
+            width: 100%; 
+            max-width: 800px; 
+            height: auto; 
+            display: block; 
+        }
     </style>
 </head>
 <body>
