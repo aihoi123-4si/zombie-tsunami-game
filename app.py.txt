@@ -1,0 +1,271 @@
+import streamlit as st
+import streamlit.components.v1 as components
+
+# Cấu hình trang Streamlit
+st.set_page_config(page_title="Mini Zombie Tsunami", page_icon="🧟", layout="centered")
+
+st.title("🧟 Mini Zombie Tsunami trên Streamlit")
+st.markdown("Điều khiển đàn zombie của bạn né chướng ngại vật và thu thập thêm người survivor!")
+
+# Đoạn mã HTML/JS chứa toàn bộ logic game Zombie Tsunami mini
+game_html = """
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Zombie Tsunami Mini</title>
+    <style>
+        body {
+            margin: 0;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+            background: linear-gradient(to bottom, #87CEEB, #e0f6ff);
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">Điểm: <span id="score">0</span> | Số lượng Zombie: <span id="zombieCount">1</span></div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let score = 0;
+        let gameRunning = true;
+
+        // Đối tượng người chơi (Đội hình Zombie)
+        let player = {
+            x: 100,
+            y: 300,
+            width: 30,
+            height: 40,
+            vy: 0,
+            gravity: 0.8,
+            jumpPower: -13,
+            isJumping: false,
+            count: 1
+        };
+
+        // Danh sách chướng ngại vật (Xe ô tô / Hố sâu)
+        let obstacles = [];
+        // Danh sách người sống sót để gia nhập đoàn
+        let survivors = [];
+
+        let frameCount = 0;
+
+        // Lắng nghe sự kiện bàn phím (Phím Space hoặc Phím Lên để nhảy)
+        window.addEventListener("keydown", function(e) {
+            if ((e.code === "Space" || e.code === "ArrowUp") && !player.isJumping) {
+                player.vy = player.jumpPower;
+                player.isJumping = true;
+                e.preventDefault();
+            }
+            if (!gameRunning && e.code === "KeyR") {
+                resetGame();
+            }
+        });
+
+        // Click chuột cũng để nhảy (hỗ trợ mobile/web)
+        window.addEventListener("click", function() {
+            if (!player.isJumping && gameRunning) {
+                player.vy = player.jumpPower;
+                player.isJumping = true;
+            } else if (!gameRunning) {
+                resetGame();
+            }
+        });
+
+        function resetGame() {
+            score = 0;
+            player.count = 1;
+            player.y = 300;
+            player.vy = 0;
+            obstacles = [];
+            survivors = [];
+            gameRunning = true;
+            loop();
+        }
+
+        function spawnObstacle() {
+            if (Math.random() < 0.02) {
+                obstacles.push({
+                    x: canvas.width,
+                    y: 310,
+                    width: 40,
+                    height: 30,
+                    speed: 5
+                });
+            }
+        }
+
+        function spawnSurvivor() {
+            if (Math.random() < 0.015) {
+                survivors.push({
+                    x: canvas.width,
+                    y: 315,
+                    width: 25,
+                    height: 25,
+                    speed: 5
+                });
+            }
+        }
+
+        function update() {
+            if (!gameRunning) return;
+
+            // Xử lý nhảy và trọng lực
+            player.vy += player.gravity;
+            player.y += player.vy;
+
+            // Mặt đất
+            if (player.y > 300) {
+                player.y = 300;
+                player.vy = 0;
+                player.isJumping = false;
+            }
+
+            // Di chuyển và kiểm tra chướng ngại vật
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= obstacles[i].speed;
+
+                // Va chạm
+                if (
+                    player.x < obstacles[i].x + obstacles[i].width &&
+                    player.x + player.width > obstacles[i].x &&
+                    player.y < obstacles[i].y + obstacles[i].height &&
+                    player.y + player.height > obstacles[i].y
+                ) {
+                    player.count--; // Mất 1 zombie
+                    obstacles.splice(i, 1);
+                    if (player.count <= 0) {
+                        gameRunning = false;
+                    }
+                } else if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score += 10;
+                }
+            }
+
+            // Di chuyển và ăn người sống sót
+            for (let i = survivors.length - 1; i >= 0; i--) {
+                survivors[i].x -= survivors[i].speed;
+
+                // Va chạm để thu thập
+                if (
+                    player.x < survivors[i].x + survivors[i].width &&
+                    player.x + player.width > survivors[i].x &&
+                    player.y < survivors[i].y + survivors[i].height &&
+                    player.y + player.height > survivors[i].y
+                ) {
+                    player.count++; // Tăng quân số
+                    survivors.splice(i, 1);
+                    score += 50;
+                } else if (survivors[i].x + survivors[i].width < 0) {
+                    survivors.splice(i, 1);
+                }
+            }
+
+            spawnObstacle();
+            spawnSurvivor();
+            frameCount++;
+        }
+
+        function draw() {
+            // Vẽ bầu trời & mặt đất
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Mặt đất
+            ctx.fillStyle = "#555";
+            ctx.fillRect(0, 340, canvas.width, 60);
+            ctx.fillStyle = "#2e8b57";
+            ctx.fillRect(0, 340, canvas.width, 10);
+
+            // Vẽ đoàn Zombie
+            ctx.fillStyle = "#4CAF50";
+            for (let i = 0; i < player.count; i++) {
+                let offsetX = i * 15;
+                ctx.fillRect(player.x - offsetX, player.y, player.width, player.height);
+                // Mắt zombie
+                ctx.fillStyle = "red";
+                ctx.fillRect(player.x - offsetX + 15, player.y + 8, 6, 6);
+                ctx.fillStyle = "#4CAF50";
+            }
+
+            // Vẽ chướng ngại vật (Xe ô tô đỏ)
+            ctx.fillStyle = "#e74c3c";
+            obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                ctx.fillStyle = "#000";
+                ctx.beginPath();
+                ctx.arc(obs.x + 10, obs.y + 30, 6, 0, Math.PI * 2);
+                ctx.arc(obs.x + 30, obs.y + 30, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = "#e74c3c";
+            });
+
+            // Vẽ người sống sót (Màu xanh dương)
+            ctx.fillStyle = "#3498db";
+            survivors.forEach(sur => {
+                ctx.fillRect(sur.x, sur.y, sur.width, sur.height);
+            });
+
+            // Cập nhật giao diện điểm
+            document.getElementById("score").innerText = score;
+            document.getElementById("zombieCount").innerText = player.count;
+
+            // Màn hình Game Over
+            if (!gameRunning) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                ctx.font = "30px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = "18px Arial";
+                ctx.fillText("Nhấn Phím R hoặc Click chuột để chơi lại", canvas.width / 2, canvas.height / 2 + 20);
+                ctx.textAlign = "left";
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            if (gameRunning) {
+                requestAnimationFrame(loop);
+            } else {
+                draw(); // Vẽ màn hình game over
+            }
+        }
+
+        loop();
+    </script>
+</body>
+</html>
+"""
+
+# Hiển thị game bên trong Streamlit
+components.html(game_html, height=450, scrolling=False)
+
+st.markdown("""
+### Hướng dẫn điều khiển:
+* Nhấn **Phím Space (Cách)** hoặc **Click chuột** để nhảy qua chướng ngại vật (xe ô tô đỏ).
+* Thu thập thêm người sống sót (màu xanh dương) để tăng quân số đoàn Zombie của bạn!
+""")
