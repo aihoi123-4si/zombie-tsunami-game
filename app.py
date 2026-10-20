@@ -2,10 +2,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami City & Beach Maps HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Fixed City & Safe Spawning HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAPS 🏙️🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Tự động đổi giữa <b>Map Bãi Biển 🌊</b> và <b>Map Thành Phố 🏙️</b> sau mỗi 20 giây!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAPS FIX 🏙️🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã sửa lỗi Map Thành Phố, giảm tỷ lệ Trực Thăng cực hiếm và lọc tuyệt đối không cho vật phẩm/xe xuất hiện trên hố!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -95,8 +95,8 @@ game_code = """
             tsunamiTimer = 0;
         }
 
-        function isOverPit(x) {
-            return pits.some(p => x > p.x && x < p.x + p.width);
+        function isOverPit(x, width = 50) {
+            return pits.some(p => (x + width > p.x) && (x < p.x + p.width));
         }
 
         function update() {
@@ -106,10 +106,10 @@ game_code = """
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
             bgOffset += speed;
 
-            // Đổi map ngẫu nhiên sau mỗi ~20 giây (1200 frames)
+            // Đổi map sau mỗi 20 giây (1200 frames)
             if (frame > 0 && frame % 1200 === 0) {
                 currentMap = currentMap === 'BEACH' ? 'CITY' : 'BEACH';
-                mapBannerTimer = 120; // Hiện banner đổi map 2 giây
+                mapBannerTimer = 120;
             }
             if (mapBannerTimer > 0) mapBannerTimer--;
 
@@ -119,36 +119,40 @@ game_code = """
                 if (tsunamiTimer <= 0) tsunamiActive = false;
             }
 
-            // Spawn Hố
-            if (frame % 220 === 0 && Math.random() > 0.35) {
-                let pitWidth = 85 + Math.random() * 80;
+            // Spawn Hố (Vách ngăn)
+            if (frame % 230 === 0 && Math.random() > 0.35) {
+                let pitWidth = 80 + Math.random() * 70;
                 let pitDepthOffset = Math.floor(Math.random() * 20);
                 pits.push({ x: 850, width: pitWidth, depthOffset: pitDepthOffset });
             }
 
-            // Spawn Vòng Tròn Sóng Thần
-            if (frame % 900 === 0 && !tsunamiActive && Math.random() < 0.5) {
+            // Spawn Vòng Tròn Sóng Thần (Cam kết không nằm trên hố)
+            if (frame % 950 === 0 && !tsunamiActive && Math.random() < 0.5) {
                 let spawnX = 850;
-                if (!isOverPit(spawnX)) {
+                if (!isOverPit(spawnX, 40)) {
                     powerups.push({ x: spawnX, y: defaultGroundY - 60, r: 18, collected: false });
                 }
             }
 
-            // Spawn Chướng ngại vật & Người
-            if (frame % 110 === 0) {
+            // Spawn Chướng ngại vật, Phương tiện & Người (Cam kết KHÔNG BAO GIỜ nằm trên hố)
+            if (frame % 115 === 0) {
                 let spawnX = 850;
-                if (!isOverPit(spawnX) && !isOverPit(spawnX + 140)) {
+                if (!isOverPit(spawnX, 150)) {
                     let rand = Math.random();
-                    if (rand < 0.30) {
+                    if (rand < 0.32) {
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
-                    } else if (rand < 0.58) {
+                    } else if (rand < 0.65) {
+                        // Xe Hơi (4 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 95, h: 45, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
-                    } else if (rand < 0.73) {
+                    } else if (rand < 0.82) {
+                        // Xe Buýt (6 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 65, w: 135, h: 65, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
-                    } else if (rand < 0.85) {
+                    } else if (rand < 0.87) {
+                        // TRỰC THĂNG QUÂN SỰ (Cực kỳ hiếm, ít hơn xe buýt - 8 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 90, w: 140, h: 60, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
                     } else {
+                        // Bom 3D
                         obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
                     }
                 }
@@ -182,7 +186,7 @@ game_code = """
                     z.vy += gravity;
                     z.y += z.vy;
 
-                    let onPit = isOverPit(z.x);
+                    let onPit = isOverPit(z.x, 10);
                     let standingOnVehicle = false;
 
                     obstacles.forEach((obs) => {
@@ -319,7 +323,7 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // --- VẼ MAP BÃI BIỂN (BEACH) ---
+        // --- MAP BÃI BIỂN (BEACH) ---
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
             skyGrad.addColorStop(0, '#1976d2'); skyGrad.addColorStop(1, '#64b5f6');
@@ -359,65 +363,64 @@ game_code = """
             }
         }
 
-        // --- VẼ MAP THÀNH PHỐ (CITY SKYLINE CHUẨN ĐÚNG ẢNH MẪU) ---
+        // --- MAP THÀNH PHỐ (CITY SKYLINE - ĐÃ SỬA LỖI KÉO DÀI TỈ LỆ) ---
         function drawCityMap() {
-            // Sky gradient đô thị nhạt
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
-            skyGrad.addColorStop(0, '#90caf9'); skyGrad.addColorStop(1, '#e3f2fd');
+            skyGrad.addColorStop(0, '#7986cb'); skyGrad.addColorStop(1, '#c5cae9');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
 
-            // Mây trắng đô thị
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            let cloudX = (150 - bgOffset * 0.15) % 900;
+            // Mây thành phố
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            let cloudX = (200 - bgOffset * 0.15) % 900;
             if (cloudX < -100) cloudX += 900;
             ctx.beginPath();
-            ctx.arc(cloudX, 50, 30, 0, Math.PI*2); ctx.arc(cloudX + 40, 45, 40, 0, Math.PI*2); ctx.arc(cloudX + 80, 50, 30, 0, Math.PI*2); ctx.fill();
+            ctx.arc(cloudX, 55, 25, 0, Math.PI*2); ctx.arc(cloudX + 35, 48, 32, 0, Math.PI*2); ctx.arc(cloudX + 70, 55, 25, 0, Math.PI*2); ctx.fill();
 
-            // Tòa nhà chọc trời phía xa (Skyline Silhouette)
-            for (let b = 0; b < 7; b++) {
-                let bX = (b * 140 - bgOffset * 0.25) % 980;
-                if (bX < -140) bX += 980;
-                ctx.fillStyle = b % 2 === 0 ? '#9fa8da' : '#7e57c2';
-                ctx.fillRect(bX, 70 + (b % 3)*20, 110, 220);
-                // Cửa sổ tòa nhà xa
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                for(let w = 0; w < 4; w++) {
-                    ctx.fillRect(bX + 15 + w*22, 90 + (b % 3)*20, 12, 120);
+            // Các tòa cao ốc chọc trời phía xa (Tỷ lệ chuẩn, không kéo dài)
+            for (let b = 0; b < 6; b++) {
+                let bX = (b * 160 - bgOffset * 0.25) % 960;
+                if (bX < -160) bX += 960;
+                ctx.fillStyle = b % 2 === 0 ? '#5c6bc0' : '#7986cb';
+                ctx.fillRect(bX, 80 + (b % 2)*25, 120, 210);
+
+                // Cửa sổ cao ốc
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                for(let w = 0; w < 3; w++) {
+                    ctx.fillRect(bX + 16 + w*32, 100 + (b % 2)*25, 14, 160);
                 }
             }
 
-            // Cầu vượt uốn cong màu xám xanh (Overpass Bridge)
-            let bridgeX = (320 - bgOffset * 0.5) % 900;
+            // Cầu vượt cong thành phố (Overpass Bridge) đúng tỷ lệ
+            let bridgeX = (300 - bgOffset * 0.5) % 900;
             if (bridgeX < -250) bridgeX += 900;
-            ctx.fillStyle = '#455a64'; ctx.fillRect(bridgeX + 80, 180, 20, 120); // Trụ cầu
-            ctx.fillStyle = '#37474f';
+            ctx.fillStyle = '#455a64'; ctx.fillRect(bridgeX + 90, 180, 24, 120); // Trụ cầu
+            ctx.fillStyle = '#546e7a';
             ctx.beginPath();
-            ctx.moveTo(bridgeX - 100, 200);
-            ctx.quadraticCurveTo(bridgeX + 90, 150, bridgeX + 280, 210);
-            ctx.lineTo(bridgeX + 280, 230);
-            ctx.quadraticCurveTo(bridgeX + 90, 170, bridgeX - 100, 220);
+            ctx.moveTo(bridgeX - 120, 205);
+            ctx.quadraticCurveTo(bridgeX + 100, 145, bridgeX + 320, 215);
+            ctx.lineTo(bridgeX + 320, 235);
+            ctx.quadraticCurveTo(bridgeX + 100, 165, bridgeX - 120, 225);
             ctx.fill();
 
-            // Người đứng kêu cứu trên cầu vượt
-            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(bridgeX + 90, 145, 6, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#e91e63'; ctx.fillRect(bridgeX + 87, 151, 6, 10);
+            // Người kêu cứu trên cầu
+            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(bridgeX + 105, 145, 6, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#e91e63'; ctx.fillRect(bridgeX + 102, 151, 6, 10);
 
-            // Tòa nhà gạch đỏ cổ kính ở tiền cảnh bên trái (Red Brick Building with Fire Escape)
+            // Tòa nhà gạch đỏ cổ kính bên trái có cầu thang thoát hiểm
             for (let r = 0; r < 2; r++) {
-                let redX = (r * 520 - bgOffset * 0.7) % 900;
+                let redX = (r * 500 - bgOffset * 0.7) % 900;
                 if (redX < -220) redX += 900;
-                ctx.fillStyle = '#8d6e63'; ctx.fillRect(redX, 130, 180, 180);
-                // Ô cửa sổ vòm gạch
+                ctx.fillStyle = '#795548'; ctx.fillRect(redX, 130, 170, 180);
                 ctx.fillStyle = '#212121';
                 for(let row=0; row<2; row++) {
                     for(let col=0; col<3; col++) {
-                        ctx.fillRect(redX + 20 + col*50, 150 + row*55, 30, 40);
+                        ctx.fillRect(redX + 18 + col*48, 150 + row*55, 26, 38);
                     }
                 }
-                // Cầu thang thoát hiểm đen
+                // Cầu thang thoát hiểm
                 ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
-                ctx.strokeRect(redX + 130, 150, 35, 100);
-                ctx.beginPath(); ctx.moveTo(redX + 130, 180); ctx.lineTo(redX + 165, 180); ctx.moveTo(redX + 130, 210); ctx.lineTo(redX + 165, 210); ctx.stroke();
+                ctx.strokeRect(redX + 125, 150, 32, 100);
+                ctx.beginPath(); ctx.moveTo(redX + 125, 180); ctx.lineTo(redX + 157, 180); ctx.moveTo(redX + 125, 210); ctx.lineTo(redX + 157, 210); ctx.stroke();
             }
         }
 
@@ -477,10 +480,10 @@ game_code = """
                 }
             }
 
-            // Banner thông báo đổi map
+            // Banner đổi map
             if (mapBannerTimer > 0) {
-                ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                ctx.fillRect(200, 15, 400, 45);
+                ctx.fillStyle = 'rgba(0,0,0,0.75)';
+                ctx.fillRect(190, 15, 420, 45);
                 ctx.fillStyle = '#fbc02d';
                 ctx.font = 'bold 22px sans-serif';
                 ctx.textAlign = 'center';
