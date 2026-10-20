@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Fixed Stretch HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Wide Dynamic Terrain HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - STRETCH FIX 🏙️🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã khắc phục lỗi kéo dài hình ảnh, xe và người hiển thị chuẩn xác từng pixel!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - WIDE DYNAMIC TERRAIN 🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã xóa map thành phố, khôi phục góc nhìn rộng thoáng và tăng độ cao thấp chênh lệch rõ rệt cho các mảnh đất, hố!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -37,13 +37,11 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
-        let currentMap = Math.random() > 0.5 ? 'BEACH' : 'CITY';
-        let mapBannerTimer = 0;
-
         let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
 
         let humans = [];
         let obstacles = [];
+        let terrainSegments = []; // Danh sách các đoạn địa hình cao thấp khác nhau
         let pits = [];
         let powerups = [];
         let particles = [];
@@ -86,16 +84,22 @@ game_code = """
             coins = 0;
             speed = 4.5;
             frame = 0;
-            currentMap = Math.random() > 0.5 ? 'BEACH' : 'CITY';
-            mapBannerTimer = 120;
             zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
             humans = [];
             obstacles = [];
             pits = [];
+            terrainSegments = [
+                { x: 0, width: 900, groundY: defaultGroundY }
+            ];
             powerups = [];
             particles = [];
             tsunamiActive = false;
             tsunamiTimer = 0;
+        }
+
+        function getGroundYAt(x) {
+            let seg = terrainSegments.find(s => x >= s.x && x < s.x + s.width);
+            return seg ? seg.groundY : defaultGroundY;
         }
 
         function isOverPit(x, width = 50) {
@@ -109,50 +113,61 @@ game_code = """
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
             bgOffset += speed;
 
-            if (frame > 0 && frame % 1200 === 0) {
-                currentMap = currentMap === 'BEACH' ? 'CITY' : 'BEACH';
-                mapBannerTimer = 120;
-            }
-            if (mapBannerTimer > 0) mapBannerTimer--;
-
             if (tsunamiActive) {
                 tsunamiTimer--;
                 if (tsunamiTimer <= 0) tsunamiActive = false;
             }
 
-            if (frame % 230 === 0 && Math.random() > 0.35) {
-                let pitWidth = 80 + Math.random() * 70;
+            // Tạo các bậc địa hình cao thấp chênh lệch rõ rệt
+            if (terrainSegments.length > 0 && terrainSegments[terrainSegments.length - 1].x + terrainSegments[terrainSegments.length - 1].width < 900) {
+                let lastSeg = terrainSegments[terrainSegments.length - 1];
+                let nextX = lastSeg.x + lastSeg.width;
+                let heights = [280, 310, 340, 370]; // Các cao độ chênh lệch rõ
+                let randomH = heights[Math.floor(Math.random() * heights.length)];
+                terrainSegments.push({ x: nextX, width: 350 + Math.random() * 250, groundY: randomH });
+            }
+
+            terrainSegments.forEach(s => s.x -= speed);
+            terrainSegments = terrainSegments.filter(s => s.x + s.width > -100);
+
+            // Spawn Hố
+            if (frame % 220 === 0 && Math.random() > 0.3) {
+                let pitWidth = 80 + Math.random() * 60;
                 pits.push({ x: 850, width: pitWidth });
-            }
-
-            if (frame % 950 === 0 && !tsunamiActive && Math.random() < 0.5) {
-                let spawnX = 850;
-                if (!isOverPit(spawnX, 40)) {
-                    powerups.push({ x: spawnX, y: defaultGroundY - 60, r: 18, collected: false });
-                }
-            }
-
-            if (frame % 115 === 0) {
-                let spawnX = 850;
-                if (!isOverPit(spawnX, 150)) {
-                    let rand = Math.random();
-                    if (rand < 0.32) {
-                        let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
-                        humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
-                    } else if (rand < 0.65) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 42, w: 75, h: 40, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
-                    } else if (rand < 0.82) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 58, w: 110, h: 55, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
-                    } else if (rand < 0.87) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 80, w: 115, h: 52, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
-                    } else {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 38, w: 38, h: 38, type: 'BOMB' });
-                    }
-                }
             }
 
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
+
+            // Spawn Sóng Thần
+            if (frame % 950 === 0 && !tsunamiActive && Math.random() < 0.5) {
+                let spawnX = 850;
+                if (!isOverPit(spawnX, 40)) {
+                    let gY = getGroundYAt(spawnX);
+                    powerups.push({ x: spawnX, y: gY - 60, r: 18, collected: false });
+                }
+            }
+
+            // Spawn Xe, Người, Bom (Tuyệt đối không trùng hố)
+            if (frame % 110 === 0) {
+                let spawnX = 850;
+                if (!isOverPit(spawnX, 140)) {
+                    let gY = getGroundYAt(spawnX);
+                    let rand = Math.random();
+                    if (rand < 0.32) {
+                        let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
+                        humans.push({ x: spawnX, y: gY - 20, gender: gender, eaten: false, armAngle: 0 });
+                    } else if (rand < 0.65) {
+                        obstacles.push({ x: spawnX, y: gY - 42, w: 75, h: 40, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
+                    } else if (rand < 0.82) {
+                        obstacles.push({ x: spawnX, y: gY - 58, w: 110, h: 55, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
+                    } else if (rand < 0.87) {
+                        obstacles.push({ x: spawnX, y: gY - 80, w: 115, h: 52, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
+                    } else {
+                        obstacles.push({ x: spawnX, y: gY - 38, w: 38, h: 38, type: 'BOMB' });
+                    }
+                }
+            }
 
             powerups.forEach((pw) => {
                 pw.x -= speed;
@@ -168,9 +183,10 @@ game_code = """
 
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
+                let currentGroundY = getGroundYAt(z.x);
 
                 if (tsunamiActive) {
-                    z.y = defaultGroundY - 110 + Math.sin(frame * 0.15 + i * 0.4) * 8;
+                    z.y = currentGroundY - 110 + Math.sin(frame * 0.15 + i * 0.4) * 8;
                     z.vy = 0;
                     z.isGrounded = true;
                 } else {
@@ -195,8 +211,8 @@ game_code = """
                     });
 
                     if (!standingOnVehicle) {
-                        if (!onPit && z.y >= defaultGroundY - 20) {
-                            z.y = defaultGroundY - 20;
+                        if (!onPit && z.y >= currentGroundY - 20) {
+                            z.y = currentGroundY - 20;
                             z.vy = 0;
                             z.isGrounded = true;
                         } else if (onPit) {
@@ -229,7 +245,8 @@ game_code = """
                     addParticles(h.x, h.y - 10, '#76ba1b', 15);
                     if (zombies.length < 30) {
                         let tail = zombies[zombies.length - 1];
-                        zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
+                        let tailGroundY = getGroundYAt(tail.x);
+                        zombies.push({ x: tail.x - 22, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
                     }
                 }
             });
@@ -249,7 +266,8 @@ game_code = """
                             for (let k = 0; k < obs.peopleInside; k++) {
                                 if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
-                                    zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                    let tailGroundY = getGroundYAt(tail.x);
+                                    zombies.push({ x: tail.x - 22, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
                                 }
                             }
                         } else if (obs.type === 'BOMB') {
@@ -270,7 +288,8 @@ game_code = """
                                     for (let k = 0; k < obs.peopleInside; k++) {
                                         if (zombies.length < 30) {
                                             let tail = zombies[zombies.length - 1];
-                                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                            let tailGroundY = getGroundYAt(tail.x);
+                                            zombies.push({ x: tail.x - 22, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
                                         }
                                     }
                                     obstacles.splice(obsIdx, 1);
@@ -312,115 +331,63 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        function drawBeachMap() {
-            let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
-            skyGrad.addColorStop(0, '#1976d2'); skyGrad.addColorStop(1, '#64b5f6');
-            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
+        function drawBackground() {
+            // Góc nhìn rộng thoáng đãng (Panorama)
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 300);
+            skyGrad.addColorStop(0, '#1565c0'); skyGrad.addColorStop(1, '#90caf9');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // Mây rộng trôi
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-            let cloudX = (300 - bgOffset * 0.2) % 900;
-            if (cloudX < -100) cloudX += 900;
+            let cloudX1 = (250 - bgOffset * 0.15) % 950;
+            if (cloudX1 < -150) cloudX1 += 950;
+            ctx.beginPath(); ctx.arc(cloudX1, 70, 30, 0, Math.PI*2); ctx.arc(cloudX1 + 40, 60, 42, 0, Math.PI*2); ctx.arc(cloudX1 + 90, 70, 30, 0, Math.PI*2); ctx.fill();
+
+            let cloudX2 = (650 - bgOffset * 0.15) % 950;
+            if (cloudX2 < -150) cloudX2 += 950;
+            ctx.beginPath(); ctx.arc(cloudX2, 110, 24, 0, Math.PI*2); ctx.arc(cloudX2 + 30, 102, 32, 0, Math.PI*2); ctx.arc(cloudX2 + 70, 110, 24, 0, Math.PI*2); ctx.fill();
+
+            // Đồi núi phía xa xa (Parallax Hills)
+            ctx.fillStyle = '#4caf50';
+            let hillX = (100 - bgOffset * 0.3) % 900;
+            if (hillX < -300) hillX += 900;
             ctx.beginPath();
-            ctx.arc(cloudX, 60, 25, 0, Math.PI*2);
-            ctx.arc(cloudX + 30, 50, 35, 0, Math.PI*2);
-            ctx.arc(cloudX + 70, 60, 25, 0, Math.PI*2); ctx.fill();
-
-            let seaGrad = ctx.createLinearGradient(0, 210, 0, 330);
-            seaGrad.addColorStop(0, '#00838f'); seaGrad.addColorStop(1, '#00acc1');
-            ctx.fillStyle = seaGrad; ctx.fillRect(0, 210, canvas.width, 120);
-
-            ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 290, canvas.width, 40);
-
-            for (let hIdx = 0; hIdx < 3; hIdx++) {
-                let houseX = (220 + hIdx * 280 - bgOffset * 0.6) % 900;
-                if (houseX < -120) houseX += 900;
-                ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 200, 85, 90);
-                ctx.fillStyle = '#8d6e63'; ctx.fillRect(houseX + 60, 150, 12, 30);
-                ctx.fillStyle = '#e57373'; ctx.beginPath();
-                ctx.moveTo(houseX - 10, 200); ctx.lineTo(houseX + 42, 145); ctx.lineTo(houseX + 95, 200); ctx.fill();
-                ctx.fillStyle = '#81d4fa'; ctx.fillRect(houseX + 12, 215, 22, 22);
-                ctx.fillStyle = '#6d4c41'; ctx.fillRect(houseX + 48, 240, 22, 50);
-            }
-
-            for (let tIdx = 0; tIdx < 2; tIdx++) {
-                let treeX = (80 + tIdx * 450 - bgOffset * 0.8) % 900;
-                if (treeX < -100) treeX += 900;
-                ctx.fillStyle = '#5d4037'; ctx.fillRect(treeX, 180, 16, 120);
-                ctx.fillStyle = '#2e7d32'; ctx.beginPath();
-                ctx.arc(treeX - 20, 170, 28, 0, Math.PI*2); ctx.arc(treeX + 35, 170, 28, 0, Math.PI*2); ctx.arc(treeX + 8, 150, 32, 0, Math.PI*2); ctx.fill();
-            }
-        }
-
-        function drawCityMap() {
-            let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
-            skyGrad.addColorStop(0, '#3f51b5'); skyGrad.addColorStop(1, '#7986cb');
-            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            let cloudX = (200 - bgOffset * 0.15) % 900;
-            if (cloudX < -100) cloudX += 900;
-            ctx.beginPath();
-            ctx.arc(cloudX, 55, 25, 0, Math.PI*2); ctx.arc(cloudX + 35, 48, 32, 0, Math.PI*2); ctx.arc(cloudX + 70, 55, 25, 0, Math.PI*2); ctx.fill();
-
-            for (let b = 0; b < 6; b++) {
-                let bX = (b * 150 - bgOffset * 0.25) % 900;
-                if (bX < -150) bX += 900;
-                ctx.fillStyle = b % 2 === 0 ? '#303f9f' : '#3f51b5';
-                ctx.fillRect(bX, 90, 120, 200);
-
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-                for(let w = 0; w < 3; w++) {
-                    ctx.fillRect(bX + 15 + w*32, 110, 14, 140);
-                }
-            }
-
-            let bridgeX = (300 - bgOffset * 0.5) % 900;
-            if (bridgeX < -250) bridgeX += 900;
-            ctx.fillStyle = '#37474f'; ctx.fillRect(bridgeX + 80, 190, 20, 110);
-            ctx.fillStyle = '#455a64';
-            ctx.beginPath();
-            ctx.moveTo(bridgeX - 100, 210);
-            ctx.quadraticCurveTo(bridgeX + 90, 150, bridgeX + 280, 215);
-            ctx.lineTo(bridgeX + 280, 230);
-            ctx.quadraticCurveTo(bridgeX + 90, 170, bridgeX - 100, 225);
+            ctx.moveTo(hillX, 330);
+            ctx.quadraticCurveTo(hillX + 180, 180, hillX + 360, 330);
+            ctx.quadraticCurveTo(hillX + 540, 150, hillX + 720, 330);
             ctx.fill();
 
-            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(bridgeX + 95, 150, 5, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#e91e63'; ctx.fillRect(bridgeX + 93, 155, 4, 8);
-        }
+            // Vẽ các khối đất cao thấp chênh lệch rõ rệt
+            terrainSegments.forEach(s => {
+                ctx.fillStyle = '#261c14';
+                ctx.fillRect(s.x, s.groundY, s.width, canvas.height - s.groundY);
+                ctx.fillStyle = '#37474f';
+                ctx.fillRect(s.x, s.groundY, s.width, 12);
+                ctx.fillStyle = '#455a64';
+                ctx.fillRect(s.x, s.groundY + 12, s.width, canvas.height - s.groundY - 12);
 
-        function drawBackground() {
-            if (currentMap === 'BEACH') {
-                drawBeachMap();
-            } else {
-                drawCityMap();
-            }
-
-            ctx.fillStyle = '#261c14';
-            ctx.fillRect(0, defaultGroundY, canvas.width, canvas.height - defaultGroundY);
-            ctx.fillStyle = '#37474f';
-            ctx.fillRect(0, defaultGroundY, canvas.width, 12);
-            ctx.fillStyle = '#455a64';
-            ctx.fillRect(0, defaultGroundY + 12, canvas.width, canvas.height - defaultGroundY - 12);
-
-            pits.forEach(p => {
-                ctx.fillStyle = '#110a06';
-                ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
-
-                ctx.fillStyle = '#1a100a';
-                ctx.fillRect(p.x - 6, defaultGroundY, 6, canvas.height - defaultGroundY);
-                ctx.fillRect(p.x + p.width, defaultGroundY, 6, canvas.height - defaultGroundY);
+                // Vạch kẻ đường trên mặt đất
+                ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
+                let dashWidth = 30; let dashGap = 20;
+                let startX = s.x - (bgOffset % (dashWidth + dashGap));
+                for (let x = startX; x < s.x + s.width; x += dashWidth + dashGap) {
+                    if (x >= s.x && x + dashWidth <= s.x + s.width && !isOverPit(x, dashWidth)) {
+                        ctx.beginPath(); ctx.moveTo(x, s.groundY + 45); ctx.lineTo(x + dashWidth, s.groundY + 45); ctx.stroke();
+                    }
+                }
             });
 
-            ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
-            let dashWidth = 30; let dashGap = 20;
-            let startX = - (bgOffset % (dashWidth + dashGap));
-            for (let x = startX; x < canvas.width; x += dashWidth + dashGap) {
-                if (!isOverPit(x, dashWidth)) {
-                    ctx.beginPath(); ctx.moveTo(x, defaultGroundY + 45); ctx.lineTo(x + dashWidth, defaultGroundY + 45); ctx.stroke();
-                }
-            }
+            // Vẽ Hố sâu thẳm
+            pits.forEach(p => {
+                let gY = getGroundYAt(p.x);
+                ctx.fillStyle = '#110a06';
+                ctx.fillRect(p.x, gY, p.width, canvas.height - gY);
+                ctx.fillStyle = '#1a100a';
+                ctx.fillRect(p.x - 6, gY, 6, canvas.height - gY);
+                ctx.fillRect(p.x + p.width, gY, 6, canvas.height - gY);
+            });
 
+            // Sóng Thần
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
@@ -439,15 +406,6 @@ game_code = """
                     let foamR = 10 + (f % 5) * 4;
                     ctx.beginPath(); ctx.arc(foamX, foamY, foamR, 0, Math.PI * 2); ctx.fill();
                 }
-            }
-
-            if (mapBannerTimer > 0) {
-                ctx.fillStyle = 'rgba(0,0,0,0.75)';
-                ctx.fillRect(190, 15, 420, 45);
-                ctx.fillStyle = '#fbc02d';
-                ctx.font = 'bold 22px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(currentMap === 'BEACH' ? '🌊 MAP: TROPICAL BEACH 🌊' : '🏙️ MAP: CITY SKYLINE 🏙️', 400, 45);
             }
         }
 
