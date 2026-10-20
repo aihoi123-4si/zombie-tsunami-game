@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Wide Dynamic Terrain HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Static Road HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - WIDE DYNAMIC TERRAIN 🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã xóa map thành phố, khôi phục góc nhìn rộng thoáng và tăng độ cao thấp chênh lệch rõ rệt cho các mảnh đất, hố!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - BEACH MAP 🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã tắt hiệu ứng đường chạy, mặt đường tĩnh ổn định, góc nhìn rộng bao quát!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -34,14 +34,14 @@ game_code = """
         let speed = 4.5;
         let frame = 0;
 
-        const gravity = 0.65;
+        const gravity = 0.55;
         const defaultGroundY = 330;
 
-        let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+        let zombies = [{ x: 150, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
 
         let humans = [];
         let obstacles = [];
-        let terrainSegments = []; // Danh sách các đoạn địa hình cao thấp khác nhau
+        let terrainSegments = [];
         let pits = [];
         let powerups = [];
         let particles = [];
@@ -68,7 +68,7 @@ game_code = """
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        z.vy = -13.5 - (idx * 0.04);
+                        z.vy = -12.5 - (idx * 0.03);
                         z.isGrounded = false;
                     }
                 });
@@ -84,12 +84,12 @@ game_code = """
             coins = 0;
             speed = 4.5;
             frame = 0;
-            zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+            zombies = [{ x: 150, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
             humans = [];
             obstacles = [];
             pits = [];
             terrainSegments = [
-                { x: 0, width: 900, groundY: defaultGroundY }
+                { x: 0, width: 1200, groundY: defaultGroundY }
             ];
             powerups = [];
             particles = [];
@@ -118,39 +118,35 @@ game_code = """
                 if (tsunamiTimer <= 0) tsunamiActive = false;
             }
 
-            // Tạo các bậc địa hình cao thấp chênh lệch rõ rệt
-            if (terrainSegments.length > 0 && terrainSegments[terrainSegments.length - 1].x + terrainSegments[terrainSegments.length - 1].width < 900) {
+            if (terrainSegments.length > 0 && terrainSegments[terrainSegments.length - 1].x + terrainSegments[terrainSegments.length - 1].width < 1000) {
                 let lastSeg = terrainSegments[terrainSegments.length - 1];
                 let nextX = lastSeg.x + lastSeg.width;
-                let heights = [280, 310, 340, 370]; // Các cao độ chênh lệch rõ
+                let heights = [290, 320, 350];
                 let randomH = heights[Math.floor(Math.random() * heights.length)];
-                terrainSegments.push({ x: nextX, width: 350 + Math.random() * 250, groundY: randomH });
+                terrainSegments.push({ x: nextX, width: 400 + Math.random() * 250, groundY: randomH });
             }
 
             terrainSegments.forEach(s => s.x -= speed);
             terrainSegments = terrainSegments.filter(s => s.x + s.width > -100);
 
-            // Spawn Hố
-            if (frame % 220 === 0 && Math.random() > 0.3) {
+            if (frame % 240 === 0 && Math.random() > 0.3) {
                 let pitWidth = 80 + Math.random() * 60;
-                pits.push({ x: 850, width: pitWidth });
+                pits.push({ x: 900, width: pitWidth });
             }
 
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
 
-            // Spawn Sóng Thần
-            if (frame % 950 === 0 && !tsunamiActive && Math.random() < 0.5) {
-                let spawnX = 850;
+            if (frame % 1000 === 0 && !tsunamiActive && Math.random() < 0.5) {
+                let spawnX = 900;
                 if (!isOverPit(spawnX, 40)) {
                     let gY = getGroundYAt(spawnX);
                     powerups.push({ x: spawnX, y: gY - 60, r: 18, collected: false });
                 }
             }
 
-            // Spawn Xe, Người, Bom (Tuyệt đối không trùng hố)
-            if (frame % 110 === 0) {
-                let spawnX = 850;
+            if (frame % 120 === 0) {
+                let spawnX = 900;
                 if (!isOverPit(spawnX, 140)) {
                     let gY = getGroundYAt(spawnX);
                     let rand = Math.random();
@@ -243,10 +239,10 @@ game_code = """
                     score += 1;
                     coins += 5;
                     addParticles(h.x, h.y - 10, '#76ba1b', 15);
-                    if (zombies.length < 30) {
+                    if (zombies.length < 35) {
                         let tail = zombies[zombies.length - 1];
                         let tailGroundY = getGroundYAt(tail.x);
-                        zombies.push({ x: tail.x - 22, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
+                        zombies.push({ x: tail.x - 20, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
                     }
                 }
             });
@@ -264,10 +260,10 @@ game_code = """
                             score += obs.peopleInside;
                             coins += obs.peopleInside * 10;
                             for (let k = 0; k < obs.peopleInside; k++) {
-                                if (zombies.length < 30) {
+                                if (zombies.length < 35) {
                                     let tail = zombies[zombies.length - 1];
                                     let tailGroundY = getGroundYAt(tail.x);
-                                    zombies.push({ x: tail.x - 22, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
+                                    zombies.push({ x: tail.x - 20, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
                                 }
                             }
                         } else if (obs.type === 'BOMB') {
@@ -286,10 +282,10 @@ game_code = """
                                     score += obs.peopleInside;
                                     coins += obs.peopleInside * 10;
                                     for (let k = 0; k < obs.peopleInside; k++) {
-                                        if (zombies.length < 30) {
+                                        if (zombies.length < 35) {
                                             let tail = zombies[zombies.length - 1];
                                             let tailGroundY = getGroundYAt(tail.x);
-                                            zombies.push({ x: tail.x - 22, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
+                                            zombies.push({ x: tail.x - 20, y: tailGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 });
                                         }
                                     }
                                     obstacles.splice(obsIdx, 1);
@@ -332,62 +328,44 @@ game_code = """
         }
 
         function drawBackground() {
-            // Góc nhìn rộng thoáng đãng (Panorama)
-            let skyGrad = ctx.createLinearGradient(0, 0, 0, 300);
-            skyGrad.addColorStop(0, '#1565c0'); skyGrad.addColorStop(1, '#90caf9');
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 260);
+            skyGrad.addColorStop(0, '#0288d1'); skyGrad.addColorStop(1, '#b3e5fc');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Mây rộng trôi
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-            let cloudX1 = (250 - bgOffset * 0.15) % 950;
-            if (cloudX1 < -150) cloudX1 += 950;
-            ctx.beginPath(); ctx.arc(cloudX1, 70, 30, 0, Math.PI*2); ctx.arc(cloudX1 + 40, 60, 42, 0, Math.PI*2); ctx.arc(cloudX1 + 90, 70, 30, 0, Math.PI*2); ctx.fill();
+            let cloudX = (300 - bgOffset * 0.18) % 1000;
+            if (cloudX < -150) cloudX += 1000;
+            ctx.beginPath(); ctx.arc(cloudX, 55, 25, 0, Math.PI*2); ctx.arc(cloudX + 35, 45, 35, 0, Math.PI*2); ctx.arc(cloudX + 75, 55, 25, 0, Math.PI*2); ctx.fill();
 
-            let cloudX2 = (650 - bgOffset * 0.15) % 950;
-            if (cloudX2 < -150) cloudX2 += 950;
-            ctx.beginPath(); ctx.arc(cloudX2, 110, 24, 0, Math.PI*2); ctx.arc(cloudX2 + 30, 102, 32, 0, Math.PI*2); ctx.arc(cloudX2 + 70, 110, 24, 0, Math.PI*2); ctx.fill();
+            let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
+            seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(1, '#00bcd4');
+            ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
 
-            // Đồi núi phía xa xa (Parallax Hills)
-            ctx.fillStyle = '#4caf50';
-            let hillX = (100 - bgOffset * 0.3) % 900;
-            if (hillX < -300) hillX += 900;
-            ctx.beginPath();
-            ctx.moveTo(hillX, 330);
-            ctx.quadraticCurveTo(hillX + 180, 180, hillX + 360, 330);
-            ctx.quadraticCurveTo(hillX + 540, 150, hillX + 720, 330);
-            ctx.fill();
+            for (let hIdx = 0; hIdx < 3; hIdx++) {
+                let houseX = (150 + hIdx * 350 - bgOffset * 0.5) % 1050;
+                if (houseX < -120) houseX += 1050;
+                ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 180, 75, 80);
+                ctx.fillStyle = '#e57373'; ctx.beginPath();
+                ctx.moveTo(houseX - 8, 180); ctx.lineTo(houseX + 37, 135); ctx.lineTo(houseX + 83, 180); ctx.fill();
+            }
 
-            // Vẽ các khối đất cao thấp chênh lệch rõ rệt
+            // Vẽ khối đất (Bỏ vạch kẻ đường chạy động)
             terrainSegments.forEach(s => {
-                ctx.fillStyle = '#261c14';
+                ctx.fillStyle = '#ffe082';
                 ctx.fillRect(s.x, s.groundY, s.width, canvas.height - s.groundY);
-                ctx.fillStyle = '#37474f';
-                ctx.fillRect(s.x, s.groundY, s.width, 12);
-                ctx.fillStyle = '#455a64';
-                ctx.fillRect(s.x, s.groundY + 12, s.width, canvas.height - s.groundY - 12);
-
-                // Vạch kẻ đường trên mặt đất
-                ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
-                let dashWidth = 30; let dashGap = 20;
-                let startX = s.x - (bgOffset % (dashWidth + dashGap));
-                for (let x = startX; x < s.x + s.width; x += dashWidth + dashGap) {
-                    if (x >= s.x && x + dashWidth <= s.x + s.width && !isOverPit(x, dashWidth)) {
-                        ctx.beginPath(); ctx.moveTo(x, s.groundY + 45); ctx.lineTo(x + dashWidth, s.groundY + 45); ctx.stroke();
-                    }
-                }
+                ctx.fillStyle = '#ffd54f';
+                ctx.fillRect(s.x, s.groundY, s.width, 10);
             });
 
-            // Vẽ Hố sâu thẳm
             pits.forEach(p => {
                 let gY = getGroundYAt(p.x);
                 ctx.fillStyle = '#110a06';
                 ctx.fillRect(p.x, gY, p.width, canvas.height - gY);
-                ctx.fillStyle = '#1a100a';
-                ctx.fillRect(p.x - 6, gY, 6, canvas.height - gY);
-                ctx.fillRect(p.x + p.width, gY, 6, canvas.height - gY);
+                ctx.fillStyle = '#ffcc80';
+                ctx.fillRect(p.x - 5, gY, 5, canvas.height - gY);
+                ctx.fillRect(p.x + p.width, gY, 5, canvas.height - gY);
             });
 
-            // Sóng Thần
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
@@ -515,7 +493,7 @@ game_code = """
             if (gameState === 'START') {
                 ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#76ba1b'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('ZOMBIE TSUNAMI', 400, 180);
+                ctx.fillText('ZOMBIE TSUNAMI - BEACH', 400, 180);
                 ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif';
                 ctx.fillText('Nhấn Space / Chạm màn hình để bắt đầu chơi!', 400, 230);
                 return;
@@ -564,4 +542,3 @@ game_code = """
 """
 
 components.html(game_code, height=480, scrolling=False)
-
