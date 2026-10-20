@@ -1,12 +1,10 @@
-
-
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Responsive Fixed HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Perfect Animation HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - RESPONSIVE FIX 🏙️🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã thêm CSS chuẩn tỷ lệ Canvas, khắc phục triệt để lỗi kéo dài hình ảnh trên mọi màn hình!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - FIXED ANIMATION & STRETCH 🏙️🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Đã sửa hoàn toàn lỗi xe/người bị kéo dài và lỗi đơ hoạt ảnh khi nhảy!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -74,7 +72,7 @@ game_code = """
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        z.vy = -13.5 - (idx * 0.05);
+                        z.vy = -13.5 - (idx * 0.04);
                         z.isGrounded = false;
                     }
                 });
@@ -144,11 +142,11 @@ game_code = """
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
                     } else if (rand < 0.65) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 95, h: 45, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 90, h: 42, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
                     } else if (rand < 0.82) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 65, w: 135, h: 65, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 62, w: 125, h: 58, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
                     } else if (rand < 0.87) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 90, w: 140, h: 60, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 130, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
                     } else {
                         obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
                     }
@@ -168,7 +166,7 @@ game_code = """
                     addParticles(pw.x, pw.y, '#00e5ff', 30);
                 }
             });
-            powerups = powerups.filter(p => p.x > -50 && !p.collected);
+            powerups = powerups.filter(p => p.x > -50 && !pw.collected);
 
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
@@ -187,7 +185,7 @@ game_code = """
                     obstacles.forEach((obs) => {
                         if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                             if (z.x >= obs.x - 8 && z.x <= obs.x + obs.w + 8) {
-                                let roofY = obs.y - 18;
+                                let roofY = obs.y - 16;
                                 if (z.y >= roofY - 5 && z.y <= obs.y + 12 && z.vy >= 0) {
                                     z.y = roofY;
                                     z.vy = 0;
@@ -209,7 +207,8 @@ game_code = """
                     }
                 }
 
-                z.legAngle += 0.2;
+                // Hoạt ảnh chân chạy mượt mà ngay cả khi nhảy
+                z.legAngle += z.isGrounded ? 0.22 : 0.08;
 
                 if (z.y > canvas.height + 30) {
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 10);
@@ -357,55 +356,40 @@ game_code = """
 
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
-            skyGrad.addColorStop(0, '#5c6bc0'); skyGrad.addColorStop(1, '#9fa8da');
+            skyGrad.addColorStop(0, '#3f51b5'); skyGrad.addColorStop(1, '#7986cb');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
             let cloudX = (200 - bgOffset * 0.15) % 900;
             if (cloudX < -100) cloudX += 900;
             ctx.beginPath();
             ctx.arc(cloudX, 55, 25, 0, Math.PI*2); ctx.arc(cloudX + 35, 48, 32, 0, Math.PI*2); ctx.arc(cloudX + 70, 55, 25, 0, Math.PI*2); ctx.fill();
 
             for (let b = 0; b < 6; b++) {
-                let bX = (b * 160 - bgOffset * 0.25) % 960;
-                if (bX < -160) bX += 960;
-                ctx.fillStyle = b % 2 === 0 ? '#3f51b5' : '#5c6bc0';
-                ctx.fillRect(bX, 85, 130, 205);
+                let bX = (b * 150 - bgOffset * 0.25) % 900;
+                if (bX < -150) bX += 900;
+                ctx.fillStyle = b % 2 === 0 ? '#303f9f' : '#3f51b5';
+                ctx.fillRect(bX, 90, 120, 200);
 
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
                 for(let w = 0; w < 3; w++) {
-                    ctx.fillRect(bX + 16 + w*35, 105, 16, 150);
+                    ctx.fillRect(bX + 15 + w*32, 110, 14, 140);
                 }
             }
 
             let bridgeX = (300 - bgOffset * 0.5) % 900;
             if (bridgeX < -250) bridgeX += 900;
-            ctx.fillStyle = '#37474f'; ctx.fillRect(bridgeX + 90, 185, 24, 115);
+            ctx.fillStyle = '#37474f'; ctx.fillRect(bridgeX + 80, 190, 20, 110);
             ctx.fillStyle = '#455a64';
             ctx.beginPath();
-            ctx.moveTo(bridgeX - 120, 205);
-            ctx.quadraticCurveTo(bridgeX + 100, 145, bridgeX + 320, 215);
-            ctx.lineTo(bridgeX + 320, 235);
-            ctx.quadraticCurveTo(bridgeX + 100, 165, bridgeX - 120, 225);
+            ctx.moveTo(bridgeX - 100, 210);
+            ctx.quadraticCurveTo(bridgeX + 90, 150, bridgeX + 280, 215);
+            ctx.lineTo(bridgeX + 280, 230);
+            ctx.quadraticCurveTo(bridgeX + 90, 170, bridgeX - 100, 225);
             ctx.fill();
 
-            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(bridgeX + 105, 145, 6, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#e91e63'; ctx.fillRect(bridgeX + 102, 151, 6, 10);
-
-            for (let r = 0; r < 2; r++) {
-                let redX = (r * 500 - bgOffset * 0.7) % 900;
-                if (redX < -220) redX += 900;
-                ctx.fillStyle = '#6d4c41'; ctx.fillRect(redX, 135, 165, 175);
-                ctx.fillStyle = '#111';
-                for(let row=0; row<2; row++) {
-                    for(let col=0; col<3; col++) {
-                        ctx.fillRect(redX + 18 + col*46, 155 + row*52, 25, 36);
-                    }
-                }
-                ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
-                ctx.strokeRect(redX + 120, 155, 30, 95);
-                ctx.beginPath(); ctx.moveTo(redX + 120, 185); ctx.lineTo(redX + 150, 185); ctx.moveTo(redX + 120, 215); ctx.lineTo(redX + 150, 215); ctx.stroke();
-            }
+            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(bridgeX + 95, 150, 5, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#e91e63'; ctx.fillRect(bridgeX + 93, 155, 4, 8);
         }
 
         function drawBackground() {
@@ -481,88 +465,93 @@ game_code = """
             ctx.restore();
         }
 
+        // Vẽ Zombie chuẩn tỷ lệ, không bị kéo dài và hoạt ảnh chân tay mượt mà
         function drawZombie(z) {
             ctx.save();
             ctx.translate(z.x, z.y);
-            ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 5;
-            ctx.beginPath(); ctx.moveTo(-4, 8); ctx.lineTo(-4 + Math.sin(z.legAngle)*8, 20); ctx.moveTo(4, 8); ctx.lineTo(4 - Math.sin(z.legAngle)*8, 20); ctx.stroke();
-            ctx.fillStyle = '#fbc02d'; ctx.fillRect(-8, 4, 16, 8);
-            ctx.fillStyle = '#8d2626'; ctx.fillRect(-9, -4, 18, 10);
-            ctx.fillStyle = '#76ba1b'; ctx.beginPath(); ctx.arc(0, -16, 17, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(7, -18, 10, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(7, -18, 8.5, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(9, -18, 4, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(9.5, -18, 2, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(8, -8, 6, 0, Math.PI); ctx.fill();
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(5, -8); ctx.lineTo(7, -4); ctx.lineTo(9, -8); ctx.fill();
-            ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(14, 2); ctx.stroke();
+            ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4.5;
+            ctx.beginPath(); 
+            ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); 
+            ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); 
+            ctx.stroke();
+
+            ctx.fillStyle = '#fbc02d'; ctx.fillRect(-7, 2, 14, 7);
+            ctx.fillStyle = '#8d2626'; ctx.fillRect(-8, -5, 16, 9);
+            ctx.fillStyle = '#76ba1b'; ctx.beginPath(); ctx.arc(0, -15, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(6, -17, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(6, -17, 7.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(8, -17, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(8.5, -17, 1.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(7, -8, 5, 0, Math.PI); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(4, -8); ctx.lineTo(6, -4); ctx.lineTo(8, -8); ctx.fill();
+            ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 3.5;
+            ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(12, 2); ctx.stroke();
             ctx.restore();
         }
 
         function drawHuman(h) {
             ctx.save();
             ctx.translate(h.x, h.y);
-            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, -18, 8, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d'; ctx.beginPath(); ctx.arc(0, -21, 8, Math.PI, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-3, -18, 1.5, 0, Math.PI*2); ctx.arc(3, -18, 1.5, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63'; ctx.fillRect(-6, -10, 12, 12);
+            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, -16, 7, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d'; ctx.beginPath(); ctx.arc(0, -19, 7, Math.PI, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2.5, -16, 1.2, 0, Math.PI*2); ctx.arc(2.5, -16, 1.2, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63'; ctx.fillRect(-5, -9, 10, 10);
             ctx.restore();
         }
 
         function drawBomb(o) {
             ctx.save();
             ctx.translate(o.x + 20, o.y + 20);
-            let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 18);
+            let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 16);
             bombGrad.addColorStop(0, '#666'); bombGrad.addColorStop(0.6, '#222'); bombGrad.addColorStop(1, '#000');
-            ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ff1744'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💣', 0, 4);
+            ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ff1744'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💣', 0, 4);
             ctx.restore();
         }
 
         function drawCar(o) {
             ctx.save();
             ctx.translate(o.x, o.y);
-            ctx.fillStyle = '#d32f2f'; ctx.fillRect(0, 18, o.w, 20);
-            ctx.fillStyle = '#b71c1c'; ctx.fillRect(16, 4, 60, 14);
-            ctx.fillStyle = '#81d4fa'; ctx.fillRect(22, 7, 20, 10); ctx.fillRect(48, 7, 22, 10);
-            ctx.fillStyle = '#ffeb3b'; ctx.fillRect(0, 22, 4, 8);
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 38, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 38, 9, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#111'; ctx.fillRect(18, -48, 58, 26);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(`0/${o.reqZombies}`, 47, -30);
+            ctx.fillStyle = '#d32f2f'; ctx.fillRect(0, 15, o.w, 18);
+            ctx.fillStyle = '#b71c1c'; ctx.fillRect(14, 3, 52, 13);
+            ctx.fillStyle = '#81d4fa'; ctx.fillRect(18, 5, 18, 9); ctx.fillRect(42, 5, 20, 9);
+            ctx.fillStyle = '#ffeb3b'; ctx.fillRect(0, 19, 4, 7);
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(18, 33, 8, 0, Math.PI*2); ctx.arc(o.w - 18, 33, 8, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#111'; ctx.fillRect(16, -42, 52, 24);
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(`0/${o.reqZombies}`, 42, -25);
             ctx.restore();
         }
 
         function drawBus(o) {
             ctx.save();
             ctx.translate(o.x, o.y);
-            ctx.fillStyle = '#fbc02d'; ctx.fillRect(0, 0, o.w, 54);
-            ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 32, o.w, 6);
+            ctx.fillStyle = '#fbc02d'; ctx.fillRect(0, 0, o.w, 48);
+            ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 28, o.w, 5);
             ctx.fillStyle = '#81d4fa';
-            for(let k=0; k<4; k++) ctx.fillRect(12 + (k * 28), 8, 20, 18);
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(26, 54, 10, 0, Math.PI*2); ctx.arc(o.w - 26, 54, 10, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#111'; ctx.fillRect(38, -45, 60, 28);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(`0/${o.reqZombies}`, 68, -25);
+            for(let k=0; k<4; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 48, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 48, 9, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#111'; ctx.fillRect(34, -40, 55, 26);
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(`0/${o.reqZombies}`, 61, -22);
             ctx.restore();
         }
 
         function drawHelicopter(o) {
             ctx.save();
             ctx.translate(o.x, o.y);
-            ctx.fillStyle = '#3e4a36'; ctx.beginPath(); ctx.ellipse(70, 30, 60, 24, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.fillRect(110, 22, 45, 12);
-            ctx.fillStyle = '#111'; ctx.fillRect(150, 10, 6, 30);
-            ctx.fillStyle = '#81d4fa'; ctx.fillRect(25, 18, 28, 16); ctx.fillRect(60, 20, 14, 12); ctx.fillRect(80, 20, 14, 12);
-            ctx.fillStyle = '#111'; ctx.fillRect(65, 0, 8, 10);
-            let bladeW = 110 + Math.sin(frame * 0.5) * 20;
-            ctx.fillRect(70 - bladeW/2, 0, bladeW, 4);
-            ctx.strokeStyle = '#222'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(35, 50); ctx.lineTo(35, 58); ctx.lineTo(105, 58); ctx.lineTo(105, 50); ctx.stroke();
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px monospace'; ctx.fillText('T-315', 70, 34);
-            ctx.fillStyle = '#111'; ctx.fillRect(40, -42, 60, 28);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(`0/${o.reqZombies}`, 70, -22);
+            ctx.fillStyle = '#3e4a36'; ctx.beginPath(); ctx.ellipse(60, 25, 52, 20, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillRect(95, 18, 38, 10);
+            ctx.fillStyle = '#111'; ctx.fillRect(130, 8, 5, 24);
+            ctx.fillStyle = '#81d4fa'; ctx.fillRect(20, 14, 24, 14); ctx.fillRect(50, 16, 12, 10); ctx.fillRect(68, 16, 12, 10);
+            ctx.fillStyle = '#111'; ctx.fillRect(55, 0, 6, 8);
+            let bladeW = 95 + Math.sin(frame * 0.5) * 15;
+            ctx.fillRect(58 - bladeW/2, 0, bladeW, 3);
+            ctx.strokeStyle = '#222'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(30, 42); ctx.lineTo(30, 48); ctx.lineTo(90, 48); ctx.lineTo(90, 42); ctx.stroke();
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace'; ctx.fillText('T-315', 60, 28);
+            ctx.fillStyle = '#111'; ctx.fillRect(35, -36, 50, 24);
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(`0/${o.reqZombies}`, 60, -19);
             ctx.restore();
         }
 
