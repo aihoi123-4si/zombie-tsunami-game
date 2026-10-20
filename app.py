@@ -1,271 +1,354 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Cấu hình trang Streamlit
-st.set_page_config(page_title="Mini Zombie Tsunami", page_icon="🧟", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Tropical HD", layout="centered")
 
-st.title("🧟 Mini Zombie Tsunami trên Streamlit")
-st.markdown("Điều khiển đàn zombie của bạn né chướng ngại vật và thu thập thêm người survivor!")
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI TROPICAL 🧟</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Nhấn <b>Space</b> hoặc <b>Chạm màn hình</b> để nhảy né vật cản và nuốt chửng người dân!</p>", unsafe_allow_html=True)
 
-# Đoạn mã HTML/JS chứa toàn bộ logic game Zombie Tsunami mini
-game_html = """
+game_code = """
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Zombie Tsunami Mini</title>
     <style>
-        body {
-            margin: 0;
-            background: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: white;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        canvas {
-            border: 4px solid #fff;
-            box-shadow: 0 0 20px rgba(0,255,0,0.5);
-            background: linear-gradient(to bottom, #87CEEB, #e0f6ff);
-        }
-        #ui {
-            position: absolute;
-            top: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            text-shadow: 2px 2px #000;
-        }
+        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { border: 4px solid #76ba1b; border-radius: 12px; box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); background: #111; }
     </style>
 </head>
 <body>
-    <div id="ui">Điểm: <span id="score">0</span> | Số lượng Zombie: <span id="zombieCount">1</span></div>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
+        let gameState = 'START';
         let score = 0;
-        let gameRunning = true;
+        let coins = 67;
+        let speed = 4;
+        let frame = 0;
 
-        // Đối tượng người chơi (Đội hình Zombie)
-        let player = {
-            x: 100,
-            y: 300,
-            width: 30,
-            height: 40,
-            vy: 0,
-            gravity: 0.8,
-            jumpPower: -13,
-            isJumping: false,
-            count: 1
-        };
+        // Zombie Horde
+        let zombies = [{ x: 150, y: 320, vy: 0, isGrounded: true, legAngle: 0 }];
+        const gravity = 0.65;
 
-        // Danh sách chướng ngại vật (Xe ô tô / Hố sâu)
+        let humans = [];
         let obstacles = [];
-        // Danh sách người sống sót để gia nhập đoàn
-        let survivors = [];
+        let particles = [];
+        let bgOffset = 0;
 
-        let frameCount = 0;
-
-        // Lắng nghe sự kiện bàn phím (Phím Space hoặc Phím Lên để nhảy)
-        window.addEventListener("keydown", function(e) {
-            if ((e.code === "Space" || e.code === "ArrowUp") && !player.isJumping) {
-                player.vy = player.jumpPower;
-                player.isJumping = true;
-                e.preventDefault();
+        function addParticles(x, y, color, count = 10) {
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 25, color: color
+                });
             }
-            if (!gameRunning && e.code === "KeyR") {
+        }
+
+        function handleInput() {
+            if (gameState === 'START' || gameState === 'GAMEOVER') {
                 resetGame();
+                gameState = 'PLAYING';
+            } else if (gameState === 'PLAYING') {
+                zombies.forEach((z, idx) => {
+                    if (z.isGrounded) {
+                        z.vy = -13 - (idx * 0.15);
+                        z.isGrounded = false;
+                    }
+                });
             }
-        });
+        }
 
-        // Click chuột cũng để nhảy (hỗ trợ mobile/web)
-        window.addEventListener("click", function() {
-            if (!player.isJumping && gameRunning) {
-                player.vy = player.jumpPower;
-                player.isJumping = true;
-            } else if (!gameRunning) {
-                resetGame();
-            }
-        });
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') handleInput(); });
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(); });
+        canvas.addEventListener('mousedown', handleInput);
 
         function resetGame() {
             score = 0;
-            player.count = 1;
-            player.y = 300;
-            player.vy = 0;
+            speed = 4;
+            frame = 0;
+            zombies = [{ x: 150, y: 320, vy: 0, isGrounded: true, legAngle: 0 }];
+            humans = [];
             obstacles = [];
-            survivors = [];
-            gameRunning = true;
-            loop();
-        }
-
-        function spawnObstacle() {
-            if (Math.random() < 0.02) {
-                obstacles.push({
-                    x: canvas.width,
-                    y: 310,
-                    width: 40,
-                    height: 30,
-                    speed: 5
-                });
-            }
-        }
-
-        function spawnSurvivor() {
-            if (Math.random() < 0.015) {
-                survivors.push({
-                    x: canvas.width,
-                    y: 315,
-                    width: 25,
-                    height: 25,
-                    speed: 5
-                });
-            }
+            particles = [];
         }
 
         function update() {
-            if (!gameRunning) return;
+            if (gameState !== 'PLAYING') return;
 
-            // Xử lý nhảy và trọng lực
-            player.vy += player.gravity;
-            player.y += player.vy;
+            frame++;
+            speed = 4 + Math.floor(frame / 600) * 0.5;
+            bgOffset = (bgOffset + speed) % 800;
 
-            // Mặt đất
-            if (player.y > 300) {
-                player.y = 300;
-                player.vy = 0;
-                player.isJumping = false;
+            // Update Zombies
+            zombies.forEach((z, index) => {
+                z.vy += gravity;
+                z.y += z.vy;
+                let groundY = 320;
+                if (z.y >= groundY) {
+                    z.y = groundY;
+                    z.vy = 0;
+                    z.isGrounded = true;
+                }
+                z.legAngle += 0.2;
+            });
+
+            // Spawn Entities
+            if (frame % 110 === 0) {
+                if (Math.random() > 0.45) {
+                    humans.push({ x: 850, y: 320, eaten: false });
+                } else {
+                    obstacles.push({ x: 850, y: 310, w: 35, h: 40, type: Math.random() > 0.5 ? 'BOMB' : 'CAR' });
+                }
             }
 
-            // Di chuyển và kiểm tra chướng ngại vật
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= obstacles[i].speed;
-
-                // Va chạm
-                if (
-                    player.x < obstacles[i].x + obstacles[i].width &&
-                    player.x + player.width > obstacles[i].x &&
-                    player.y < obstacles[i].y + obstacles[i].height &&
-                    player.y + player.height > obstacles[i].y
-                ) {
-                    player.count--; // Mất 1 zombie
-                    obstacles.splice(i, 1);
-                    if (player.count <= 0) {
-                        gameRunning = false;
+            // Update Humans
+            humans.forEach((h) => {
+                h.x -= speed;
+                let leader = zombies[0];
+                if (!h.eaten && leader && Math.abs(leader.x - h.x) < 30 && Math.abs(leader.y - h.y) < 35) {
+                    h.eaten = true;
+                    score += 1;
+                    coins += 1;
+                    addParticles(h.x, h.y, '#76ba1b', 12);
+                    if (zombies.length < 10) {
+                        let tail = zombies[zombies.length - 1];
+                        zombies.push({ x: tail.x - 28, y: 320, vy: 0, isGrounded: true, legAngle: 0 });
                     }
-                } else if (obstacles[i].x + obstacles[i].width < 0) {
-                    obstacles.splice(i, 1);
-                    score += 10;
                 }
+            });
+
+            // Update Obstacles
+            obstacles.forEach((obs) => {
+                obs.x -= speed;
+                zombies.forEach((z, zIdx) => {
+                    if (Math.abs(z.x - obs.x) < 25 && z.y > obs.y - 25) {
+                        addParticles(z.x, z.y, '#ff4444', 15);
+                        zombies.splice(zIdx, 1);
+                    }
+                });
+            });
+
+            // Clean up
+            humans = humans.filter(h => h.x > -50 && !h.eaten);
+            obstacles = obstacles.filter(o => o.x > -50);
+
+            if (zombies.length === 0) {
+                gameState = 'GAMEOVER';
             }
 
-            // Di chuyển và ăn người sống sót
-            for (let i = survivors.length - 1; i >= 0; i--) {
-                survivors[i].x -= survivors[i].speed;
+            particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life--; });
+            particles = particles.filter(p => p.life > 0);
+        }
 
-                // Va chạm để thu thập
-                if (
-                    player.x < survivors[i].x + survivors[i].width &&
-                    player.x + player.width > survivors[i].x &&
-                    player.y < survivors[i].y + survivors[i].height &&
-                    player.y + player.height > survivors[i].y
-                ) {
-                    player.count++; // Tăng quân số
-                    survivors.splice(i, 1);
-                    score += 50;
-                } else if (survivors[i].x + survivors[i].width < 0) {
-                    survivors.splice(i, 1);
-                }
-            }
+        // Vẽ Background Bãi Biển
+        function drawBackground() {
+            // Sky
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 250);
+            skyGrad.addColorStop(0, '#1e88e5');
+            skyGrad.addColorStop(1, '#90caf9');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, 250);
 
-            spawnObstacle();
-            spawnSurvivor();
-            frameCount++;
+            // Sea
+            let seaGrad = ctx.createLinearGradient(0, 220, 0, 340);
+            seaGrad.addColorStop(0, '#00838f');
+            seaGrad.addColorStop(1, '#00acc1');
+            ctx.fillStyle = seaGrad;
+            ctx.fillRect(0, 220, canvas.width, 120);
+
+            // Beach Sand
+            ctx.fillStyle = '#ffe082';
+            ctx.fillRect(0, 310, canvas.width, 30);
+
+            // Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.beginPath();
+            ctx.arc(150 - (bgOffset*0.3)%900, 60, 30, 0, Math.PI*2);
+            ctx.arc(180 - (bgOffset*0.3)%900, 50, 40, 0, Math.PI*2);
+            ctx.arc(220 - (bgOffset*0.3)%900, 60, 30, 0, Math.PI*2);
+            ctx.fill();
+
+            // Houses in Background
+            let houseX = 500 - (bgOffset*0.7)%800;
+            ctx.fillStyle = '#e0f2f1';
+            ctx.fillRect(houseX, 230, 90, 70); // body
+            ctx.fillStyle = '#e57373';
+            ctx.beginPath(); // Roof
+            ctx.moveTo(houseX - 10, 230);
+            ctx.lineTo(houseX + 45, 180);
+            ctx.lineTo(houseX + 100, 230);
+            ctx.fill();
+
+            // Palm Tree
+            let treeX = 100 - (bgOffset*0.8)%800;
+            ctx.fillStyle = '#5d4037';
+            ctx.fillRect(treeX, 210, 14, 100);
+            ctx.fillStyle = '#2e7d32';
+            ctx.beginPath();
+            ctx.arc(treeX - 15, 200, 25, 0, Math.PI*2);
+            ctx.arc(treeX + 30, 200, 25, 0, Math.PI*2);
+            ctx.arc(treeX + 7, 185, 30, 0, Math.PI*2);
+            ctx.fill();
+
+            // Traffic Light Post
+            let poleX = 350 - bgOffset;
+            ctx.fillStyle = '#37474f';
+            ctx.fillRect(poleX, 150, 8, 190);
+            ctx.fillRect(poleX - 15, 150, 35, 6);
+            // Light box
+            ctx.fillStyle = '#fbc02d';
+            ctx.fillRect(poleX + 10, 160, 20, 45);
+            ctx.fillStyle = '#4caf50'; // Green light
+            ctx.beginPath(); ctx.arc(poleX + 20, 195, 6, 0, Math.PI*2); ctx.fill();
+
+            // Road & Asphalt
+            ctx.fillStyle = '#546e7a';
+            ctx.fillRect(0, 340, canvas.width, 110);
+            ctx.fillStyle = '#37474f';
+            ctx.fillRect(0, 340, canvas.width, 8);
+
+            // Yellow Road Line
+            ctx.strokeStyle = '#fbc02d';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([30, 20]);
+            ctx.beginPath();
+            ctx.moveTo(-bgOffset % 50, 380);
+            ctx.lineTo(canvas.width, 380);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Vẽ Zombie Chuẩn Zombie Tsunami (Đầu to xanh, mắt lồi, áo đỏ)
+        function drawZombie(z) {
+            ctx.save();
+            ctx.translate(z.x, z.y);
+
+            // Legs
+            ctx.strokeStyle = '#1a237e';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(-4, 10);
+            ctx.lineTo(-4 + Math.sin(z.legAngle)*8, 22);
+            ctx.moveTo(4, 10);
+            ctx.lineTo(4 - Math.sin(z.legAngle)*8, 22);
+            ctx.stroke();
+
+            // Body (Shirt)
+            ctx.fillStyle = '#c62828'; // Áo đỏ
+            ctx.fillRect(-10, -2, 20, 14);
+
+            // Head (Green Big Head)
+            ctx.fillStyle = '#76ba1b';
+            ctx.beginPath();
+            ctx.ellipse(0, -16, 18, 16, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Big Eye
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(6, -18, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#283593';
+            ctx.beginPath();
+            ctx.arc(8, -18, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mouth & Tooth
+            ctx.fillStyle = '#1b5e20';
+            ctx.beginPath();
+            ctx.arc(6, -10, 5, 0, Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(5, -10, 3, 3);
+
+            ctx.restore();
         }
 
         function draw() {
-            // Vẽ bầu trời & mặt đất
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
 
-            // Mặt đất
-            ctx.fillStyle = "#555";
-            ctx.fillRect(0, 340, canvas.width, 60);
-            ctx.fillStyle = "#2e8b57";
-            ctx.fillRect(0, 340, canvas.width, 10);
-
-            // Vẽ đoàn Zombie
-            ctx.fillStyle = "#4CAF50";
-            for (let i = 0; i < player.count; i++) {
-                let offsetX = i * 15;
-                ctx.fillRect(player.x - offsetX, player.y, player.width, player.height);
-                // Mắt zombie
-                ctx.fillStyle = "red";
-                ctx.fillRect(player.x - offsetX + 15, player.y + 8, 6, 6);
-                ctx.fillStyle = "#4CAF50";
+            if (gameState === 'START') {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#76ba1b';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('ZOMBIE TSUNAMI', 400, 180);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '20px sans-serif';
+                ctx.fillText('Nhấn Space hoặc Chạm vào màn hình để bắt đầu', 400, 230);
+                return;
             }
 
-            // Vẽ chướng ngại vật (Xe ô tô đỏ)
-            ctx.fillStyle = "#e74c3c";
-            obstacles.forEach(obs => {
-                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                ctx.fillStyle = "#000";
-                ctx.beginPath();
-                ctx.arc(obs.x + 10, obs.y + 30, 6, 0, Math.PI * 2);
-                ctx.arc(obs.x + 30, obs.y + 30, 6, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = "#e74c3c";
+            // Draw Humans
+            humans.forEach(h => {
+                ctx.fillStyle = '#ffcc80';
+                ctx.beginPath(); ctx.arc(h.x, h.y - 12, 9, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#e91e63';
+                ctx.fillRect(h.x - 7, h.y - 3, 14, 18);
             });
 
-            // Vẽ người sống sót (Màu xanh dương)
-            ctx.fillStyle = "#3498db";
-            survivors.forEach(sur => {
-                ctx.fillRect(sur.x, sur.y, sur.width, sur.height);
+            // Draw Obstacles
+            obstacles.forEach(o => {
+                if (o.type === 'BOMB') {
+                    ctx.fillStyle = '#212121';
+                    ctx.beginPath(); ctx.arc(o.x + 15, o.y + 15, 16, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#ff1744';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText('💣', o.x + 6, o.y + 20);
+                } else {
+                    ctx.fillStyle = '#d32f2f';
+                    ctx.fillRect(o.x, o.y, o.w, o.h);
+                    ctx.fillStyle = '#90caf9';
+                    ctx.fillRect(o.x + 4, o.y + 4, 10, 10);
+                }
             });
 
-            // Cập nhật giao diện điểm
-            document.getElementById("score").innerText = score;
-            document.getElementById("zombieCount").innerText = player.count;
+            // Draw Zombies
+            zombies.forEach(z => drawZombie(z));
 
-            // Màn hình Game Over
-            if (!gameRunning) {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            // Particles
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 4, 4);
+            });
+
+            // UI HUD (Top Bar like Zombie Tsunami)
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(15, 12, 160, 70);
+            ctx.fillStyle = '#fbc02d';
+            ctx.font = 'bold 22px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`🪙 ${coins}`, 25, 40);
+            ctx.fillStyle = '#76ba1b';
+            ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
+
+            if (gameState === 'GAMEOVER') {
+                ctx.fillStyle = 'rgba(0,0,0,0.75)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "white";
-                ctx.font = "30px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
-                ctx.font = "18px Arial";
-                ctx.fillText("Nhấn Phím R hoặc Click chuột để chơi lại", canvas.width / 2, canvas.height / 2 + 20);
-                ctx.textAlign = "left";
+                ctx.fillStyle = '#ff1744';
+                ctx.font = 'bold 42px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', 400, 190);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '22px sans-serif';
+                ctx.fillText(`Số người nuốt chửng: ${score}`, 400, 240);
+                ctx.fillText('Nhấn Space / Chạm để chơi lại', 400, 280);
             }
         }
 
         function loop() {
             update();
             draw();
-            if (gameRunning) {
-                requestAnimationFrame(loop);
-            } else {
-                draw(); // Vẽ màn hình game over
-            }
+            requestAnimationFrame(loop);
         }
-
         loop();
     </script>
 </body>
 </html>
 """
 
-# Hiển thị game bên trong Streamlit
-components.html(game_html, height=450, scrolling=False)
-
-st.markdown("""
-### Hướng dẫn điều khiển:
-* Nhấn **Phím Space (Cách)** hoặc **Click chuột** để nhảy qua chướng ngại vật (xe ô tô đỏ).
-* Thu thập thêm người sống sót (màu xanh dương) để tăng quân số đoàn Zombie của bạn!
-""")
+components.html(game_code, height=480)
