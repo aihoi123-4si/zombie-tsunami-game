@@ -1,10 +1,11 @@
+
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Helicopter & Wide Cam HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami City & Beach Maps HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - TRỰC THĂNG QUÂN SỰ 🚁</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Góc cam rộng bao quát, té vực lần lượt, nhà họa tiết chi tiết & Phương tiện Trực thăng (0/8)!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAPS 🏙️🌊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Tự động đổi giữa <b>Map Bãi Biển 🌊</b> và <b>Map Thành Phố 🏙️</b> sau mỗi 20 giây!</p>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -30,7 +31,11 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
-        // Zombie Horde (Đàn Zombie xếp hàng dối đuôi)
+        // Quản lý Map (BEACH / CITY)
+        let currentMap = Math.random() > 0.5 ? 'BEACH' : 'CITY';
+        let mapBannerTimer = 0;
+
+        // Zombie Horde
         let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
 
         let humans = [];
@@ -62,7 +67,7 @@ game_code = """
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        z.vy = -13.5 - (idx * 0.05); // Nhảy theo thứ tự
+                        z.vy = -13.5 - (idx * 0.05);
                         z.isGrounded = false;
                     }
                 });
@@ -78,6 +83,8 @@ game_code = """
             coins = 0;
             speed = 4.5;
             frame = 0;
+            currentMap = Math.random() > 0.5 ? 'BEACH' : 'CITY';
+            mapBannerTimer = 120;
             zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
             humans = [];
             obstacles = [];
@@ -98,6 +105,13 @@ game_code = """
             frame++;
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
             bgOffset += speed;
+
+            // Đổi map ngẫu nhiên sau mỗi ~20 giây (1200 frames)
+            if (frame > 0 && frame % 1200 === 0) {
+                currentMap = currentMap === 'BEACH' ? 'CITY' : 'BEACH';
+                mapBannerTimer = 120; // Hiện banner đổi map 2 giây
+            }
+            if (mapBannerTimer > 0) mapBannerTimer--;
 
             // Sóng Thần
             if (tsunamiActive) {
@@ -120,7 +134,7 @@ game_code = """
                 }
             }
 
-            // Spawn Chướng ngại vật (Tăng nhẹ tần suất Bom, Thêm Trực Thăng 0/8)
+            // Spawn Chướng ngại vật & Người
             if (frame % 110 === 0) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX) && !isOverPit(spawnX + 140)) {
@@ -129,16 +143,12 @@ game_code = """
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false, armAngle: 0 });
                     } else if (rand < 0.58) {
-                        // Xe Hơi (4 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 95, h: 45, type: 'CAR', reqZombies: 4, peopleInside: 3, cooldown: 0 });
                     } else if (rand < 0.73) {
-                        // Xe Buýt (6 zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 65, w: 135, h: 65, type: 'BUS', reqZombies: 6, peopleInside: 6, cooldown: 0 });
                     } else if (rand < 0.85) {
-                        // TRỰC THĂNG QUÂN SỰ (8 Zombie)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 90, w: 140, h: 60, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
                     } else {
-                        // BOM 3D (Tăng tần suất xuất hiện)
                         obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
                     }
                 }
@@ -160,7 +170,7 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // Update Zombies & Té Vực Từng Con Một Lần Lượt
+            // Update Zombies
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
@@ -195,7 +205,6 @@ game_code = """
                             z.vy = 0;
                             z.isGrounded = true;
                         } else if (onPit) {
-                            // Rơi vực
                             z.isGrounded = false;
                         }
                     }
@@ -203,7 +212,6 @@ game_code = """
 
                 z.legAngle += 0.2;
 
-                // Rơi xuống hố -> Mất từng con một khi trôi đến vị trí hố
                 if (z.y > canvas.height + 30) {
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 10);
                     zombies.splice(i, 1);
@@ -232,7 +240,7 @@ game_code = """
                 }
             });
 
-            // Update Obstacles & Càn quét / Tông Xe / Chiếm Trực Thăng
+            // Update Obstacles
             obstacles.forEach((obs, obsIdx) => {
                 obs.x -= speed;
                 if (obs.cooldown > 0) obs.cooldown--;
@@ -263,7 +271,6 @@ game_code = """
                             let z = zombies[i];
                             if (z.x + 12 > obs.x && z.x - 12 < obs.x + 20 && z.y > obs.y + 10) {
                                 if (zombies.length >= obs.reqZombies) {
-                                    // Đủ Zombie -> Chiếm/Phá vỡ phương tiện
                                     addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 35);
                                     score += obs.peopleInside;
                                     coins += obs.peopleInside * 10;
@@ -276,7 +283,6 @@ game_code = """
                                     obstacles.splice(obsIdx, 1);
                                     break;
                                 } else {
-                                    // Không đủ Zombie -> Cản lại & mất 1 zombie
                                     if (obs.cooldown === 0) {
                                         obs.cooldown = 20;
                                         addParticles(z.x, z.y, '#ff4444', 20);
@@ -313,70 +319,117 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // Render Map & Họa Tiết Ngôi Nhà
-        function drawBackground() {
+        // --- VẼ MAP BÃI BIỂN (BEACH) ---
+        function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
-            skyGrad.addColorStop(0, '#1976d2');
-            skyGrad.addColorStop(1, '#64b5f6');
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, canvas.width, 240);
+            skyGrad.addColorStop(0, '#1976d2'); skyGrad.addColorStop(1, '#64b5f6');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
 
-            // Mây
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             let cloudX = (300 - bgOffset * 0.2) % 900;
             if (cloudX < -100) cloudX += 900;
             ctx.beginPath();
             ctx.arc(cloudX, 60, 25, 0, Math.PI*2);
             ctx.arc(cloudX + 30, 50, 35, 0, Math.PI*2);
-            ctx.arc(cloudX + 70, 60, 25, 0, Math.PI*2);
-            ctx.fill();
+            ctx.arc(cloudX + 70, 60, 25, 0, Math.PI*2); ctx.fill();
 
-            // Biển
             let seaGrad = ctx.createLinearGradient(0, 210, 0, 330);
-            seaGrad.addColorStop(0, '#00838f');
-            seaGrad.addColorStop(1, '#00acc1');
-            ctx.fillStyle = seaGrad;
-            ctx.fillRect(0, 210, canvas.width, 120);
+            seaGrad.addColorStop(0, '#00838f'); seaGrad.addColorStop(1, '#00acc1');
+            ctx.fillStyle = seaGrad; ctx.fillRect(0, 210, canvas.width, 120);
 
-            // Bãi Cát
-            ctx.fillStyle = '#ffe082';
-            ctx.fillRect(0, 290, canvas.width, 40);
+            ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 290, canvas.width, 40);
 
-            // NGÔI NHÀ VỚI HỌA TIẾT CHI TIẾT (Cửa sổ, Ống khói, Cửa gỗ)
             for (let hIdx = 0; hIdx < 3; hIdx++) {
                 let houseX = (220 + hIdx * 280 - bgOffset * 0.6) % 900;
                 if (houseX < -120) houseX += 900;
-
-                // Thân nhà
                 ctx.fillStyle = '#e0f2f1'; ctx.fillRect(houseX, 200, 85, 90);
-                // Ống khói
                 ctx.fillStyle = '#8d6e63'; ctx.fillRect(houseX + 60, 150, 12, 30);
-                // Mái nhà đỏ
                 ctx.fillStyle = '#e57373'; ctx.beginPath();
                 ctx.moveTo(houseX - 10, 200); ctx.lineTo(houseX + 42, 145); ctx.lineTo(houseX + 95, 200); ctx.fill();
-
-                // Cửa sổ kính có rèm
                 ctx.fillStyle = '#81d4fa'; ctx.fillRect(houseX + 12, 215, 22, 22);
-                ctx.fillStyle = '#e57373'; ctx.fillRect(houseX + 12, 215, 6, 22); // Rèm đỏ
-                ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.strokeRect(houseX + 12, 215, 22, 22);
-
-                // Cửa chính gỗ
                 ctx.fillStyle = '#6d4c41'; ctx.fillRect(houseX + 48, 240, 22, 50);
-                ctx.fillStyle = '#fbc02d'; ctx.beginPath(); ctx.arc(x = houseX + 53, 265, 2, 0, Math.PI*2); ctx.fill(); // Tay cầm cửa
             }
 
-            // Cây dừa
             for (let tIdx = 0; tIdx < 2; tIdx++) {
                 let treeX = (80 + tIdx * 450 - bgOffset * 0.8) % 900;
                 if (treeX < -100) treeX += 900;
                 ctx.fillStyle = '#5d4037'; ctx.fillRect(treeX, 180, 16, 120);
                 ctx.fillStyle = '#2e7d32'; ctx.beginPath();
-                ctx.arc(treeX - 20, 170, 28, 0, Math.PI*2);
-                ctx.arc(treeX + 35, 170, 28, 0, Math.PI*2);
-                ctx.arc(treeX + 8, 150, 32, 0, Math.PI*2); ctx.fill();
+                ctx.arc(treeX - 20, 170, 28, 0, Math.PI*2); ctx.arc(treeX + 35, 170, 28, 0, Math.PI*2); ctx.arc(treeX + 8, 150, 32, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        // --- VẼ MAP THÀNH PHỐ (CITY SKYLINE CHUẨN ĐÚNG ẢNH MẪU) ---
+        function drawCityMap() {
+            // Sky gradient đô thị nhạt
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
+            skyGrad.addColorStop(0, '#90caf9'); skyGrad.addColorStop(1, '#e3f2fd');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 240);
+
+            // Mây trắng đô thị
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            let cloudX = (150 - bgOffset * 0.15) % 900;
+            if (cloudX < -100) cloudX += 900;
+            ctx.beginPath();
+            ctx.arc(cloudX, 50, 30, 0, Math.PI*2); ctx.arc(cloudX + 40, 45, 40, 0, Math.PI*2); ctx.arc(cloudX + 80, 50, 30, 0, Math.PI*2); ctx.fill();
+
+            // Tòa nhà chọc trời phía xa (Skyline Silhouette)
+            for (let b = 0; b < 7; b++) {
+                let bX = (b * 140 - bgOffset * 0.25) % 980;
+                if (bX < -140) bX += 980;
+                ctx.fillStyle = b % 2 === 0 ? '#9fa8da' : '#7e57c2';
+                ctx.fillRect(bX, 70 + (b % 3)*20, 110, 220);
+                // Cửa sổ tòa nhà xa
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                for(let w = 0; w < 4; w++) {
+                    ctx.fillRect(bX + 15 + w*22, 90 + (b % 3)*20, 12, 120);
+                }
             }
 
-            // Đất & Lộ trình
+            // Cầu vượt uốn cong màu xám xanh (Overpass Bridge)
+            let bridgeX = (320 - bgOffset * 0.5) % 900;
+            if (bridgeX < -250) bridgeX += 900;
+            ctx.fillStyle = '#455a64'; ctx.fillRect(bridgeX + 80, 180, 20, 120); // Trụ cầu
+            ctx.fillStyle = '#37474f';
+            ctx.beginPath();
+            ctx.moveTo(bridgeX - 100, 200);
+            ctx.quadraticCurveTo(bridgeX + 90, 150, bridgeX + 280, 210);
+            ctx.lineTo(bridgeX + 280, 230);
+            ctx.quadraticCurveTo(bridgeX + 90, 170, bridgeX - 100, 220);
+            ctx.fill();
+
+            // Người đứng kêu cứu trên cầu vượt
+            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(bridgeX + 90, 145, 6, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#e91e63'; ctx.fillRect(bridgeX + 87, 151, 6, 10);
+
+            // Tòa nhà gạch đỏ cổ kính ở tiền cảnh bên trái (Red Brick Building with Fire Escape)
+            for (let r = 0; r < 2; r++) {
+                let redX = (r * 520 - bgOffset * 0.7) % 900;
+                if (redX < -220) redX += 900;
+                ctx.fillStyle = '#8d6e63'; ctx.fillRect(redX, 130, 180, 180);
+                // Ô cửa sổ vòm gạch
+                ctx.fillStyle = '#212121';
+                for(let row=0; row<2; row++) {
+                    for(let col=0; col<3; col++) {
+                        ctx.fillRect(redX + 20 + col*50, 150 + row*55, 30, 40);
+                    }
+                }
+                // Cầu thang thoát hiểm đen
+                ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
+                ctx.strokeRect(redX + 130, 150, 35, 100);
+                ctx.beginPath(); ctx.moveTo(redX + 130, 180); ctx.lineTo(redX + 165, 180); ctx.moveTo(redX + 130, 210); ctx.lineTo(redX + 165, 210); ctx.stroke();
+            }
+        }
+
+        // Render Background & Mặt đường
+        function drawBackground() {
+            if (currentMap === 'BEACH') {
+                drawBeachMap();
+            } else {
+                drawCityMap();
+            }
+
+            // Mặt Đường & Đất
             ctx.fillStyle = '#261c14';
             ctx.fillRect(0, defaultGroundY, canvas.width, canvas.height - defaultGroundY);
             ctx.fillStyle = '#37474f';
@@ -384,7 +437,7 @@ game_code = """
             ctx.fillStyle = '#455a64';
             ctx.fillRect(0, defaultGroundY + 12, canvas.width, canvas.height - defaultGroundY - 12);
 
-            // Vách ngăn / Hố
+            // Hố / Vách ngăn
             pits.forEach(p => {
                 let depth = defaultGroundY + (p.depthOffset || 0);
                 ctx.clearRect(p.x, depth, p.width, canvas.height - depth);
@@ -407,18 +460,13 @@ game_code = """
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
-                waveGrad.addColorStop(0, '#00b0ff');
-                waveGrad.addColorStop(0.5, '#0077c2');
-                waveGrad.addColorStop(1, '#002984');
+                waveGrad.addColorStop(0, '#00b0ff'); waveGrad.addColorStop(0.5, '#0077c2'); waveGrad.addColorStop(1, '#002984');
                 ctx.fillStyle = waveGrad;
-
                 ctx.beginPath();
-                ctx.moveTo(-100, defaultGroundY + 50);
-                ctx.lineTo(-100, 180);
+                ctx.moveTo(-100, defaultGroundY + 50); ctx.lineTo(-100, 180);
                 ctx.bezierCurveTo(waveX - 120, 160, waveX - 40, 130, waveX, 170);
                 ctx.bezierCurveTo(waveX + 30, 200, waveX + 50, 270, waveX + 20, defaultGroundY + 50);
-                ctx.closePath();
-                ctx.fill();
+                ctx.closePath(); ctx.fill();
 
                 ctx.fillStyle = '#ffffff';
                 for (let f = 0; f < 18; f++) {
@@ -427,6 +475,16 @@ game_code = """
                     let foamR = 10 + (f % 5) * 4;
                     ctx.beginPath(); ctx.arc(foamX, foamY, foamR, 0, Math.PI * 2); ctx.fill();
                 }
+            }
+
+            // Banner thông báo đổi map
+            if (mapBannerTimer > 0) {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(200, 15, 400, 45);
+                ctx.fillStyle = '#fbc02d';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(currentMap === 'BEACH' ? '🌊 MAP: TROPICAL BEACH 🌊' : '🏙️ MAP: CITY SKYLINE 🏙️', 400, 45);
             }
         }
 
@@ -441,36 +499,22 @@ game_code = """
             ctx.restore();
         }
 
-        // VẼ ZOMBIE THEO ĐÚNG HÌNH MẪU (KHÔNG MŨ)
         function drawZombie(z) {
             ctx.save();
             ctx.translate(z.x, z.y);
-
             ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 5;
-            ctx.beginPath();
-            ctx.moveTo(-4, 8); ctx.lineTo(-4 + Math.sin(z.legAngle)*8, 20);
-            ctx.moveTo(4, 8); ctx.lineTo(4 - Math.sin(z.legAngle)*8, 20);
-            ctx.stroke();
-
+            ctx.beginPath(); ctx.moveTo(-4, 8); ctx.lineTo(-4 + Math.sin(z.legAngle)*8, 20); ctx.moveTo(4, 8); ctx.lineTo(4 - Math.sin(z.legAngle)*8, 20); ctx.stroke();
             ctx.fillStyle = '#fbc02d'; ctx.fillRect(-8, 4, 16, 8);
             ctx.fillStyle = '#8d2626'; ctx.fillRect(-9, -4, 18, 10);
-
-            ctx.fillStyle = '#76ba1b';
-            ctx.beginPath(); ctx.arc(0, -16, 17, 0, Math.PI * 2); ctx.fill();
-
-            // Mắt lồi to
+            ctx.fillStyle = '#76ba1b'; ctx.beginPath(); ctx.arc(0, -16, 17, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(7, -18, 10, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(7, -18, 8.5, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(9, -18, 4, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(9.5, -18, 2, 0, Math.PI * 2); ctx.fill();
-
-            // Miệng nhe răng
             ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(8, -8, 6, 0, Math.PI); ctx.fill();
             ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(5, -8); ctx.lineTo(7, -4); ctx.lineTo(9, -8); ctx.fill();
-
             ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4;
             ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(14, 2); ctx.stroke();
-
             ctx.restore();
         }
 
@@ -522,50 +566,21 @@ game_code = """
             ctx.restore();
         }
 
-        // VẼ TRỰC THĂNG QUÂN SỰ CHUẨN ẢNH MẪU (0/8)
         function drawHelicopter(o) {
             ctx.save();
             ctx.translate(o.x, o.y);
-
-            // Thân máy bay màu xanh quân đèo
-            ctx.fillStyle = '#3e4a36';
-            ctx.beginPath();
-            ctx.ellipse(70, 30, 60, 24, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Đuôi trực thăng & Cánh quạt đuôi
+            ctx.fillStyle = '#3e4a36'; ctx.beginPath(); ctx.ellipse(70, 30, 60, 24, 0, 0, Math.PI * 2); ctx.fill();
             ctx.fillRect(110, 22, 45, 12);
-            ctx.fillStyle = '#111';
-            ctx.fillRect(150, 10, 6, 30);
-
-            // Cửa kính trực thăng
-            ctx.fillStyle = '#81d4fa';
-            ctx.fillRect(25, 18, 28, 16);
-            ctx.fillRect(60, 20, 14, 12);
-            ctx.fillRect(80, 20, 14, 12);
-
-            // Cánh quạt chính phía trên (Đang quay)
-            ctx.fillStyle = '#111';
-            ctx.fillRect(65, 0, 8, 10); // Trục cánh
+            ctx.fillStyle = '#111'; ctx.fillRect(150, 10, 6, 30);
+            ctx.fillStyle = '#81d4fa'; ctx.fillRect(25, 18, 28, 16); ctx.fillRect(60, 20, 14, 12); ctx.fillRect(80, 20, 14, 12);
+            ctx.fillStyle = '#111'; ctx.fillRect(65, 0, 8, 10);
             let bladeW = 110 + Math.sin(frame * 0.5) * 20;
             ctx.fillRect(70 - bladeW/2, 0, bladeW, 4);
-
-            // Chân đáp trực thăng
-            ctx.strokeStyle = '#222'; ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(35, 50); ctx.lineTo(35, 58); ctx.lineTo(105, 58); ctx.lineTo(105, 50);
-            ctx.stroke();
-
-            // Mã hiệu T-315
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 11px monospace';
-            ctx.fillText('T-315', 70, 34);
-
-            // Bảng chỉ dẫn Yêu cầu 0/8
+            ctx.strokeStyle = '#222'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(35, 50); ctx.lineTo(35, 58); ctx.lineTo(105, 58); ctx.lineTo(105, 50); ctx.stroke();
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px monospace'; ctx.fillText('T-315', 70, 34);
             ctx.fillStyle = '#111'; ctx.fillRect(40, -42, 60, 28);
             ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(`0/${o.reqZombies}`, 70, -22);
-
             ctx.restore();
         }
 
