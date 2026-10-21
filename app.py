@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Dual Maps Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Authentic Masterpiece", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAPS EDITION 🌊🌆</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - MASTERPIECE EDITION 🌊🌆</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -294,9 +294,8 @@ game_code = """
         let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';
         let ownedItems = JSON.parse(localStorage.getItem('zt_owned_items') || '[]');
 
-        // QUẢN LÝ MAP (BEACH VÀ CITY)
-        let currentMap = 'BEACH'; // 'BEACH' hoặc 'CITY'
-        let mapTimer = 0; // Đếm frame để đổi map mỗi 20 giây (1200 frames)
+        let currentMap = 'BEACH'; 
+        let mapTimer = 0; 
 
         function saveUserData() {
             localStorage.setItem('zt_total_coins', totalCoins);
@@ -470,7 +469,6 @@ game_code = """
             tsunamiActive = false; tsunamiTimer = 0;
             giantActive = false; giantTimer = 0;
 
-            // 50/50 XUẤT HIỆN MAP BAN ĐẦU
             currentMap = Math.random() < 0.5 ? 'BEACH' : 'CITY';
             mapTimer = 0;
         }
@@ -491,7 +489,6 @@ game_code = """
 
             if (gameState !== 'PLAYING') return;
 
-            // CHUYỂN MAP MỖI 20 GIÂY (20s * 60fps = 1200 frames)
             mapTimer++;
             if (mapTimer >= 1200) {
                 mapTimer = 0;
@@ -503,13 +500,11 @@ game_code = """
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
 
-            // Spawn Hố
             if (frame % 230 === 0 && Math.random() > 0.35) {
                 let pitWidth = 85 + Math.random() * 65;
                 pits.push({ x: 850, width: pitWidth });
             }
 
-            // Spawn Xu
             if (frame % 160 === 0 && Math.random() < 0.6) {
                 let count = 5 + Math.floor(Math.random() * 4);
                 let startX = 850;
@@ -519,7 +514,6 @@ game_code = """
                 }
             }
 
-            // Spawn Hộp ?
             if (frame % 850 === 0 && !tsunamiActive && !giantActive && Math.random() < 0.6) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 40)) {
@@ -527,7 +521,6 @@ game_code = """
                 }
             }
 
-            // Spawn Chướng ngại vật
             if (frame % 115 === 0) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 150)) {
@@ -550,7 +543,6 @@ game_code = """
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
 
-            // Xu
             coinTrails.forEach(c => {
                 c.x -= speed;
                 if (!c.collected) {
@@ -565,7 +557,6 @@ game_code = """
             });
             coinTrails = coinTrails.filter(c => c.x > -30 && !c.collected);
 
-            // Ăn Hộp Bổ Trợ
             powerups.forEach((pw) => {
                 pw.x -= speed;
                 let leader = zombies[0];
@@ -582,7 +573,6 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // VA CHẠM XE & MÁY BAY
             let isBlockedByVehicle = false;
 
             for (let obsIdx = obstacles.length - 1; obsIdx >= 0; obsIdx--) {
@@ -650,7 +640,6 @@ game_code = """
                 }
             }
 
-            // XỬ LÝ HỐ RƠI VỰC
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
@@ -698,7 +687,6 @@ game_code = """
                 return;
             }
 
-            // Ăn người
             humans.forEach((h) => {
                 h.x -= speed;
                 let leader = zombies[0];
@@ -739,7 +727,6 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // VẼ MAP BÃI BIỂN
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
@@ -779,43 +766,50 @@ game_code = """
             }
         }
 
-        // VẼ MAP THÀNH PHỐ ĐÊM
+        // MAP THÀNH PHỐ ĐÚNG CHUẨN ẢNH 1 (CẦU VƯỢT, TÒA NHÀ & ĐÈN NEON KHÔNG CHỮ)
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#0a0f1d'); skyGrad.addColorStop(1, '#1b2a4a');
+            skyGrad.addColorStop(0, '#5c3d75'); skyGrad.addColorStop(0.5, '#95508c'); skyGrad.addColorStop(1, '#e08ba0');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            for (let b = 0; b < 5; b++) {
-                let bX = (b * 220 - bgOffset * 0.2) % 1100; if (bX < -150) bX += 1100;
-                let bH = 120 + (b * 35) % 90;
-                let bY = 280 - bH;
-                ctx.fillStyle = '#16202b'; ctx.fillRect(bX, bY, 130, bH);
+            // Đám mây hồng tím hoàng hôn
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            let cloudX = (200 - bgOffset * 0.1) % 900; if (cloudX < -100) cloudX += 900;
+            ctx.beginPath(); ctx.arc(cloudX, 40, 18, 0, Math.PI*2); ctx.arc(cloudX + 25, 35, 24, 0, Math.PI*2); ctx.fill();
 
+            // Cầu vượt bê tông uốn lượn phía hậu cảnh (Chuẩn Ảnh 1)
+            ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 14;
+            ctx.beginPath(); ctx.moveTo(0, 210); ctx.quadraticCurveTo(400, 140, 800, 220); ctx.stroke();
+            ctx.strokeStyle = '#37474f'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(0, 216); ctx.quadraticCurveTo(400, 146, 800, 226); ctx.stroke();
+
+            // Các tòa nhà chọc trời phía xa (Không có chữ HOTEL/BAR)
+            for (let b = 0; b < 4; b++) {
+                let bX = (b * 260 - bgOffset * 0.25) % 1040; if (bX < -160) bX += 1040;
+                let bH = 100 + (b * 40) % 80;
+                ctx.fillStyle = '#263238'; ctx.fillRect(bX, 220 - bH, 110, bH);
                 ctx.fillStyle = '#ffeb3b';
-                for (let r = 0; r < Math.floor(bH / 18); r++) {
+                for (let r = 0; r < Math.floor(bH / 16); r++) {
                     for (let c = 0; c < 3; c++) {
-                        if ((b + r + c) % 3 !== 0) ctx.fillRect(bX + 15 + c * 35, bY + 12 + r * 18, 18, 10);
+                        if ((b + r + c) % 2 === 0) ctx.fillRect(bX + 12 + c * 30, 220 - bH + 10 + r * 16, 14, 8);
                     }
                 }
             }
 
-            for (let hIdx = 0; hIdx < 3; hIdx++) {
-                let houseX = (150 + hIdx * 320 - bgOffset * 0.5) % 960; if (houseX < -140) houseX += 960;
-                ctx.fillStyle = '#22303c'; ctx.fillRect(houseX, 110, 100, 170);
-
-                ctx.fillStyle = hIdx % 2 === 0 ? '#ff1744' : '#00e5ff'; ctx.fillRect(houseX + 15, 130, 70, 25);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(hIdx % 2 === 0 ? 'BAR' : 'HOTEL', houseX + 28, 147);
-
-                ctx.fillStyle = 'rgba(255, 235, 59, 0.7)';
-                ctx.fillRect(houseX + 15, 170, 22, 28); ctx.fillRect(houseX + 63, 170, 22, 28);
-                ctx.fillRect(houseX + 15, 215, 22, 28); ctx.fillRect(houseX + 63, 215, 22, 28);
+            // Tòa nhà gạch đỏ cổ điển ở bên phải (Chuẩn Ảnh 1)
+            let redBuildingX = (600 - bgOffset * 0.5) % 900;
+            ctx.fillStyle = '#b71c1c'; ctx.fillRect(redBuildingX, 110, 150, 170);
+            ctx.fillStyle = '#331a00';
+            for(let rx=0; rx<3; rx++) {
+                for(let ry=0; ry<4; ry++) {
+                    ctx.fillRect(redBuildingX + 15 + rx * 42, 130 + ry * 35, 28, 22);
+                }
             }
 
             ctx.fillStyle = '#455a64'; ctx.fillRect(0, 280, canvas.width, 50);
         }
 
         function drawBackground() {
-            // SỬA LỖI VẾT KÉO DÀI: XÓA SẠCH TOÀN BỘ CANVAS TRƯỚC KHI VẼ MAP
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (currentMap === 'BEACH') {
@@ -841,41 +835,80 @@ game_code = """
                 }
             }
 
+            // HOẠT ẢNH SÓNG THẦN SỐNG ĐỘNG (XANH BIỂN SÂU KẾT HỢP BỌT TRẮNG - ẢNH 3)
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
-                let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
-                waveGrad.addColorStop(0, '#00b0ff'); waveGrad.addColorStop(0.5, '#0077c2'); waveGrad.addColorStop(1, '#002984');
+                let waveGrad = ctx.createLinearGradient(0, 80, 0, defaultGroundY + 50);
+                waveGrad.addColorStop(0, '#00e5ff'); waveGrad.addColorStop(0.4, '#0097a7'); waveGrad.addColorStop(1, '#002f6c');
                 ctx.fillStyle = waveGrad;
-                ctx.beginPath(); ctx.moveTo(-100, defaultGroundY + 50); ctx.lineTo(-100, 180);
-                ctx.bezierCurveTo(waveX - 120, 160, waveX - 40, 130, waveX, 170);
-                ctx.bezierCurveTo(waveX + 30, 200, waveX + 50, 270, waveX + 20, defaultGroundY + 50);
-                ctx.closePath(); ctx.fill();
+                ctx.beginPath(); 
+                ctx.moveTo(-100, defaultGroundY + 50); 
+                ctx.lineTo(-100, 160);
+                ctx.bezierCurveTo(waveX - 140, 130, waveX - 40, 100, waveX + 10, 150);
+                ctx.bezierCurveTo(waveX + 50, 190, waveX + 70, 260, waveX + 30, defaultGroundY + 50);
+                ctx.closePath(); 
+                ctx.fill();
+
+                // Bọt sóng trắng cuồn cuộn đỉnh sóng
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(waveX + 10, 150, 18 + Math.sin(frame*0.3)*4, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(waveX - 10, 140, 14, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(waveX + 25, 165, 12, 0, Math.PI*2); ctx.fill();
             }
         }
 
+        // QUÁI VẬT LỚN CỰC KỲ CHI TIẾT ĐÚNG MẪU (CÓ MŨ ẢO THUẬT, MẮT, XÚC TU VÀ MIỆNG - ẢNH 2)
         function drawGiantMonster() {
             ctx.save();
             let gX = 180; let gY = defaultGroundY - 50;
-            let brainGrad = ctx.createRadialGradient(gX - 12, gY - 25, 8, gX, gY, 68);
-            brainGrad.addColorStop(0, '#eeff41'); brainGrad.addColorStop(0.6, '#76ba1b'); brainGrad.addColorStop(1, '#1b5e20');
-            ctx.fillStyle = brainGrad; ctx.beginPath(); ctx.arc(gX, gY - 10, 68, 0, Math.PI * 2); ctx.fill();
 
+            // Thân quái vật / bộ não xanh khổng lồ
+            let brainGrad = ctx.createRadialGradient(gX - 12, gY - 25, 8, gX, gY, 72);
+            brainGrad.addColorStop(0, '#ccff90'); brainGrad.addColorStop(0.5, '#76ba1b'); brainGrad.addColorStop(1, '#1b5e20');
+            ctx.fillStyle = brainGrad; ctx.beginPath(); ctx.arc(gX, gY - 10, 72, 0, Math.PI * 2); ctx.fill();
+
+            // Mũ ảo thuật lịch lãm trên đầu (Ảnh 2)
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(gX - 18, gY - 78, 36, 6); // Vành mũ
+            ctx.fillRect(gX - 11, gY - 105, 22, 27); // Chóp mũ
+            ctx.fillStyle = '#b71c1c'; ctx.fillRect(gX - 11, gY - 84, 22, 5); // Ruy băng đỏ
+
+            // Đôi chân ngắn quái vật bước đi
+            ctx.fillStyle = '#fbc02d';
+            ctx.fillRect(gX - 22, gY + 52, 16, 12);
+            ctx.fillRect(gX + 6, gY + 52, 16, 12);
+
+            // Hệ thống mắt to nhiều tròng ngầu (Ảnh 2)
             let eyes = [
-                {x: gX - 32, y: gY - 28, r: 18}, {x: gX + 10, y: gY - 35, r: 20},
-                {x: gX + 38, y: gY - 12, r: 15}, {x: gX - 8, y: gY - 5, r: 24}
+                {x: gX - 35, y: gY - 32, r: 20}, {x: gX + 12, y: gY - 40, r: 22},
+                {x: gX + 42, y: gY - 14, r: 16}, {x: gX - 10, y: gY - 8, r: 26}
             ];
             eyes.forEach(e => {
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#00e5ff'; ctx.beginPath(); ctx.arc(e.x + 3, e.y, e.r * 0.55, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(e.x + 4, e.y, e.r * 0.25, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(e.x + 1, e.y - 3, 2, 0, Math.PI*2); ctx.fill();
             });
 
-            ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.ellipse(gX + 15, gY + 28, 32, 14, 0.1, 0, Math.PI * 2); ctx.fill();
+            // Miệng quái vật há rộng màu tím đen đáng sợ
+            ctx.fillStyle = '#110022'; 
+            ctx.beginPath(); ctx.ellipse(gX + 18, gY + 28, 30, 16, 0.1, 0, Math.PI * 2); ctx.fill();
+            // Răng nanh sắc nhọn
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.moveTo(gX, gY + 20); ctx.lineTo(gX + 6, gY + 30); ctx.lineTo(gX + 12, gY + 20); ctx.fill();
 
-            let laserGrad = ctx.createLinearGradient(gX + 40, gY - 10, 800, gY - 10);
-            laserGrad.addColorStop(0, '#ffffff'); laserGrad.addColorStop(0.2, '#ff007f'); laserGrad.addColorStop(0.7, '#e040fb'); laserGrad.addColorStop(1, '#ffffff');
-            ctx.strokeStyle = laserGrad; ctx.lineWidth = 22 + Math.sin(frame * 0.4) * 6;
-            ctx.beginPath(); ctx.moveTo(gX + 40, gY - 10); ctx.lineTo(800, gY - 10); ctx.stroke();
+            // Xúc tu màu tím đen vươn dài quắp lấy mục tiêu (Ảnh 2)
+            ctx.strokeStyle = '#4a148c'; ctx.lineWidth = 14; ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(gX + 35, gY + 30);
+            ctx.bezierCurveTo(gX + 80, gY + 40, gX + 130, gY + 10, gX + 180, gY + 25);
+            ctx.stroke();
+
+            // Tia laser hồng tím siêu mạnh bắn ra từ mắt (Ảnh 2)
+            let laserGrad = ctx.createLinearGradient(gX + 30, gY - 20, 800, gY - 20);
+            laserGrad.addColorStop(0, '#ffffff'); laserGrad.addColorStop(0.15, '#ff007f'); laserGrad.addColorStop(0.7, '#e040fb'); laserGrad.addColorStop(1, '#ffffff');
+            ctx.strokeStyle = laserGrad; ctx.lineWidth = 26 + Math.sin(frame * 0.4) * 6;
+            ctx.beginPath(); ctx.moveTo(gX + 30, gY - 25); ctx.lineTo(800, gY - 25); ctx.stroke();
             ctx.restore();
         }
 
@@ -1107,12 +1140,10 @@ game_code = """
 
             particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
 
-            // HUD UI
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(15, 12, 170, 70);
             ctx.fillStyle = '#fbc02d'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`🪙 ${totalCoins}`, 25, 40);
             ctx.fillStyle = '#76ba1b'; ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
 
-            // HIỂN THỊ TÊN MAP HIỆN TẠI
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(630, 12, 155, 35);
             ctx.fillStyle = '#80d8ff'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText(currentMap === 'BEACH' ? '🌊 Map: Bãi Biển' : '🌆 Map: Thành Phố', 707, 35);
