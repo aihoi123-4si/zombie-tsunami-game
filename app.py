@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Final Polish", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Ultimate Edition", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - FINAL POLISH EDITION ⚡</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - ULTIMATE EDITION ⚡</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -582,13 +582,11 @@ game_code = """
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
 
-            // Spawn Hố
             if (frame % 250 === 0 && Math.random() > 0.35) {
                 let pitWidth = 85 + Math.random() * 65;
                 pits.push({ x: 850, width: pitWidth });
             }
 
-            // Spawn Xu
             if (frame % 160 === 0 && Math.random() < 0.6) {
                 let count = 5 + Math.floor(Math.random() * 4);
                 let startX = 850;
@@ -598,7 +596,6 @@ game_code = """
                 }
             }
 
-            // Spawn Hộp ?
             if (frame % 850 === 0 && !tsunamiActive && !giantActive && Math.random() < 0.6) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 40)) {
@@ -606,20 +603,22 @@ game_code = """
                 }
             }
 
-            // Spawn Chướng ngại vật (Giãn tần số bom & xe để người chơi dễ thở)
+            // Spawn Chướng ngại vật (Bus dài hơn, Helicopter siêu lớn như ảnh)
             if (frame % 130 === 0) {
                 let spawnX = 850;
-                if (!isOverPit(spawnX, 150)) {
+                if (!isOverPit(spawnX, 170)) {
                     let rand = Math.random();
                     if (rand < 0.32) {
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false });
-                    } else if (rand < 0.62) {
+                    } else if (rand < 0.60) {
                         obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 90, h: 42, type: 'CAR', reqZombies: 4, peopleInside: 3, hitCooldown: 0 });
-                    } else if (rand < 0.80) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 62, w: 125, h: 58, type: 'BUS', reqZombies: 6, peopleInside: 6, hitCooldown: 0 });
+                    } else if (rand < 0.78) {
+                        // Xe buýt dài hơn (w: 145) và hitbox lớn
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 55, w: 145, h: 52, type: 'BUS', reqZombies: 6, peopleInside: 6, hitCooldown: 0 });
                     } else if (rand < 0.88) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 150, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, hitCooldown: 0 });
+                        // Máy bay rất to và dài (w: 195)
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 82, w: 195, h: 62, type: 'HELI', reqZombies: 8, peopleInside: 8, hitCooldown: 0 });
                     } else {
                         obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 42, h: 42, type: 'BOMB' });
                     }
@@ -667,7 +666,7 @@ game_code = """
                 if (obs.hitCooldown > 0) obs.hitCooldown--;
 
                 if (tsunamiActive || giantActive) {
-                    if (Math.abs(zombies[0].x - obs.x) < 130) {
+                    if (Math.abs(zombies[0].x - obs.x) < 140) {
                         addParticles(obs.x + obs.w/2, obs.y, giantActive ? '#e040fb' : '#00e5ff', 30);
                         if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                             score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10;
@@ -687,8 +686,9 @@ game_code = """
                 } else {
                     if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                         let leader = zombies[0];
-                        // Sửa vùng va chạm xe để không bị kẹt
-                        if (leader && leader.x + 10 >= obs.x && leader.x - 10 <= obs.x + obs.w && leader.y >= obs.y - 15) {
+                        // Hitbox xe buýt và máy bay lớn hơn
+                        let hitMargin = obs.type === 'BUS' ? 14 : (obs.type === 'HELI' ? 18 : 8);
+                        if (leader && leader.x + hitMargin >= obs.x && leader.x - hitMargin <= obs.x + obs.w && leader.y >= obs.y - 18) {
                             if (zombies.length >= obs.reqZombies) {
                                 addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 35);
                                 score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10;
@@ -727,7 +727,6 @@ game_code = """
                 }
             }
 
-            // XỬ LÝ HỐ RƠI VỰC: TỪNG CON RƠI LẦN LƯỢT TỪ ĐẦU ĐẾN CUỐI ĐÀN TRÁNH CHẾT LOẠT
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
@@ -764,7 +763,6 @@ game_code = """
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
                 if (isBlockedByVehicle && i === 0) z.x = Math.max(100, z.x - speed);
                 
-                // Rơi xuống đáy vực thì biến mất từng con theo độ trễ
                 if (z.y > canvas.height + 30) { 
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 12); 
                     zombies.splice(i, 1); 
@@ -803,14 +801,14 @@ game_code = """
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
                             let newVariant = Math.floor(Math.random() * 3);
-                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0, variant: newVariant });
+                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: h.isGrounded, legAngle: 0, variant: newVariant });
                         }
                     }
                 }
             });
 
             humans = humans.filter(h => h.x > -50 && !h.eaten);
-            obstacles = obstacles.filter(o => o.x > -180);
+            obstacles = obstacles.filter(o => o.x > -200);
 
             particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life--; });
             particles = particles.filter(p => p.life > 0);
@@ -855,6 +853,7 @@ game_code = """
             }
         }
 
+        // SỬA LỖI CẦU VƯỢT VÀ TÒA NHÀ KHÔNG BỊ ĐỨT GÃY TẠI MAP THÀNH PHỐ
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#5c3d75'); skyGrad.addColorStop(0.5, '#95508c'); skyGrad.addColorStop(1, '#e08ba0');
@@ -864,13 +863,14 @@ game_code = """
             let cloudX = (200 - bgOffset * 0.1) % 900; if (cloudX < -100) cloudX += 900;
             ctx.beginPath(); ctx.arc(cloudX, 40, 18, 0, Math.PI*2); ctx.arc(cloudX + 25, 35, 24, 0, Math.PI*2); ctx.fill();
 
-            let bridgeSpacing = 500;
-            let startBridgeX = - (bgOffset * 0.5 % bridgeSpacing);
-            for (let bx = startBridgeX; bx < canvas.width + bridgeSpacing; bx += bridgeSpacing) {
+            // Cầu vượt lặp lại liên tục hoàn hảo không đứt gãy
+            let bridgeWidth = 600;
+            let startBridgeX = - (bgOffset * 0.5 % bridgeWidth);
+            for (let bx = startBridgeX; bx < canvas.width + bridgeWidth; bx += bridgeWidth) {
                 ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 14;
-                ctx.beginPath(); ctx.moveTo(bx, 210); ctx.quadraticCurveTo(bx + 250, 140, bx + 500, 220); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(bx, 210); ctx.quadraticCurveTo(bx + 300, 140, bx + 600, 210); ctx.stroke();
                 ctx.strokeStyle = '#37474f'; ctx.lineWidth = 4;
-                ctx.beginPath(); ctx.moveTo(bx, 216); ctx.quadraticCurveTo(bx + 250, 146, bx + 500, 226); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(bx, 216); ctx.quadraticCurveTo(bx + 300, 146, bx + 600, 216); ctx.stroke();
             }
 
             for (let b = 0; b < 6; b++) {
@@ -885,9 +885,9 @@ game_code = """
                 }
             }
 
-            let redBuildingSpacing = 450;
-            let startRedX = - (bgOffset * 0.6 % redBuildingSpacing);
-            for (let rxPos = startRedX; rxPos < canvas.width + redBuildingSpacing; rxPos += redBuildingSpacing) {
+            let redBuildingWidth = 450;
+            let startRedX = - (bgOffset * 0.6 % redBuildingWidth);
+            for (let rxPos = startRedX; rxPos < canvas.width + redBuildingWidth; rxPos += redBuildingWidth) {
                 ctx.fillStyle = '#b71c1c'; ctx.fillRect(rxPos, 110, 150, 170);
                 ctx.fillStyle = '#331a00';
                 for(let rx=0; rx<3; rx++) {
@@ -992,6 +992,26 @@ game_code = """
             ctx.restore();
         }
 
+        // VẼ CON NGƯỜI VỚI PHẦN THÂN DƯỚI RÕ RÀNG, KHÔNG TRÙNG MÀU MAP
+        function drawHuman(h) {
+            ctx.save(); ctx.translate(h.x, h.y);
+            // Đầu người
+            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, -16, 7, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d'; ctx.beginPath(); ctx.arc(0, -19, 7, Math.PI, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2.5, -16, 1.2, 0, Math.PI*2); ctx.arc(2.5, -16, 1.2, 0, Math.PI*2); ctx.fill();
+            
+            // Áo nổi bật
+            ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63'; ctx.fillRect(-5, -9, 10, 8);
+            
+            // Quần thân dưới màu sắc tương phản rõ (quần xanh đậm / nâu sẫm viền trắng) không trùng màu map
+            ctx.fillStyle = h.gender === 'MALE' ? '#283593' : '#ad1457';
+            ctx.fillRect(-5, -1, 10, 7);
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+            ctx.strokeRect(-5, -1, 10, 7);
+
+            ctx.restore();
+        }
+
         function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
             ctx.save();
             ctx.translate(z.x + offsetX, z.y + offsetY);
@@ -1093,15 +1113,6 @@ game_code = """
             ctx.restore();
         }
 
-        function drawHuman(h) {
-            ctx.save(); ctx.translate(h.x, h.y);
-            ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, -16, 7, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d'; ctx.beginPath(); ctx.arc(0, -19, 7, Math.PI, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2.5, -16, 1.2, 0, Math.PI*2); ctx.arc(2.5, -16, 1.2, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63'; ctx.fillRect(-5, -9, 10, 10);
-            ctx.restore();
-        }
-
         function drawZombieRequirementBadge(x, y, reqCount) {
             ctx.save();
             ctx.translate(x, y);
@@ -1140,49 +1151,59 @@ game_code = """
             ctx.restore();
         }
 
+        // XE BUÝT DÀI HƠN VÀ CHI TIẾT HƠN
         function drawBus(o) {
             ctx.save(); ctx.translate(o.x, o.y);
             ctx.fillStyle = '#fbc02d'; ctx.fillRect(0, 0, o.w, 48);
             ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 28, o.w, 5);
-            ctx.fillStyle = '#81d4fa'; for(let k=0; k<4; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
+            ctx.fillStyle = '#81d4fa'; 
+            for(let k=0; k<5; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 48, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 48, 9, 0, Math.PI*2); ctx.fill();
             
-            drawZombieRequirementBadge(20, -52, o.reqZombies);
+            drawZombieRequirementBadge(30, -52, o.reqZombies);
             ctx.restore();
         }
 
+        // MÁY BAY ĐẸP, DÀI, TO LỚN CHUẨN XÁC NHƯ ẢNH MẪU
         function drawHelicopter(o) {
             ctx.save(); ctx.translate(o.x, o.y);
             
+            // Thân máy bay bo tròn dài màu trắng & xanh lá
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.moveTo(0, 28);
-            ctx.bezierCurveTo(0, -10, 45, -18, 125, -10);
-            ctx.lineTo(150, 28);
-            ctx.lineTo(0, 28);
+            ctx.moveTo(0, 32);
+            ctx.bezierCurveTo(-5, -12, 55, -24, 160, -15);
+            ctx.lineTo(195, 32);
+            ctx.lineTo(0, 32);
             ctx.fill();
 
+            // Sọc sơn xanh lá đặc trưng
             ctx.fillStyle = '#76ba1b';
-            ctx.fillRect(40, 6, 100, 10);
+            ctx.fillRect(45, 6, 135, 12);
 
+            // Cửa sổ buồng lái bo tròn
             ctx.fillStyle = '#263238';
-            ctx.beginPath(); ctx.arc(22, 10, 8, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(20, 8, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(24, 12, 10, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(22, 10, 3, 0, Math.PI*2); ctx.fill();
 
+            // Dãy cửa sổ khoang hành khách
             ctx.fillStyle = '#263238';
-            for(let i=0; i<4; i++) {
-                ctx.fillRect(52 + i * 16, 8, 10, 9);
+            for(let i=0; i<6; i++) {
+                ctx.fillRect(58 + i * 18, 9, 12, 11);
             }
 
-            ctx.fillStyle = '#607d8b';
-            ctx.fillRect(80, 24, 34, 16);
-            ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(97, 40, 6, 0, Math.PI*2); ctx.fill();
+            // Chữ Z.AIRLINE chuẩn phong cách game
+            ctx.fillStyle = '#2e7d32';
+            ctx.font = '900 16px sans-serif';
+            ctx.fillText("Z.AIRLINE", 68, -2);
 
-            ctx.fillStyle = '#33691e';
-            ctx.font = '900 14px sans-serif';
-            ctx.fillText("Z.AIRLINE", 56, -1);
+            // Động cơ & bánh xe máy bay phía dưới
+            ctx.fillStyle = '#cfd8dc';
+            ctx.fillRect(100, 28, 50, 22);
+            ctx.fillStyle = '#111111'; 
+            ctx.beginPath(); ctx.arc(115, 52, 9, 0, Math.PI*2); ctx.arc(135, 52, 9, 0, Math.PI*2); ctx.fill();
 
-            drawZombieRequirementBadge(32, -55, o.reqZombies);
+            drawZombieRequirementBadge(45, -58, o.reqZombies);
             ctx.restore();
         }
 
