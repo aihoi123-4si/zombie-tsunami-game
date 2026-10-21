@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami - City Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Dual Maps Edition", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - CITY EDITION 🌆</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAPS EDITION 🌊🌆</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -294,6 +294,10 @@ game_code = """
         let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';
         let ownedItems = JSON.parse(localStorage.getItem('zt_owned_items') || '[]');
 
+        // QUẢN LÝ MAP (BEACH VÀ CITY)
+        let currentMap = 'BEACH'; // 'BEACH' hoặc 'CITY'
+        let mapTimer = 0; // Đếm frame để đổi map mỗi 20 giây (1200 frames)
+
         function saveUserData() {
             localStorage.setItem('zt_total_coins', totalCoins);
             localStorage.setItem('zt_total_eaten', totalEatenHumans);
@@ -465,6 +469,10 @@ game_code = """
             humans = []; obstacles = []; pits = []; powerups = []; coinTrails = []; particles = [];
             tsunamiActive = false; tsunamiTimer = 0;
             giantActive = false; giantTimer = 0;
+
+            // 50/50 XUẤT HIỆN MAP BAN ĐẦU
+            currentMap = Math.random() < 0.5 ? 'BEACH' : 'CITY';
+            mapTimer = 0;
         }
 
         function isOverPit(x, width = 20) {
@@ -482,6 +490,13 @@ game_code = """
             bgOffset += (gameState === 'MENU' ? 1.5 : speed);
 
             if (gameState !== 'PLAYING') return;
+
+            // CHUYỂN MAP MỖI 20 GIÂY (20s * 60fps = 1200 frames)
+            mapTimer++;
+            if (mapTimer >= 1200) {
+                mapTimer = 0;
+                currentMap = currentMap === 'BEACH' ? 'CITY' : 'BEACH';
+            }
 
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
 
@@ -724,66 +739,90 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // VẼ MAP THÀNH PHỐ (CITY MAP) ĐÊM
-        function drawCityMap() {
-            // 1. Bầu trời đêm đô thị (Gradient xanh đậm sang tím tối)
+        // VẼ MAP BÃI BIỂN
+        function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#0a0f1d'); 
-            skyGrad.addColorStop(1, '#1b2a4a');
-            ctx.fillStyle = skyGrad; 
-            ctx.fillRect(0, 0, canvas.width, 220);
+            skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // 2. Các tòa nhà chọc trời ở hậu cảnh (Skyscrapers)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            let cloudX = (300 - bgOffset * 0.15) % 900; if (cloudX < -100) cloudX += 900;
+            ctx.beginPath(); ctx.arc(cloudX, 50, 22, 0, Math.PI*2); ctx.arc(cloudX + 30, 42, 30, 0, Math.PI*2); ctx.arc(cloudX + 65, 50, 22, 0, Math.PI*2); ctx.fill();
+
+            let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
+            seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#26c6da');
+            ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
+
+            for (let b = 0; b < 3; b++) {
+                let boatX = (150 + b * 280 - bgOffset * 0.3) % 900; if (boatX < -50) boatX += 900;
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(boatX, 215); ctx.lineTo(boatX + 10, 200); ctx.lineTo(boatX + 10, 215); ctx.fill();
+                ctx.fillStyle = '#8d6e63'; ctx.fillRect(boatX + 2, 215, 16, 4);
+            }
+
+            ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
+
+            for (let hIdx = 0; hIdx < 3; hIdx++) {
+                let houseX = (180 + hIdx * 300 - bgOffset * 0.6) % 900; if (houseX < -120) houseX += 900;
+                ctx.fillStyle = hIdx % 2 === 0 ? '#b2dfdb' : '#ffcdd2'; ctx.fillRect(houseX, 210, 80, 70);
+                ctx.fillStyle = '#e57373'; ctx.beginPath(); ctx.moveTo(houseX - 8, 210); ctx.lineTo(houseX + 40, 165); ctx.lineTo(houseX + 88, 210); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(houseX + 12, 220, 22, 22);
+                ctx.fillStyle = '#5d4037'; ctx.fillRect(houseX + 46, 240, 20, 40);
+            }
+
+            for (let tIdx = 0; tIdx < 2; tIdx++) {
+                let treeX = (90 + tIdx * 460 - bgOffset * 0.8) % 900; if (treeX < -100) treeX += 900;
+                ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 15, 230, treeX + 15, 160); ctx.stroke();
+                ctx.fillStyle = '#2e7d32';
+                for (let a = 0; a < 5; a++) {
+                    let ang = (a * Math.PI) / 2.5 - 0.2; ctx.beginPath(); ctx.ellipse(treeX + 15 + Math.cos(ang)*28, 160 + Math.sin(ang)*18, 28, 10, ang, 0, Math.PI*2); ctx.fill();
+                }
+            }
+        }
+
+        // VẼ MAP THÀNH PHỐ ĐÊM
+        function drawCityMap() {
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
+            skyGrad.addColorStop(0, '#0a0f1d'); skyGrad.addColorStop(1, '#1b2a4a');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
+
             for (let b = 0; b < 5; b++) {
-                let bX = (b * 220 - bgOffset * 0.2) % 1100; 
-                if (bX < -150) bX += 1100;
+                let bX = (b * 220 - bgOffset * 0.2) % 1100; if (bX < -150) bX += 1100;
                 let bH = 120 + (b * 35) % 90;
                 let bY = 280 - bH;
-                
-                // Thân tòa nhà
-                ctx.fillStyle = '#16202b'; 
-                ctx.fillRect(bX, bY, 130, bH);
+                ctx.fillStyle = '#16202b'; ctx.fillRect(bX, bY, 130, bH);
 
-                // Cửa sổ sáng đèn vàng/xanh đặc trưng đô thị về đêm
                 ctx.fillStyle = '#ffeb3b';
                 for (let r = 0; r < Math.floor(bH / 18); r++) {
                     for (let c = 0; c < 3; c++) {
-                        if ((b + r + c) % 3 !== 0) {
-                            ctx.fillRect(bX + 15 + c * 35, bY + 12 + r * 18, 18, 10);
-                        }
+                        if ((b + r + c) % 3 !== 0) ctx.fillRect(bX + 15 + c * 35, bY + 12 + r * 18, 18, 10);
                     }
                 }
             }
 
-            // 3. Các tòa nhà tiền cảnh chi tiết hơn với bảng hiệu Neon
             for (let hIdx = 0; hIdx < 3; hIdx++) {
-                let houseX = (150 + hIdx * 320 - bgOffset * 0.5) % 960; 
-                if (houseX < -140) houseX += 960;
-                
-                ctx.fillStyle = '#22303c'; 
-                ctx.fillRect(houseX, 110, 100, 170);
+                let houseX = (150 + hIdx * 320 - bgOffset * 0.5) % 960; if (houseX < -140) houseX += 960;
+                ctx.fillStyle = '#22303c'; ctx.fillRect(houseX, 110, 100, 170);
 
-                // Biển hiệu Neon nhấp nháy
-                ctx.fillStyle = hIdx % 2 === 0 ? '#ff1744' : '#00e5ff';
-                ctx.fillRect(houseX + 15, 130, 70, 25);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif';
-                ctx.fillText(hIdx % 2 === 0 ? 'BAR' : 'HOTEL', houseX + 28, 147);
+                ctx.fillStyle = hIdx % 2 === 0 ? '#ff1744' : '#00e5ff'; ctx.fillRect(houseX + 15, 130, 70, 25);
+                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(hIdx % 2 === 0 ? 'BAR' : 'HOTEL', houseX + 28, 147);
 
-                // Cửa sổ tòa nhà
                 ctx.fillStyle = 'rgba(255, 235, 59, 0.7)';
-                ctx.fillRect(houseX + 15, 170, 22, 28);
-                ctx.fillRect(houseX + 63, 170, 22, 28);
-                ctx.fillRect(houseX + 15, 215, 22, 28);
-                ctx.fillRect(houseX + 63, 215, 22, 28);
+                ctx.fillRect(houseX + 15, 170, 22, 28); ctx.fillRect(houseX + 63, 170, 22, 28);
+                ctx.fillRect(houseX + 15, 215, 22, 28); ctx.fillRect(houseX + 63, 215, 22, 28);
             }
 
-            // 4. Vỉa hè đường phố thành phố
-            ctx.fillStyle = '#455a64'; 
-            ctx.fillRect(0, 280, canvas.width, 50);
+            ctx.fillStyle = '#455a64'; ctx.fillRect(0, 280, canvas.width, 50);
         }
 
         function drawBackground() {
-            drawCityMap();
+            // SỬA LỖI VẾT KÉO DÀI: XÓA SẠCH TOÀN BỘ CANVAS TRƯỚC KHI VẼ MAP
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentMap === 'BEACH') {
+                drawBeachMap();
+            } else {
+                drawCityMap();
+            }
 
             ctx.fillStyle = '#212121'; ctx.fillRect(0, defaultGroundY, canvas.width, 16);
             ctx.fillStyle = '#37474f'; ctx.fillRect(0, defaultGroundY + 16, canvas.width, canvas.height - defaultGroundY - 16);
@@ -1068,9 +1107,15 @@ game_code = """
 
             particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
 
+            // HUD UI
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(15, 12, 170, 70);
             ctx.fillStyle = '#fbc02d'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`🪙 ${totalCoins}`, 25, 40);
             ctx.fillStyle = '#76ba1b'; ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
+
+            // HIỂN THỊ TÊN MAP HIỆN TẠI
+            ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(630, 12, 155, 35);
+            ctx.fillStyle = '#80d8ff'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(currentMap === 'BEACH' ? '🌊 Map: Bãi Biển' : '🌆 Map: Thành Phố', 707, 35);
 
             if (gameState === 'GAMEOVER') {
                 ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
