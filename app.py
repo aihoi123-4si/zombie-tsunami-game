@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami PowerUp Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Final Polish", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - POWER-UP EDITION ⚡</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - FINAL POLISH EDITION ⚡</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -320,9 +320,8 @@ game_code = """
         let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';
         let ownedItems = JSON.parse(localStorage.getItem('zt_owned_items') || '[]');
 
-        // NÂNG CẤP SỨC MẠNH (LEVEL 1 ĐẾN 3)
-        let power1Level = parseInt(localStorage.getItem('zt_p1_level') || '1'); // Số zombie ban đầu: 1->2->3->4
-        let power2Level = parseInt(localStorage.getItem('zt_p2_level') || '1'); // Thời gian bổ trợ: 6s->8s->10s (tương ứng 360, 480, 600 frames)
+        let power1Level = parseInt(localStorage.getItem('zt_p1_level') || '1'); 
+        let power2Level = parseInt(localStorage.getItem('zt_p2_level') || '1'); 
 
         let currentMap = 'BEACH'; 
         let mapTimer = 0; 
@@ -540,8 +539,7 @@ game_code = """
         function resetGame() {
             score = 0; currentCoins = 0; speed = 4.5; frame = 0;
             
-            // TẠO SỐ ZOMBIE BAN ĐẦU DỰA TRÊN CẤP NÂNG CẤP (power1Level: 1->1, 2->2, 3->3, 4->4)
-            let initialCount = power1Level; // 1, 2, 3 hoặc 4
+            let initialCount = power1Level; 
             zombies = [];
             for (let i = 0; i < initialCount; i++) {
                 zombies.push({ x: 180 - (i * 22), y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: i * 0.5, variant: i % 3 });
@@ -579,17 +577,18 @@ game_code = """
 
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
 
-            // XÁC ĐỊNH THỜI GIAN BỔ TRỢ DỰA VÀO power2Level (Level 1: 6s = 360f, Level 2: 8s = 480f, Level 3: 10s = 600f)
             let bonusDuration = power2Level === 1 ? 360 : (power2Level === 2 ? 480 : 600);
 
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
 
-            if (frame % 230 === 0 && Math.random() > 0.35) {
+            // Spawn Hố
+            if (frame % 250 === 0 && Math.random() > 0.35) {
                 let pitWidth = 85 + Math.random() * 65;
                 pits.push({ x: 850, width: pitWidth });
             }
 
+            // Spawn Xu
             if (frame % 160 === 0 && Math.random() < 0.6) {
                 let count = 5 + Math.floor(Math.random() * 4);
                 let startX = 850;
@@ -599,6 +598,7 @@ game_code = """
                 }
             }
 
+            // Spawn Hộp ?
             if (frame % 850 === 0 && !tsunamiActive && !giantActive && Math.random() < 0.6) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 40)) {
@@ -606,7 +606,8 @@ game_code = """
                 }
             }
 
-            if (frame % 115 === 0) {
+            // Spawn Chướng ngại vật (Giãn tần số bom & xe để người chơi dễ thở)
+            if (frame % 130 === 0) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 150)) {
                     let rand = Math.random();
@@ -686,7 +687,8 @@ game_code = """
                 } else {
                     if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                         let leader = zombies[0];
-                        if (leader && leader.x + 15 >= obs.x && leader.x - 15 <= obs.x + obs.w && leader.y > obs.y - 10) {
+                        // Sửa vùng va chạm xe để không bị kẹt
+                        if (leader && leader.x + 10 >= obs.x && leader.x - 10 <= obs.x + obs.w && leader.y >= obs.y - 15) {
                             if (zombies.length >= obs.reqZombies) {
                                 addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 35);
                                 score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10;
@@ -704,7 +706,7 @@ game_code = """
                             } else {
                                 isBlockedByVehicle = true;
                                 if (obs.hitCooldown === 0) {
-                                    obs.hitCooldown = 25;
+                                    obs.hitCooldown = 30;
                                     let victim = zombies.pop();
                                     if (victim) addParticles(victim.x, victim.y, '#ff1744', 25);
                                     if (zombies.length === 0) { triggerGameOver(); return; }
@@ -716,7 +718,7 @@ game_code = """
                         for (let i = zombies.length - 1; i >= 0; i--) {
                             let z = zombies[i];
                             let dist = Math.hypot(z.x - bombCenterX, z.y - bombCenterY);
-                            if (dist < 90) { 
+                            if (dist < 75) { 
                                 addParticles(bombCenterX, bombCenterY, '#ff1744', 35);
                                 zombies.splice(i, 1); obstacles.splice(obsIdx, 1); break;
                             }
@@ -725,6 +727,7 @@ game_code = """
                 }
             }
 
+            // XỬ LÝ HỐ RƠI VỰC: TỪNG CON RƠI LẦN LƯỢT TỪ ĐẦU ĐẾN CUỐI ĐÀN TRÁNH CHẾT LOẠT
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
@@ -735,12 +738,12 @@ game_code = """
                     z.y = defaultGroundY - 35; z.vy = 0; z.isGrounded = true;
                 } else {
                     z.vy += gravity; z.y += z.vy;
-                    let onPit = isOverPit(z.x, 10);
+                    let onPit = isOverPit(z.x, 8);
                     let standingOnVehicle = false;
 
                     obstacles.forEach((obs) => {
                         if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
-                            if (z.x >= obs.x - 8 && z.x <= obs.x + obs.w + 8) {
+                            if (z.x >= obs.x - 5 && z.x <= obs.x + obs.w + 5) {
                                 let roofY = obs.y - 16;
                                 if (z.y >= roofY - 5 && z.y <= obs.y + 12 && z.vy >= 0) {
                                     z.y = roofY; z.vy = 0; z.isGrounded = true; standingOnVehicle = true;
@@ -761,8 +764,9 @@ game_code = """
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
                 if (isBlockedByVehicle && i === 0) z.x = Math.max(100, z.x - speed);
                 
+                // Rơi xuống đáy vực thì biến mất từng con theo độ trễ
                 if (z.y > canvas.height + 30) { 
-                    addParticles(z.x, canvas.height - 10, '#76ba1b', 14); 
+                    addParticles(z.x, canvas.height - 10, '#76ba1b', 12); 
                     zombies.splice(i, 1); 
                 }
             }
@@ -851,7 +855,6 @@ game_code = """
             }
         }
 
-        // MAP THÀNH PHỐ: TÒA NHÀ ĐỎ & CẦU VƯỢT LẶP LẠI LIÊN TỤC KHÔNG GIỚI HẠN
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#5c3d75'); skyGrad.addColorStop(0.5, '#95508c'); skyGrad.addColorStop(1, '#e08ba0');
@@ -861,7 +864,6 @@ game_code = """
             let cloudX = (200 - bgOffset * 0.1) % 900; if (cloudX < -100) cloudX += 900;
             ctx.beginPath(); ctx.arc(cloudX, 40, 18, 0, Math.PI*2); ctx.arc(cloudX + 25, 35, 24, 0, Math.PI*2); ctx.fill();
 
-            // Cầu vượt lặp lại liên tục theo bgOffset
             let bridgeSpacing = 500;
             let startBridgeX = - (bgOffset * 0.5 % bridgeSpacing);
             for (let bx = startBridgeX; bx < canvas.width + bridgeSpacing; bx += bridgeSpacing) {
@@ -871,7 +873,6 @@ game_code = """
                 ctx.beginPath(); ctx.moveTo(bx, 216); ctx.quadraticCurveTo(bx + 250, 146, bx + 500, 226); ctx.stroke();
             }
 
-            // Các tòa nhà chọc trời hậu cảnh lặp lại
             for (let b = 0; b < 6; b++) {
                 let bX = (b * 220 - bgOffset * 0.25) % 1320; if (bX < -160) bX += 1320;
                 let bH = 100 + (b * 40) % 90;
@@ -884,7 +885,6 @@ game_code = """
                 }
             }
 
-            // Tòa nhà gạch đỏ lặp lại liên tục theo chu kỳ 450px
             let redBuildingSpacing = 450;
             let startRedX = - (bgOffset * 0.6 % redBuildingSpacing);
             for (let rxPos = startRedX; rxPos < canvas.width + redBuildingSpacing; rxPos += redBuildingSpacing) {
