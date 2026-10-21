@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Classic Beach - Original Soundtrack", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Classic Beach HD - Ultimate", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - ORIGINAL SOUNDTRACK 🎵🌊</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - ULTIMATE BEACH EDITION 🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -117,7 +117,6 @@ game_code = """
     </style>
 </head>
 <body>
-    <!-- NHẠC NỀN ZOMBIE TSUNAMI GỐC -->
     <audio id="bgMusic" loop preload="auto">
         <source src="https://ia801503.us.archive.org/15/items/zombie-tsunami-theme-song/Zombie%20Tsunami%20Theme%20Song.mp3" type="audio/mpeg">
     </audio>
@@ -235,7 +234,7 @@ game_code = """
 
         function playMusic() {
             if (!isMuted) {
-                bgMusic.play().catch(e => console.log("Audio play blocked by browser: " + e));
+                bgMusic.play().catch(e => console.log("Audio play blocked: " + e));
             }
         }
 
@@ -404,7 +403,7 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
-        let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+        let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0, variant: 0 }];
         let humans = [];
         let obstacles = [];
         let pits = [];
@@ -462,7 +461,7 @@ game_code = """
 
         function resetGame() {
             score = 0; currentCoins = 0; speed = 4.5; frame = 0;
-            zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
+            zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0, variant: 0 }];
             humans = []; obstacles = []; pits = []; powerups = []; coinTrails = []; particles = [];
             tsunamiActive = false; tsunamiTimer = 0;
             giantActive = false; giantTimer = 0;
@@ -527,7 +526,7 @@ game_code = """
                     } else if (rand < 0.82) {
                         obstacles.push({ x: spawnX, y: defaultGroundY - 62, w: 125, h: 58, type: 'BUS', reqZombies: 6, peopleInside: 6, hitCooldown: 0 });
                     } else if (rand < 0.87) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 130, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, hitCooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 145, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, hitCooldown: 0 });
                     } else {
                         obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 42, h: 42, type: 'BOMB' });
                     }
@@ -569,7 +568,7 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // XỬ LÝ VA CHẠM XE
+            // XỬ LÝ VA CHẠM XE & MÁY BAY
             let isBlockedByVehicle = false;
 
             for (let obsIdx = obstacles.length - 1; obsIdx >= 0; obsIdx--) {
@@ -588,7 +587,8 @@ game_code = """
                             for (let k = 0; k < obs.peopleInside; k++) {
                                 if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
-                                    zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                    let newVariant = Math.floor(Math.random() * 3);
+                                    zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0, variant: newVariant });
                                 }
                             }
                         } else if (obs.type === 'BOMB') { score += 2; }
@@ -607,14 +607,15 @@ game_code = """
                                 for (let k = 0; k < obs.peopleInside; k++) {
                                     if (zombies.length < 30) {
                                         let tail = zombies[zombies.length - 1];
-                                        zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                        let newVariant = Math.floor(Math.random() * 3);
+                                        zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0, variant: newVariant });
                                     }
                                 }
                                 obstacles.splice(obsIdx, 1);
                             } else {
                                 isBlockedByVehicle = true;
                                 if (obs.hitCooldown === 0) {
-                                    obs.hitCooldown = 22;
+                                    obs.hitCooldown = 25;
                                     let victim = zombies.pop();
                                     if (victim) addParticles(victim.x, victim.y, '#ff1744', 25);
                                     if (zombies.length === 0) { triggerGameOver(); return; }
@@ -635,14 +636,17 @@ game_code = """
                 }
             }
 
-            // LÀM CHẬM THỜI GIAN RƠI HỐ
-            let leaderOverPit = zombies[0] && isOverPit(zombies[0].x, 10);
+            // XỬ LÝ HỐ RƠI (BẮT BUỘC NHẢY)
+            let leaderOverPit = zombies[0] && isOverPit(zombies[0].x, 15);
             if (leaderOverPit && !tsunamiActive && !giantActive) {
-                pitKillTimer++;
-                if (pitKillTimer % 45 === 0) {
-                    let diedZ = zombies.shift();
-                    if (diedZ) addParticles(diedZ.x, defaultGroundY + 40, '#76ba1b', 15);
-                    if (zombies.length === 0) { triggerGameOver(); return; }
+                // Nếu đầu đàn rớt hố và đang không ở trạng thái nhảy cao (vy < -2 hoặc đang trên không)
+                if (zombies[0].isGrounded || zombies[0].y > defaultGroundY - 20) {
+                    pitKillTimer++;
+                    if (pitKillTimer > 10) {
+                        let diedZ = zombies.shift();
+                        if (diedZ) addParticles(diedZ.x, defaultGroundY + 40, '#76ba1b', 18);
+                        if (zombies.length === 0) { triggerGameOver(); return; }
+                    }
                 }
             } else { pitKillTimer = 0; }
 
@@ -673,7 +677,9 @@ game_code = """
                     if (!standingOnVehicle) {
                         if (!onPit && z.y >= defaultGroundY - 20) {
                             z.y = defaultGroundY - 20; z.vy = 0; z.isGrounded = true;
-                        } else if (onPit) { z.isGrounded = false; }
+                        } else if (onPit) { 
+                            z.isGrounded = false; 
+                        }
                     }
                 }
 
@@ -701,7 +707,8 @@ game_code = """
                         addParticles(h.x, h.y - 10, giantActive ? '#e040fb' : '#00e5ff', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
-                            zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                            let newVariant = Math.floor(Math.random() * 3);
+                            zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0, variant: newVariant });
                         }
                     }
                 } else {
@@ -713,14 +720,15 @@ game_code = """
                         addParticles(h.x, h.y - 10, '#76ba1b', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
-                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
+                            let newVariant = Math.floor(Math.random() * 3);
+                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0, variant: newVariant });
                         }
                     }
                 }
             });
 
             humans = humans.filter(h => h.x > -50 && !h.eaten);
-            obstacles = obstacles.filter(o => o.x > -160);
+            obstacles = obstacles.filter(o => o.x > -180);
 
             particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life--; });
             particles = particles.filter(p => p.life > 0);
@@ -824,49 +832,58 @@ game_code = """
             ctx.restore();
         }
 
+        // HÀM VẼ ZOMBIE ĐA DẠNG MÀU SẮC, QUẦN ÁO, MẮT (CHUẢN ẢNH 1)
         function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
             ctx.save();
             ctx.translate(z.x + offsetX, z.y + offsetY);
             ctx.scale(scale, scale);
 
             let isNearHuman = humans.some(h => h.x - z.x > 0 && h.x - z.x < 100);
+            let v = z.variant || 0;
+
+            // Màu quần áo theo biến thể
+            let shirtColor = v === 0 ? '#2c3e50' : (v === 1 ? '#c0392b' : '#f1c40f');
+            let pantColor = v === 0 ? '#4e342e' : (v === 1 ? '#880e4f' : '#33691e');
+            let eyeColor = v === 0 ? '#00e5ff' : (v === 1 ? '#ffeb3b' : '#b2ebf2');
 
             if (equippedOutfit === 'MUMMY') {
                 ctx.strokeStyle = '#d7ccc8'; ctx.lineWidth = 5;
                 ctx.beginPath(); ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); ctx.stroke();
                 ctx.fillStyle = '#efebe9'; ctx.fillRect(-9, -5, 18, 14);
                 ctx.fillStyle = '#d7ccc8'; ctx.beginPath(); ctx.arc(0, -15, 16, 0, Math.PI * 2); ctx.fill();
-                
                 ctx.fillStyle = '#111111'; ctx.fillRect(-10, -21, 20, 9);
                 ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(-2, -16, 3, 0, Math.PI * 2); ctx.arc(6, -16, 3, 0, Math.PI * 2); ctx.fill();
-
-                if (isNearHuman) { ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(8, -8, 7, 0, Math.PI*2); ctx.fill(); }
-
-                ctx.strokeStyle = '#a1887f'; ctx.lineWidth = 2.5;
-                ctx.beginPath(); ctx.moveTo(-15, -10); ctx.lineTo(15, -6); ctx.moveTo(-12, -22); ctx.lineTo(12, -18); ctx.stroke();
             } else {
+                // Chân
                 ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4.5;
                 ctx.beginPath(); ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); ctx.stroke();
 
-                ctx.fillStyle = '#fbc02d'; ctx.fillRect(-7, 2, 14, 7);
-                ctx.fillStyle = '#8d2626'; ctx.fillRect(-8, -5, 16, 9);
-                ctx.fillStyle = '#76ba1b'; ctx.beginPath(); ctx.arc(0, -15, 15, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(6, -17, 9, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(6, -17, 7.5, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(8, -17, 3.5, 0, Math.PI * 2); ctx.fill();
+                // Quần
+                ctx.fillStyle = pantColor; ctx.fillRect(-7, 2, 14, 7);
+                // Áo
+                ctx.fillStyle = shirtColor; ctx.fillRect(-8, -5, 16, 9);
+
+                // Đầu to đặc trưng Zombie Tsunami
+                ctx.fillStyle = '#76ba1b'; ctx.beginPath(); ctx.arc(0, -15, 16, 0, Math.PI * 2); ctx.fill();
                 
+                // Mắt to lồi
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(6, -17, 9.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = eyeColor; ctx.beginPath(); ctx.arc(7, -17, 5.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(8, -17, 2.5, 0, Math.PI * 2); ctx.fill();
+                
+                // Miệng há / răng nhọn
                 if (isNearHuman) {
-                    ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(8, -7, 8, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(9, -7, 8, 0, Math.PI*2); ctx.fill();
                     ctx.fillStyle = '#ffffff';
-                    ctx.beginPath(); ctx.moveTo(4, -10); ctx.lineTo(6, -4); ctx.lineTo(8, -10); ctx.fill();
-                    ctx.beginPath(); ctx.moveTo(6, -4); ctx.lineTo(8, -10); ctx.lineTo(10, -4); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(5, -10); ctx.lineTo(7, -4); ctx.lineTo(9, -10); ctx.fill();
                 } else {
                     ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(7, -8, 5, 0, Math.PI); ctx.fill();
                     ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(4, -8); ctx.lineTo(6, -4); ctx.lineTo(8, -8); ctx.fill();
                 }
 
+                // Tay vươn lên trước
                 ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 3.5;
-                ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(12, 2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(13, 3); ctx.stroke();
             }
 
             if (equippedHat === 'HAT') {
@@ -927,14 +944,38 @@ game_code = """
             ctx.restore();
         }
 
+        // HÀM VẼ BIỂU TƯỢNG ZOMBIE KÈM SỐ LƯỢNG
+        function drawZombieRequirementBadge(x, y, reqCount) {
+            ctx.save();
+            ctx.translate(x, y);
+            // Khung bong bóng chat
+            ctx.fillStyle = '#111';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 72, 36, 8);
+            ctx.fill();
+            ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Vẽ đầu zombie nhỏ tượng trưng bên trái badge
+            ctx.fillStyle = '#76ba1b';
+            ctx.beginPath(); ctx.arc(16, 18, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(19, 17, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(20, 17, 1.5, 0, Math.PI * 2); ctx.fill();
+
+            // Dấu gạch chéo và số lượng
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 16px sans-serif';
+            ctx.fillText(`/${reqCount}`, 32, 24);
+            ctx.restore();
+        }
+
         function drawCar(o) {
             ctx.save(); ctx.translate(o.x, o.y);
             ctx.fillStyle = '#d32f2f'; ctx.fillRect(0, 15, o.w, 18);
             ctx.fillStyle = '#b71c1c'; ctx.fillRect(14, 3, 52, 13);
             ctx.fillStyle = '#81d4fa'; ctx.fillRect(18, 5, 18, 9); ctx.fillRect(42, 5, 20, 9);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(18, 33, 8, 0, Math.PI*2); ctx.arc(o.w - 18, 33, 8, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#111'; ctx.fillRect(16, -42, 52, 24);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`0/${o.reqZombies}`, 42, -25);
+            
+            // Biểu tượng yêu cầu zombie ô tô
+            drawZombieRequirementBadge(15, -44, o.reqZombies);
             ctx.restore();
         }
 
@@ -944,17 +985,47 @@ game_code = """
             ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 28, o.w, 5);
             ctx.fillStyle = '#81d4fa'; for(let k=0; k<4; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 48, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 48, 9, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#111'; ctx.fillRect(34, -40, 55, 26);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`0/${o.reqZombies}`, 61, -22);
+            
+            // Biểu tượng yêu cầu zombie xe buýt
+            drawZombieRequirementBadge(30, -48, o.reqZombies);
             ctx.restore();
         }
 
+        // MÁY BAY CHUẨN ẢNH 2 (Z.AIRLINE)
         function drawHelicopter(o) {
             ctx.save(); ctx.translate(o.x, o.y);
-            ctx.fillStyle = '#3e4a36'; ctx.beginPath(); ctx.ellipse(60, 25, 52, 20, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.fillRect(95, 18, 38, 10); ctx.fillStyle = '#81d4fa'; ctx.fillRect(20, 14, 24, 14);
-            let bladeW = 95 + Math.sin(frame * 0.5) * 15; ctx.fillStyle = '#111'; ctx.fillRect(58 - bladeW/2, 0, bladeW, 3);
-            ctx.fillRect(35, -36, 50, 24); ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`0/${o.reqZombies}`, 60, -19);
+            // Thân máy bay màu trắng
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(10, 25);
+            ctx.bezierCurveTo(10, -5, 40, -10, 110, -5);
+            ctx.lineTo(135, 25);
+            ctx.lineTo(10, 25);
+            ctx.fill();
+
+            // Sọc màu xanh lá đặc trưng Z.Airline
+            ctx.fillStyle = '#76ba1b';
+            ctx.fillRect(40, 8, 90, 8);
+
+            // Cửa sổ buồng lái & kho hành khách
+            ctx.fillStyle = '#111111';
+            ctx.beginPath(); ctx.arc(25, 12, 6, 0, Math.PI*2); ctx.fill();
+            for(let i=0; i<4; i++) {
+                ctx.fillRect(50 + i * 15, 10, 9, 8);
+            }
+
+            // Động cơ phản lực dưới cánh
+            ctx.fillStyle = '#37474f';
+            ctx.fillRect(75, 22, 28, 14);
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(89, 36, 5, 0, Math.PI*2); ctx.fill();
+
+            // Chữ Z.AIRLINE trên thân máy bay chuẩn ảnh 2
+            ctx.fillStyle = '#33691e';
+            ctx.font = '900 13px sans-serif';
+            ctx.fillText("Z.AIRLINE", 52, 2);
+
+            // Biểu tượng yêu cầu zombie máy bay
+            drawZombieRequirementBadge(38, -48, o.reqZombies);
             ctx.restore();
         }
 
@@ -962,7 +1033,7 @@ game_code = """
             drawBackground();
 
             if (gameState === 'MENU') {
-                let demoZ = { x: 220, y: defaultGroundY - 20, legAngle: frame * 0.2 };
+                let demoZ = { x: 220, y: defaultGroundY - 20, legAngle: frame * 0.2, variant: 0 };
                 drawZombie(demoZ);
                 return;
             }
