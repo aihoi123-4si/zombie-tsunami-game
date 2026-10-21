@@ -1,9 +1,10 @@
+
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Classic Beach HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Classic Beach HD - With Music", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - CLASSIC BEACH EDITION 🌊</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - WITH BACKGROUND MUSIC 🎵🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -42,12 +43,13 @@ game_code = """
             letter-spacing: 3px; transform: rotate(2deg); margin-top: -5px;
         }
 
-        .top-right-btns { position: absolute; top: 15px; right: 15px; }
+        .top-right-btns { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 20; }
         .btn-icon {
             width: 42px; height: 42px; background: #424242; border: 3px solid #fff; border-radius: 8px;
             color: #fff; font-size: 22px; display: flex; justify-content: center; align-items: center; cursor: pointer;
             box-shadow: 0 4px 0 #111;
         }
+        .btn-icon:active { transform: translateY(2px); box-shadow: 0 2px 0 #111; }
 
         .side-menu-right { position: absolute; right: 15px; top: 90px; display: flex; flex-direction: column; gap: 12px; }
         .btn-side {
@@ -116,6 +118,11 @@ game_code = """
     </style>
 </head>
 <body>
+    <!-- AUDIO BACKGROUND MUSIC -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://ia801503.us.archive.org/15/items/zombie-tsunami-theme-song/Zombie%20Tsunami%20Theme%20Song.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="gameContainer">
         <canvas id="gameCanvas" width="800" height="450"></canvas>
 
@@ -125,7 +132,10 @@ game_code = """
                 <div class="logo-sub">TSUNAMI</div>
             </div>
 
-            <div class="top-right-btns"><div class="btn-icon">⚙️</div></div>
+            <div class="top-right-btns">
+                <div class="btn-icon" id="musicToggleBtn" title="Bật/Tắt Nhạc">🔊</div>
+                <div class="btn-icon">⚙️</div>
+            </div>
 
             <div class="side-menu-right">
                 <div class="btn-side" id="openMissionBtn"><span>🧪</span> MISSION</div>
@@ -219,6 +229,33 @@ game_code = """
         const menuOverlay = document.getElementById('menuOverlay');
         const playBtn = document.getElementById('playBtn');
         const bestScoreText = document.getElementById('bestScoreText');
+
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggleBtn = document.getElementById('musicToggleBtn');
+        let isMuted = false;
+
+        function playMusic() {
+            if (!isMuted) {
+                bgMusic.play().catch(e => console.log("Audio autoplay prevented: " + e));
+            }
+        }
+
+        function stopMusic() {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+
+        musicToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isMuted = !isMuted;
+            if (isMuted) {
+                bgMusic.pause();
+                musicToggleBtn.innerText = '🔇';
+            } else {
+                musicToggleBtn.innerText = '🔊';
+                if (gameState === 'PLAYING') bgMusic.play();
+            }
+        });
 
         const marketModal = document.getElementById('marketModal');
         const openMarketBtn = document.getElementById('openMarketBtn');
@@ -395,6 +432,7 @@ game_code = """
             resetGame();
             gameState = 'PLAYING';
             menuOverlay.style.display = 'none';
+            playMusic();
         }
 
         playBtn.addEventListener('click', startGame);
@@ -403,6 +441,7 @@ game_code = """
             if (gameState === 'GAMEOVER') {
                 gameState = 'MENU';
                 menuOverlay.style.display = 'flex';
+                stopMusic();
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
@@ -433,6 +472,12 @@ game_code = """
 
         function isOverPit(x, width = 20) {
             return pits.some(p => (x + width > p.x) && (x < p.x + p.width));
+        }
+
+        function triggerGameOver() {
+            gameState = 'GAMEOVER';
+            stopMusic();
+            if (score > bestScore) { bestScore = score; localStorage.setItem('zt_best_score', bestScore); bestScoreText.innerText = bestScore; }
         }
 
         function update() {
@@ -525,7 +570,7 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // XỬ LÝ VA CHẠM XE KHÔNG BỊ ĐƠ MÀN HÌNH
+            // XỬ LÝ VA CHẠM XE
             let isBlockedByVehicle = false;
 
             for (let obsIdx = obstacles.length - 1; obsIdx >= 0; obsIdx--) {
@@ -570,10 +615,10 @@ game_code = """
                             } else {
                                 isBlockedByVehicle = true;
                                 if (obs.hitCooldown === 0) {
-                                    obs.hitCooldown = 22; // Tông chết mượt mà không bị đơ
+                                    obs.hitCooldown = 22;
                                     let victim = zombies.pop();
                                     if (victim) addParticles(victim.x, victim.y, '#ff1744', 25);
-                                    if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
+                                    if (zombies.length === 0) { triggerGameOver(); return; }
                                 }
                             }
                         }
@@ -591,14 +636,14 @@ game_code = """
                 }
             }
 
-            // LÀM CHẬM TỐI ĐA THỜI GIAN RƠI HỐ (~1s/CON)
+            // LÀM CHẬM THỜI GIAN RƠI HỐ
             let leaderOverPit = zombies[0] && isOverPit(zombies[0].x, 10);
             if (leaderOverPit && !tsunamiActive && !giantActive) {
                 pitKillTimer++;
                 if (pitKillTimer % 45 === 0) {
                     let diedZ = zombies.shift();
                     if (diedZ) addParticles(diedZ.x, defaultGroundY + 40, '#76ba1b', 15);
-                    if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
+                    if (zombies.length === 0) { triggerGameOver(); return; }
                 }
             } else { pitKillTimer = 0; }
 
@@ -639,8 +684,7 @@ game_code = """
             }
 
             if (zombies.length === 0) {
-                gameState = 'GAMEOVER';
-                if (score > bestScore) { bestScore = score; localStorage.setItem('zt_best_score', bestScore); bestScoreText.innerText = bestScore; }
+                triggerGameOver();
                 return;
             }
 
@@ -683,7 +727,7 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // VẼ MAP BÃI BIỂN CHI TIẾT NGUYÊN TÁC
+        // VẼ MAP BÃI BIỂN
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
@@ -697,7 +741,6 @@ game_code = """
             seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#26c6da');
             ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
 
-            // Thuyền buồm
             for (let b = 0; b < 3; b++) {
                 let boatX = (150 + b * 280 - bgOffset * 0.3) % 900; if (boatX < -50) boatX += 900;
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(boatX, 215); ctx.lineTo(boatX + 10, 200); ctx.lineTo(boatX + 10, 215); ctx.fill();
@@ -706,7 +749,6 @@ game_code = """
 
             ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
 
-            // Làng Chài Pastels
             for (let hIdx = 0; hIdx < 3; hIdx++) {
                 let houseX = (180 + hIdx * 300 - bgOffset * 0.6) % 900; if (houseX < -120) houseX += 900;
                 ctx.fillStyle = hIdx % 2 === 0 ? '#b2dfdb' : '#ffcdd2'; ctx.fillRect(houseX, 210, 80, 70);
@@ -715,7 +757,6 @@ game_code = """
                 ctx.fillStyle = '#5d4037'; ctx.fillRect(houseX + 46, 240, 20, 40);
             }
 
-            // Cây Dừa
             for (let tIdx = 0; tIdx < 2; tIdx++) {
                 let treeX = (90 + tIdx * 460 - bgOffset * 0.8) % 900; if (treeX < -100) treeX += 900;
                 ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 15, 230, treeX + 15, 160); ctx.stroke();
