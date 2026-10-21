@@ -1,10 +1,9 @@
-
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Classic Beach HD - With Music", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Classic Beach - Original Soundtrack", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - WITH BACKGROUND MUSIC 🎵🌊</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - ORIGINAL SOUNDTRACK 🎵🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -118,7 +117,7 @@ game_code = """
     </style>
 </head>
 <body>
-    <!-- AUDIO BACKGROUND MUSIC -->
+    <!-- NHẠC NỀN ZOMBIE TSUNAMI GỐC -->
     <audio id="bgMusic" loop preload="auto">
         <source src="https://ia801503.us.archive.org/15/items/zombie-tsunami-theme-song/Zombie%20Tsunami%20Theme%20Song.mp3" type="audio/mpeg">
     </audio>
@@ -236,7 +235,7 @@ game_code = """
 
         function playMusic() {
             if (!isMuted) {
-                bgMusic.play().catch(e => console.log("Audio autoplay prevented: " + e));
+                bgMusic.play().catch(e => console.log("Audio play blocked by browser: " + e));
             }
         }
 
