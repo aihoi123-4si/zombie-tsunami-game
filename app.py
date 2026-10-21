@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Market Update HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Giant & Mystery Box HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - MARKET & TERRAIN UPDATE 🌊</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - GIANT MONSTER & MYSTERY BOX 📦🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -40,7 +40,6 @@ game_code = """
             z-index: 10;
         }
 
-        /* Logo Zombie Tsunami */
         .logo-container {
             position: absolute;
             top: 15px;
@@ -66,240 +65,80 @@ game_code = """
             margin-top: -5px;
         }
 
-        .top-right-btns {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
+        .top-right-btns { position: absolute; top: 15px; right: 15px; }
         .btn-icon {
-            width: 42px;
-            height: 42px;
-            background: #424242;
-            border: 3px solid #fff;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 22px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
+            width: 42px; height: 42px; background: #424242; border: 3px solid #fff; border-radius: 8px;
+            color: #fff; font-size: 22px; display: flex; justify-content: center; align-items: center; cursor: pointer;
             box-shadow: 0 4px 0 #111;
         }
 
-        .side-menu-right {
-            position: absolute;
-            right: 15px;
-            top: 90px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .side-menu-right { position: absolute; right: 15px; top: 90px; display: flex; flex-direction: column; gap: 12px; }
         .btn-side {
-            width: 170px;
-            height: 42px;
-            background: linear-gradient(135deg, #e91e63, #c2185b);
-            border: 3px solid #000;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding-left: 12px;
-            box-shadow: 3px 4px 0 #000;
-            cursor: pointer;
-            transform: rotate(2deg);
-            text-shadow: 1px 1px 2px #000;
+            width: 170px; height: 42px; background: linear-gradient(135deg, #e91e63, #c2185b);
+            border: 3px solid #000; border-radius: 8px; color: #fff; font-size: 18px; font-weight: bold;
+            display: flex; align-items: center; justify-content: flex-start; padding-left: 12px;
+            box-shadow: 3px 4px 0 #000; cursor: pointer; transform: rotate(2deg); text-shadow: 1px 1px 2px #000;
         }
         .btn-side:nth-child(2) { transform: rotate(-2deg); background: linear-gradient(135deg, #f57c00, #e65100); }
         .btn-side:active { transform: scale(0.96); }
         .btn-side span { margin-right: 10px; font-size: 20px; }
 
         .btn-play {
-            position: absolute;
-            bottom: 25px;
-            right: 20px;
-            width: 180px;
-            height: 80px;
+            position: absolute; bottom: 25px; right: 20px; width: 180px; height: 80px;
             background: linear-gradient(180deg, #ff9800 0%, #ff3d00 100%);
-            border: 4px solid #fff;
-            outline: 4px solid #000;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 38px;
-            font-weight: 900;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 8px 0 #801300, 0 12px 15px rgba(0,0,0,0.5);
-            text-shadow: 3px 3px 0 #000;
-            transform: rotate(-3deg);
+            border: 4px solid #fff; outline: 4px solid #000; border-radius: 14px;
+            color: #fff; font-size: 38px; font-weight: 900; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; box-shadow: 0 8px 0 #801300, 0 12px 15px rgba(0,0,0,0.5);
+            text-shadow: 3px 3px 0 #000; transform: rotate(-3deg);
         }
         .btn-play:hover { transform: rotate(-3deg) scale(1.05); }
         .btn-play:active { transform: rotate(-3deg) translateY(6px); box-shadow: 0 2px 0 #801300; }
 
         .best-score-box {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.65);
-            border: 3px solid #fff;
-            border-radius: 10px;
-            padding: 8px 16px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            position: absolute; bottom: 20px; left: 20px; background: rgba(0, 0, 0, 0.65);
+            border: 3px solid #fff; border-radius: 10px; padding: 8px 16px; color: #fff; display: flex; align-items: center; gap: 10px;
         }
         .best-score-title { font-size: 15px; color: #ddd; margin: 0; }
         .best-score-val { font-size: 26px; color: #ffeb3b; font-weight: bold; margin: 0; }
 
-        /* MARKET MODAL POPUP */
+        /* MARKET MODAL */
         #marketModal {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 20px;
-            box-sizing: border-box;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
+            padding: 20px; box-sizing: border-box;
         }
         .market-box {
-            width: 680px;
-            height: 380px;
-            background: #1e272e;
-            border: 4px solid #fbc02d;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 30px rgba(251, 192, 45, 0.4);
+            width: 680px; height: 380px; background: #1e272e; border: 4px solid #fbc02d; border-radius: 16px;
+            display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(251, 192, 45, 0.4);
         }
         .market-header {
-            background: #fbc02d;
-            color: #000;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
+            background: #fbc02d; color: #000; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 24px; font-weight: bold;
         }
         .close-btn {
-            background: #d32f2f;
-            color: #fff;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 18px;
+            background: #d32f2f; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 32px; height: 32px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 18px;
         }
-        .market-tabs {
-            display: flex;
-            background: #0f171e;
-            border-bottom: 2px solid #333;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            color: #aaa;
-            font-size: 18px;
-            cursor: pointer;
-            border-right: 1px solid #222;
-            font-weight: bold;
-        }
-        .tab-btn.active {
-            background: #1e272e;
-            color: #76ba1b;
-            border-bottom: 3px solid #76ba1b;
-        }
-        .market-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-        }
+        .market-tabs { display: flex; background: #0f171e; border-bottom: 2px solid #333; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; color: #aaa; font-size: 18px; cursor: pointer; border-right: 1px solid #222; font-weight: bold; }
+        .tab-btn.active { background: #1e272e; color: #76ba1b; border-bottom: 3px solid #76ba1b; }
+        .market-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; gap: 20px; justify-content: center; align-items: center; }
         .shop-item {
-            width: 200px;
-            height: 220px;
-            background: #2f3640;
-            border: 3px solid #485460;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            box-sizing: border-box;
-            position: relative;
+            width: 200px; height: 220px; background: #2f3640; border: 3px solid #485460; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px; box-sizing: border-box; position: relative;
         }
-        .shop-item.coming-soon {
-            filter: brightness(0.4);
-        }
-        .cs-tag {
-            position: absolute;
-            top: 80px;
-            background: #ff1744;
-            color: #fff;
-            padding: 4px 12px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 4px;
-            transform: rotate(-10deg);
-        }
-        .shop-img {
-            font-size: 48px;
-            margin-top: 10px;
-        }
-        .shop-title {
-            color: #fff;
-            font-size: 16px;
-            margin-top: 5px;
-        }
-        .buy-btn {
-            background: #4cd137;
-            color: #000;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-            box-shadow: 0 4px 0 #44bd32;
-            width: 100%;
-        }
-        .buy-btn.equipped {
-            background: #00a8ff;
-            color: #fff;
-            box-shadow: 0 4px 0 #0097e6;
-        }
-        .buy-btn:disabled {
-            background: #718093;
-            box-shadow: none;
-            cursor: not-allowed;
-            color: #ccc;
-        }
+        .shop-item.coming-soon { filter: brightness(0.4); }
+        .cs-tag { position: absolute; top: 80px; background: #ff1744; color: #fff; padding: 4px 12px; font-size: 14px; font-weight: bold; border-radius: 4px; transform: rotate(-10deg); }
+        .shop-img { font-size: 48px; margin-top: 10px; }
+        .shop-title { color: #fff; font-size: 16px; margin-top: 5px; }
+        .buy-btn { background: #4cd137; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 0 #44bd32; width: 100%; }
+        .buy-btn.equipped { background: #00a8ff; color: #fff; box-shadow: 0 4px 0 #0097e6; }
+        .buy-btn:disabled { background: #718093; box-shadow: none; cursor: not-allowed; color: #ccc; }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <!-- CANVAS TRÒ CHƠI -->
         <canvas id="gameCanvas" width="800" height="450"></canvas>
 
-        <!-- MENU OVERLAY UI -->
         <div id="menuOverlay">
             <div class="logo-container">
                 <h1 class="logo-title">ZOMBIE</h1>
@@ -325,7 +164,6 @@ game_code = """
             <div class="btn-play" id="playBtn">PLAY</div>
         </div>
 
-        <!-- CỬA HÀNG MARKET MODAL -->
         <div id="marketModal">
             <div class="market-box">
                 <div class="market-header">
@@ -337,15 +175,12 @@ game_code = """
                     <div class="tab-btn" id="tabHats">PHỤ KIỆN</div>
                 </div>
                 
-                <!-- CONTENT TRANG PHỤC -->
                 <div class="market-content" id="contentOutfits">
-                    <!-- Item 1: Mummy -->
                     <div class="shop-item">
                         <div class="shop-img">🩹</div>
                         <div class="shop-title">Xác Ướp (Mummy)</div>
                         <button class="buy-btn" id="buyMummyBtn">300 Xu</button>
                     </div>
-                    <!-- Item 2: Coming Soon -->
                     <div class="shop-item coming-soon">
                         <div class="shop-img">🧟</div>
                         <div class="shop-title">???</div>
@@ -354,15 +189,12 @@ game_code = """
                     </div>
                 </div>
 
-                <!-- CONTENT PHỤ KIỆN -->
                 <div class="market-content" id="contentHats" style="display: none;">
-                    <!-- Hat 1: Cowboy -->
                     <div class="shop-item">
                         <div class="shop-img">🤠</div>
                         <div class="shop-title">Mũ Cao Bồi</div>
                         <button class="buy-btn" id="buyHatBtn">200 Xu</button>
                     </div>
-                    <!-- Hat 2: Pumpkin -->
                     <div class="shop-item">
                         <div class="shop-img">🎃</div>
                         <div class="shop-title">Đầu Bí Ngô</div>
@@ -380,7 +212,6 @@ game_code = """
         const playBtn = document.getElementById('playBtn');
         const bestScoreText = document.getElementById('bestScoreText');
 
-        // Market elements
         const marketModal = document.getElementById('marketModal');
         const openMarketBtn = document.getElementById('openMarketBtn');
         const closeMarketBtn = document.getElementById('closeMarketBtn');
@@ -400,8 +231,8 @@ game_code = """
         bestScoreText.innerText = bestScore;
 
         let totalCoins = parseInt(localStorage.getItem('zt_total_coins') || '0');
-        let equippedOutfit = localStorage.getItem('zt_equipped_outfit') || 'NONE'; // 'NONE', 'MUMMY'
-        let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';       // 'NONE', 'HAT', 'PUMPKIN'
+        let equippedOutfit = localStorage.getItem('zt_equipped_outfit') || 'NONE';
+        let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';
         let ownedItems = JSON.parse(localStorage.getItem('zt_owned_items') || '[]');
 
         function saveUserData() {
@@ -415,111 +246,55 @@ game_code = """
         function updateMarketUI() {
             marketCoinText.innerText = totalCoins;
 
-            // Mummy Outfit UI
             if (ownedItems.includes('MUMMY')) {
-                if (equippedOutfit === 'MUMMY') {
-                    buyMummyBtn.innerText = 'Đang Mặc';
-                    buyMummyBtn.className = 'buy-btn equipped';
-                } else {
-                    buyMummyBtn.innerText = 'Mặc Vào';
-                    buyMummyBtn.className = 'buy-btn';
-                }
-            } else {
-                buyMummyBtn.innerText = '300 Xu';
-            }
+                buyMummyBtn.innerText = equippedOutfit === 'MUMMY' ? 'Đang Mặc' : 'Mặc Vào';
+                buyMummyBtn.className = equippedOutfit === 'MUMMY' ? 'buy-btn equipped' : 'buy-btn';
+            } else buyMummyBtn.innerText = '300 Xu';
 
-            // Cowboy Hat UI
             if (ownedItems.includes('HAT')) {
-                if (equippedHat === 'HAT') {
-                    buyHatBtn.innerText = 'Đang Đội';
-                    buyHatBtn.className = 'buy-btn equipped';
-                } else {
-                    buyHatBtn.innerText = 'Đội Vào';
-                    buyHatBtn.className = 'buy-btn';
-                }
-            } else {
-                buyHatBtn.innerText = '200 Xu';
-            }
+                buyHatBtn.innerText = equippedHat === 'HAT' ? 'Đang Đội' : 'Đội Vào';
+                buyHatBtn.className = equippedHat === 'HAT' ? 'buy-btn equipped' : 'buy-btn';
+            } else buyHatBtn.innerText = '200 Xu';
 
-            // Pumpkin Hat UI
             if (ownedItems.includes('PUMPKIN')) {
-                if (equippedHat === 'PUMPKIN') {
-                    buyPumpkinBtn.innerText = 'Đang Đội';
-                    buyPumpkinBtn.className = 'buy-btn equipped';
-                } else {
-                    buyPumpkinBtn.innerText = 'Đội Vào';
-                    buyPumpkinBtn.className = 'buy-btn';
-                }
-            } else {
-                buyPumpkinBtn.innerText = '200 Xu';
-            }
+                buyPumpkinBtn.innerText = equippedHat === 'PUMPKIN' ? 'Đang Đội' : 'Đội Vào';
+                buyPumpkinBtn.className = equippedHat === 'PUMPKIN' ? 'buy-btn equipped' : 'buy-btn';
+            } else buyPumpkinBtn.innerText = '200 Xu';
         }
 
-        // TAB SWITCH
         tabOutfits.addEventListener('click', () => {
-            tabOutfits.classList.add('active');
-            tabHats.classList.remove('active');
-            contentOutfits.style.display = 'flex';
-            contentHats.style.display = 'none';
+            tabOutfits.classList.add('active'); tabHats.classList.remove('active');
+            contentOutfits.style.display = 'flex'; contentHats.style.display = 'none';
         });
         tabHats.addEventListener('click', () => {
-            tabHats.classList.add('active');
-            tabOutfits.classList.remove('active');
-            contentHats.style.display = 'flex';
-            contentOutfits.style.display = 'none';
+            tabHats.classList.add('active'); tabOutfits.classList.remove('active');
+            contentHats.style.display = 'flex'; contentOutfits.style.display = 'none';
         });
 
-        openMarketBtn.addEventListener('click', () => {
-            updateMarketUI();
-            marketModal.style.display = 'flex';
-        });
-        closeMarketBtn.addEventListener('click', () => {
-            marketModal.style.display = 'none';
-        });
+        openMarketBtn.addEventListener('click', () => { updateMarketUI(); marketModal.style.display = 'flex'; });
+        closeMarketBtn.addEventListener('click', () => { marketModal.style.display = 'none'; });
 
-        // MUA VÀ TRANG BỊ
         buyMummyBtn.addEventListener('click', () => {
             if (!ownedItems.includes('MUMMY')) {
-                if (totalCoins >= 300) {
-                    totalCoins -= 300;
-                    ownedItems.push('MUMMY');
-                    equippedOutfit = 'MUMMY';
-                } else {
-                    alert('Bạn không đủ xu! Hãy chơi nhặt thêm xu nhé.');
-                }
-            } else {
-                equippedOutfit = equippedOutfit === 'MUMMY' ? 'NONE' : 'MUMMY';
-            }
+                if (totalCoins >= 300) { totalCoins -= 300; ownedItems.push('MUMMY'); equippedOutfit = 'MUMMY'; }
+                else alert('Bạn không đủ xu!');
+            } else equippedOutfit = equippedOutfit === 'MUMMY' ? 'NONE' : 'MUMMY';
             saveUserData();
         });
 
         buyHatBtn.addEventListener('click', () => {
             if (!ownedItems.includes('HAT')) {
-                if (totalCoins >= 200) {
-                    totalCoins -= 200;
-                    ownedItems.push('HAT');
-                    equippedHat = 'HAT';
-                } else {
-                    alert('Bạn không đủ xu!');
-                }
-            } else {
-                equippedHat = equippedHat === 'HAT' ? 'NONE' : 'HAT';
-            }
+                if (totalCoins >= 200) { totalCoins -= 200; ownedItems.push('HAT'); equippedHat = 'HAT'; }
+                else alert('Bạn không đủ xu!');
+            } else equippedHat = equippedHat === 'HAT' ? 'NONE' : 'HAT';
             saveUserData();
         });
 
         buyPumpkinBtn.addEventListener('click', () => {
             if (!ownedItems.includes('PUMPKIN')) {
-                if (totalCoins >= 200) {
-                    totalCoins -= 200;
-                    ownedItems.push('PUMPKIN');
-                    equippedHat = 'PUMPKIN';
-                } else {
-                    alert('Bạn không đủ xu!');
-                }
-            } else {
-                equippedHat = equippedHat === 'PUMPKIN' ? 'NONE' : 'PUMPKIN';
-            }
+                if (totalCoins >= 200) { totalCoins -= 200; ownedItems.push('PUMPKIN'); equippedHat = 'PUMPKIN'; }
+                else alert('Bạn không đủ xu!');
+            } else equippedHat = equippedHat === 'PUMPKIN' ? 'NONE' : 'PUMPKIN';
             saveUserData();
         });
 
@@ -539,15 +314,18 @@ game_code = """
         let particles = [];
         let bgOffset = 0;
 
+        // BỔ TRỢ ACTIVE
         let tsunamiActive = false;
         let tsunamiTimer = 0;
+
+        let giantActive = false;
+        let giantTimer = 0;
 
         function addParticles(x, y, color, count = 12) {
             for(let i=0; i<count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
+                    vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
                     life: 25, color: color
                 });
             }
@@ -585,19 +363,11 @@ game_code = """
         canvas.addEventListener('mousedown', () => { if (gameState === 'PLAYING') handleInput(); });
 
         function resetGame() {
-            score = 0;
-            currentCoins = 0;
-            speed = 4.5;
-            frame = 0;
+            score = 0; currentCoins = 0; speed = 4.5; frame = 0;
             zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
-            humans = [];
-            obstacles = [];
-            pits = [];
-            powerups = [];
-            coinTrails = [];
-            particles = [];
-            tsunamiActive = false;
-            tsunamiTimer = 0;
+            humans = []; obstacles = []; pits = []; powerups = []; coinTrails = []; particles = [];
+            tsunamiActive = false; tsunamiTimer = 0;
+            giantActive = false; giantTimer = 0;
         }
 
         function isOverPit(x, width = 50) {
@@ -617,31 +387,36 @@ game_code = """
                 if (tsunamiTimer <= 0) tsunamiActive = false;
             }
 
+            if (giantActive) {
+                giantTimer--;
+                if (giantTimer <= 0) giantActive = false;
+            }
+
             // Spawn Hố
             if (frame % 230 === 0 && Math.random() > 0.35) {
                 let pitWidth = 80 + Math.random() * 70;
                 pits.push({ x: 850, width: pitWidth });
             }
 
-            // Spawn Chuỗi Đồng Xu Nối Liền (5 - 8 Xu)
+            // Spawn Chuỗi Đồng Xu
             if (frame % 160 === 0 && Math.random() < 0.6) {
-                let count = 5 + Math.floor(Math.random() * 4); // 5 - 8 xu
+                let count = 5 + Math.floor(Math.random() * 4);
                 let startX = 850;
-                let coinY = defaultGroundY - 40 - (Math.random() > 0.5 ? 40 : 0); // Đôi khi bay cao
+                let coinY = defaultGroundY - 40 - (Math.random() > 0.5 ? 40 : 0);
                 for(let c = 0; c < count; c++) {
                     coinTrails.push({ x: startX + c * 24, y: coinY, collected: false });
                 }
             }
 
-            // Spawn Powerup Sóng Thần
-            if (frame % 950 === 0 && !tsunamiActive && Math.random() < 0.5) {
+            // Spawn Hộp Bổ Trợ Dấu Hỏi (?)
+            if (frame % 850 === 0 && !tsunamiActive && !giantActive && Math.random() < 0.6) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 40)) {
-                    powerups.push({ x: spawnX, y: defaultGroundY - 60, r: 18, collected: false });
+                    powerups.push({ x: spawnX, y: defaultGroundY - 60, w: 38, h: 38, collected: false });
                 }
             }
 
-            // Spawn Người & Vật cản
+            // Spawn Người & Chướng ngại vật
             if (frame % 115 === 0) {
                 let spawnX = 850;
                 if (!isOverPit(spawnX, 150)) {
@@ -656,7 +431,7 @@ game_code = """
                     } else if (rand < 0.87) {
                         obstacles.push({ x: spawnX, y: defaultGroundY - 85, w: 130, h: 55, type: 'HELI', reqZombies: 8, peopleInside: 8, cooldown: 0 });
                     } else {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 40, w: 40, h: 40, type: 'BOMB' });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 42, h: 42, type: 'BOMB' });
                     }
                 }
             }
@@ -664,16 +439,14 @@ game_code = """
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
 
-            // Cập nhật Chuỗi Đồng Xu
+            // Xu
             coinTrails.forEach(c => {
                 c.x -= speed;
                 if (!c.collected) {
                     zombies.forEach(z => {
-                        if (Math.abs(z.x - c.x) < 20 && Math.abs(z.y - c.y) < 25) {
+                        if (Math.abs(z.x - c.x) < 25 && Math.abs(z.y - c.y) < 30) {
                             c.collected = true;
-                            currentCoins += 1;
-                            totalCoins += 1;
-                            saveUserData();
+                            currentCoins += 1; totalCoins += 1; saveUserData();
                             addParticles(c.x, c.y, '#fbc02d', 6);
                         }
                     });
@@ -681,29 +454,35 @@ game_code = """
             });
             coinTrails = coinTrails.filter(c => c.x > -30 && !c.collected);
 
+            // Ăn Hộp Bổ Trợ Dấu Hỏi (?) -> 50/50 Sóng Thần hoặc Quái Vật
             powerups.forEach((pw) => {
                 pw.x -= speed;
                 let leader = zombies[0];
-                if (!pw.collected && leader && Math.abs(leader.x - pw.x) < 30 && Math.abs(leader.y - pw.y) < 35) {
+                if (!pw.collected && leader && Math.abs(leader.x - pw.x) < 35 && Math.abs(leader.y - pw.y) < 40) {
                     pw.collected = true;
-                    tsunamiActive = true;
-                    tsunamiTimer = 260;
-                    addParticles(pw.x, pw.y, '#00e5ff', 30);
+                    if (Math.random() < 0.5) {
+                        tsunamiActive = true; tsunamiTimer = 260; giantActive = false;
+                        addParticles(pw.x, pw.y, '#00e5ff', 35);
+                    } else {
+                        giantActive = true; giantTimer = 260; tsunamiActive = false;
+                        addParticles(pw.x, pw.y, '#76ba1b', 35);
+                    }
                 }
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // XỬ LÝ ZOMBIE & TÉ HỐ TRỪ DẦN DẦN
+            // XỬ LÝ ĐÀN ZOMBIE & RƠI HỐ TRỪ DẦN
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
                 if (tsunamiActive) {
                     z.y = defaultGroundY - 110 + Math.sin(frame * 0.15 + i * 0.4) * 8;
-                    z.vy = 0;
-                    z.isGrounded = true;
+                    z.vy = 0; z.isGrounded = true;
+                } else if (giantActive) {
+                    z.y = defaultGroundY - 35;
+                    z.vy = 0; z.isGrounded = true;
                 } else {
-                    z.vy += gravity;
-                    z.y += z.vy;
+                    z.vy += gravity; z.y += z.vy;
 
                     let onPit = isOverPit(z.x, 10);
                     let standingOnVehicle = false;
@@ -713,10 +492,7 @@ game_code = """
                             if (z.x >= obs.x - 8 && z.x <= obs.x + obs.w + 8) {
                                 let roofY = obs.y - 16;
                                 if (z.y >= roofY - 5 && z.y <= obs.y + 12 && z.vy >= 0) {
-                                    z.y = roofY;
-                                    z.vy = 0;
-                                    z.isGrounded = true;
-                                    standingOnVehicle = true;
+                                    z.y = roofY; z.vy = 0; z.isGrounded = true; standingOnVehicle = true;
                                 }
                             }
                         }
@@ -724,9 +500,7 @@ game_code = """
 
                     if (!standingOnVehicle) {
                         if (!onPit && z.y >= defaultGroundY - 20) {
-                            z.y = defaultGroundY - 20;
-                            z.vy = 0;
-                            z.isGrounded = true;
+                            z.y = defaultGroundY - 20; z.vy = 0; z.isGrounded = true;
                         } else if (onPit) {
                             z.isGrounded = false;
                         }
@@ -735,7 +509,6 @@ game_code = """
 
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
 
-                // TÉ HỐ BỊ TRỪ DẦN DẦN KHI RƠI KHỎI MÀN HÌNH
                 if (z.y > canvas.height + 30) {
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 12);
                     zombies.splice(i, 1);
@@ -745,39 +518,28 @@ game_code = """
             if (zombies.length === 0) {
                 gameState = 'GAMEOVER';
                 if (score > bestScore) {
-                    bestScore = score;
-                    localStorage.setItem('zt_best_score', bestScore);
-                    bestScoreText.innerText = bestScore;
+                    bestScore = score; localStorage.setItem('zt_best_score', bestScore); bestScoreText.innerText = bestScore;
                 }
                 return;
             }
 
-            // SÓNG THẦN CÀN QUÉT NGƯỜI VÀ XE CỘ
+            // SÓNG THẦN VÀ QUÁI VẬT TỰ ĐỘNG QUÉT CẢ NGƯỜI LẪN XE
             humans.forEach((h) => {
                 h.x -= speed;
                 let leader = zombies[0];
 
-                // Nếu có Sóng Thần -> Tự động cuốn sạch người từ xa
-                if (tsunamiActive) {
-                    if (h.x < 350 && !h.eaten) {
-                        h.eaten = true;
-                        score += 1;
-                        currentCoins += 5;
-                        totalCoins += 5;
-                        saveUserData();
-                        addParticles(h.x, h.y - 10, '#00e5ff', 15);
+                if (tsunamiActive || giantActive) {
+                    if (h.x < 450 && !h.eaten) {
+                        h.eaten = true; score += 1; currentCoins += 5; totalCoins += 5; saveUserData();
+                        addParticles(h.x, h.y - 10, giantActive ? '#e040fb' : '#00e5ff', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
-                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                            zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
                         }
                     }
                 } else {
                     if (!h.eaten && leader && Math.abs(leader.x - h.x) < 35 && Math.abs(leader.y - h.y) < 60) {
-                        h.eaten = true;
-                        score += 1;
-                        currentCoins += 5;
-                        totalCoins += 5;
-                        saveUserData();
+                        h.eaten = true; score += 1; currentCoins += 5; totalCoins += 5; saveUserData();
                         addParticles(h.x, h.y - 10, '#76ba1b', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
@@ -787,27 +549,23 @@ game_code = """
                 }
             });
 
+            // CHƯỚNG NGẠI VẬT & BOM GAI AOE
             obstacles.forEach((obs, obsIdx) => {
                 obs.x -= speed;
                 if (obs.cooldown > 0) obs.cooldown--;
 
-                if (tsunamiActive) {
-                    if (Math.abs(zombies[0].x - obs.x) < 120) {
-                        addParticles(obs.x + obs.w/2, obs.y, '#00e5ff', 30);
+                if (tsunamiActive || giantActive) {
+                    if (Math.abs(zombies[0].x - obs.x) < 130) {
+                        addParticles(obs.x + obs.w/2, obs.y, giantActive ? '#e040fb' : '#00e5ff', 30);
                         if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
-                            score += obs.peopleInside;
-                            currentCoins += obs.peopleInside * 10;
-                            totalCoins += obs.peopleInside * 10;
-                            saveUserData();
+                            score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10; saveUserData();
                             for (let k = 0; k < obs.peopleInside; k++) {
                                 if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
-                                    zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                    zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
                                 }
                             }
-                        } else if (obs.type === 'BOMB') {
-                            score += 2;
-                        }
+                        } else if (obs.type === 'BOMB') { score += 2; }
                         obstacles.splice(obsIdx, 1);
                     }
                 } else {
@@ -817,10 +575,7 @@ game_code = """
                             if (z.x + 12 > obs.x && z.x - 12 < obs.x + 20 && z.y > obs.y + 10) {
                                 if (zombies.length >= obs.reqZombies) {
                                     addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 35);
-                                    score += obs.peopleInside;
-                                    currentCoins += obs.peopleInside * 10;
-                                    totalCoins += obs.peopleInside * 10;
-                                    saveUserData();
+                                    score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10; saveUserData();
                                     for (let k = 0; k < obs.peopleInside; k++) {
                                         if (zombies.length < 30) {
                                             let tail = zombies[zombies.length - 1];
@@ -837,11 +592,7 @@ game_code = """
                                         obs.x += 15;
                                         if (zombies.length === 0) {
                                             gameState = 'GAMEOVER';
-                                            if (score > bestScore) {
-                                                bestScore = score;
-                                                localStorage.setItem('zt_best_score', bestScore);
-                                                bestScoreText.innerText = bestScore;
-                                            }
+                                            if (score > bestScore) { bestScore = score; localStorage.setItem('zt_best_score', bestScore); bestScoreText.innerText = bestScore; }
                                             return;
                                         }
                                     }
@@ -849,13 +600,20 @@ game_code = """
                             }
                         }
                     } else if (obs.type === 'BOMB') {
-                        zombies.forEach((z, zIdx) => {
-                            if (Math.abs(z.x - (obs.x + 20)) < 22 && Math.abs(z.y - (obs.y + 20)) < 25) {
-                                addParticles(obs.x + 20, obs.y + 20, '#ff1744', 25);
-                                zombies.splice(zIdx, 1);
+                        // SÁT THƯƠNG AOE 2M (100px)
+                        let bombCenterX = obs.x + 21;
+                        let bombCenterY = obs.y + 21;
+
+                        for (let i = zombies.length - 1; i >= 0; i--) {
+                            let z = zombies[i];
+                            let dist = Math.hypot(z.x - bombCenterX, z.y - bombCenterY);
+                            if (dist < 100) { // Bán kính sát thương AOE ~2m
+                                addParticles(bombCenterX, bombCenterY, '#ff1744', 35);
+                                zombies.splice(i, 1);
                                 obstacles.splice(obsIdx, 1);
+                                break;
                             }
-                        });
+                        }
                     }
                 }
             });
@@ -907,19 +665,13 @@ game_code = """
         function drawBackground() {
             drawBeachMap();
 
-            ctx.fillStyle = '#261c14';
-            ctx.fillRect(0, defaultGroundY, canvas.width, canvas.height - defaultGroundY);
-            ctx.fillStyle = '#37474f';
-            ctx.fillRect(0, defaultGroundY, canvas.width, 12);
-            ctx.fillStyle = '#455a64';
-            ctx.fillRect(0, defaultGroundY + 12, canvas.width, canvas.height - defaultGroundY - 12);
+            ctx.fillStyle = '#261c14'; ctx.fillRect(0, defaultGroundY, canvas.width, canvas.height - defaultGroundY);
+            ctx.fillStyle = '#37474f'; ctx.fillRect(0, defaultGroundY, canvas.width, 12);
+            ctx.fillStyle = '#455a64'; ctx.fillRect(0, defaultGroundY + 12, canvas.width, canvas.height - defaultGroundY - 12);
 
             pits.forEach(p => {
-                ctx.fillStyle = '#110a06';
-                ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
-
-                ctx.fillStyle = '#1a100a';
-                ctx.fillRect(p.x - 6, defaultGroundY, 6, canvas.height - defaultGroundY);
+                ctx.fillStyle = '#110a06'; ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
+                ctx.fillStyle = '#1a100a'; ctx.fillRect(p.x - 6, defaultGroundY, 6, canvas.height - defaultGroundY);
                 ctx.fillRect(p.x + p.width, defaultGroundY, 6, canvas.height - defaultGroundY);
             });
 
@@ -953,11 +705,56 @@ game_code = """
             }
         }
 
-        function drawZombie(z) {
+        // VẼ QUÁI VẬT NÃO KHỔNG LỒ (GIANT MONSTER)
+        function drawGiantMonster() {
             ctx.save();
-            ctx.translate(z.x, z.y);
+            let gX = 180;
+            let gY = defaultGroundY - 45;
 
-            // BỘ ĐỒ XÁC ƯỚP (MUMMY)
+            // Cơ thể Não Xanh khổng lồ
+            let brainGrad = ctx.createRadialGradient(gX - 10, gY - 20, 10, gX, gY, 65);
+            brainGrad.addColorStop(0, '#ccff90'); brainGrad.addColorStop(0.7, '#64dd17'); brainGrad.addColorStop(1, '#1b5e20');
+            ctx.fillStyle = brainGrad;
+            ctx.beginPath(); ctx.arc(gX, gY - 15, 65, 0, Math.PI * 2); ctx.fill();
+
+            // Rãnh não
+            ctx.strokeStyle = '#33691e'; ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(gX - 25, gY - 35, 20, 0.2, Math.PI);
+            ctx.arc(gX + 20, gY - 30, 22, 0.5, Math.PI + 0.5);
+            ctx.stroke();
+
+            // Nhiều Mắt Quái Vật
+            let eyes = [
+                {x: gX - 28, y: gY - 28, r: 16}, {x: gX + 8, y: gY - 32, r: 18},
+                {x: gX + 35, y: gY - 12, r: 14}, {x: gX - 10, y: gY - 8, r: 22}
+            ];
+
+            eyes.forEach(e => {
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#00e5ff'; ctx.beginPath(); ctx.arc(e.x + 3, e.y, e.r * 0.55, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(e.x + 4, e.y, e.r * 0.25, 0, Math.PI*2); ctx.fill();
+            });
+
+            // Miệng xúc tua
+            ctx.fillStyle = '#1b5e20';
+            ctx.beginPath(); ctx.ellipse(gX + 15, gY + 25, 30, 12, 0.1, 0, Math.PI * 2); ctx.fill();
+
+            // TIA LASER QUÉT TOÀN MÀN HÌNH
+            let laserGrad = ctx.createLinearGradient(gX + 35, gY - 10, 800, gY - 10);
+            laserGrad.addColorStop(0, '#ff007f'); laserGrad.addColorStop(0.3, '#e040fb'); laserGrad.addColorStop(1, '#ffffff');
+            ctx.strokeStyle = laserGrad; ctx.lineWidth = 18 + Math.sin(frame * 0.4) * 6;
+            ctx.beginPath(); ctx.moveTo(gX + 35, gY - 10); ctx.lineTo(800, gY - 10); ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // VẼ ZOMBIE THƯỜNG & ĐÀN XEN KẼ THU NHỎ
+        function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
+            ctx.save();
+            ctx.translate(z.x + offsetX, z.y + offsetY);
+            ctx.scale(scale, scale);
+
             if (equippedOutfit === 'MUMMY') {
                 ctx.strokeStyle = '#eceff1'; ctx.lineWidth = 5;
                 ctx.beginPath(); 
@@ -968,19 +765,12 @@ game_code = """
                 ctx.fillStyle = '#cfd8dc'; ctx.fillRect(-8, -5, 16, 14);
                 ctx.fillStyle = '#cfd8dc'; ctx.beginPath(); ctx.arc(0, -15, 16, 0, Math.PI * 2); ctx.fill();
                 
-                // Mắt đỏ xác ướp
                 ctx.fillStyle = '#111'; ctx.fillRect(-8, -20, 16, 8);
                 ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(4, -16, 3.5, 0, Math.PI * 2); ctx.fill();
 
-                // Dải băng quấn
                 ctx.strokeStyle = '#90a4ae'; ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(-15, -12); ctx.lineTo(15, -8);
-                ctx.moveTo(-12, -22); ctx.lineTo(12, -18);
-                ctx.moveTo(-7, -2); ctx.lineTo(7, 2);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-15, -12); ctx.lineTo(15, -8); ctx.moveTo(-12, -22); ctx.lineTo(12, -18); ctx.stroke();
             } else {
-                // ZOMBIE THƯỜNG
                 ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4.5;
                 ctx.beginPath(); 
                 ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); 
@@ -1000,19 +790,57 @@ game_code = """
                 ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(12, 2); ctx.stroke();
             }
 
-            // PHỤ KIỆN MŨ
             if (equippedHat === 'HAT') {
-                ctx.fillStyle = '#795548';
-                ctx.fillRect(-18, -31, 36, 4);
-                ctx.fillRect(-10, -42, 20, 12);
+                ctx.fillStyle = '#795548'; ctx.fillRect(-18, -31, 36, 4); ctx.fillRect(-10, -42, 20, 12);
             } else if (equippedHat === 'PUMPKIN') {
-                ctx.fillStyle = '#ff6f00';
-                ctx.beginPath(); ctx.arc(0, -31, 12, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ff6f00'; ctx.beginPath(); ctx.arc(0, -31, 12, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#33691e'; ctx.fillRect(-2, -46, 4, 6);
-                ctx.fillStyle = '#000';
-                ctx.beginPath(); ctx.moveTo(-6, -34); ctx.lineTo(-2, -34); ctx.lineTo(-4, -30); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(2, -34); ctx.lineTo(6, -34); ctx.lineTo(4, -30); ctx.fill();
             }
+
+            ctx.restore();
+        }
+
+        // VẼ KHỐI HỘP BÍ ẨN DẤU HỎI (?) (MYSTERY BOX)
+        function drawMysteryBox(pw) {
+            ctx.save();
+            ctx.translate(pw.x + pw.w/2, pw.y + pw.h/2 + Math.sin(frame * 0.1) * 4);
+            ctx.rotate(-0.08);
+
+            // Khối 3D Trắng
+            ctx.fillStyle = '#dcdde1'; ctx.fillRect(-pw.w/2 + 4, -pw.h/2 + 4, pw.w, pw.h);
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(-pw.w/2, -pw.h/2, pw.w, pw.h);
+            ctx.strokeStyle = '#2f3640'; ctx.lineWidth = 3; ctx.strokeRect(-pw.w/2, -pw.h/2, pw.w, pw.h);
+
+            // Dấu chấm hỏi màu xanh (?)
+            ctx.fillStyle = '#00a8ff'; ctx.font = '900 26px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('?', 0, 9);
+
+            ctx.restore();
+        }
+
+        // VẼ BOM GAI KIM LOẠI
+        function drawBomb(o) {
+            ctx.save();
+            ctx.translate(o.x + 21, o.y + 21);
+
+            // Cầu gai kim loại
+            let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 20);
+            bombGrad.addColorStop(0, '#555'); bombGrad.addColorStop(0.7, '#222'); bombGrad.addColorStop(1, '#000');
+            ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 19, 0, Math.PI*2); ctx.fill();
+
+            // Các gai sắt xung quanh
+            ctx.fillStyle = '#111';
+            for (let a = 0; a < 8; a++) {
+                let angle = (a * Math.PI) / 4;
+                ctx.beginPath();
+                ctx.arc(Math.cos(angle) * 19, Math.sin(angle) * 19, 4, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            // Tâm sáng đỏ phát quang
+            let glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 10);
+            glowGrad.addColorStop(0, '#ffffff'); glowGrad.addColorStop(0.5, '#ff1744'); glowGrad.addColorStop(1, '#b71c1c');
+            ctx.fillStyle = glowGrad; ctx.beginPath(); ctx.arc(0, 0, 10 + Math.sin(frame * 0.3) * 2, 0, Math.PI*2); ctx.fill();
 
             ctx.restore();
         }
@@ -1026,17 +854,6 @@ game_code = """
             ctx.restore();
         }
 
-        function drawPowerup(pw) {
-            ctx.save();
-            ctx.translate(pw.x, pw.y + Math.sin(frame * 0.1) * 5);
-            ctx.fillStyle = '#ffee58'; ctx.beginPath(); ctx.arc(0, 0, pw.r + 3, 0, Math.PI * 2); ctx.fill();
-            let sphereGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, pw.r);
-            sphereGrad.addColorStop(0, '#80d8ff'); sphereGrad.addColorStop(0.7, '#0091ea'); sphereGrad.addColorStop(1, '#01579b');
-            ctx.fillStyle = sphereGrad; ctx.beginPath(); ctx.arc(0, 0, pw.r, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🌊', 0, 6);
-            ctx.restore();
-        }
-
         function drawHuman(h) {
             ctx.save();
             ctx.translate(h.x, h.y);
@@ -1047,59 +864,34 @@ game_code = """
             ctx.restore();
         }
 
-        function drawBomb(o) {
-            ctx.save();
-            ctx.translate(o.x + 20, o.y + 20);
-            let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 16);
-            bombGrad.addColorStop(0, '#666'); bombGrad.addColorStop(0.6, '#222'); bombGrad.addColorStop(1, '#000');
-            ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ff1744'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💣', 0, 4);
-            ctx.restore();
-        }
-
         function drawCar(o) {
-            ctx.save();
-            ctx.translate(o.x, o.y);
+            ctx.save(); ctx.translate(o.x, o.y);
             ctx.fillStyle = '#d32f2f'; ctx.fillRect(0, 15, o.w, 18);
             ctx.fillStyle = '#b71c1c'; ctx.fillRect(14, 3, 52, 13);
             ctx.fillStyle = '#81d4fa'; ctx.fillRect(18, 5, 18, 9); ctx.fillRect(42, 5, 20, 9);
-            ctx.fillStyle = '#ffeb3b'; ctx.fillRect(0, 19, 4, 7);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(18, 33, 8, 0, Math.PI*2); ctx.arc(o.w - 18, 33, 8, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#111'; ctx.fillRect(16, -42, 52, 24);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(`0/${o.reqZombies}`, 42, -25);
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`0/${o.reqZombies}`, 42, -25);
             ctx.restore();
         }
 
         function drawBus(o) {
-            ctx.save();
-            ctx.translate(o.x, o.y);
+            ctx.save(); ctx.translate(o.x, o.y);
             ctx.fillStyle = '#fbc02d'; ctx.fillRect(0, 0, o.w, 48);
             ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 28, o.w, 5);
-            ctx.fillStyle = '#81d4fa';
-            for(let k=0; k<4; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
+            ctx.fillStyle = '#81d4fa'; for(let k=0; k<4; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 48, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 48, 9, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#111'; ctx.fillRect(34, -40, 55, 26);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(`0/${o.reqZombies}`, 61, -22);
+            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`0/${o.reqZombies}`, 61, -22);
             ctx.restore();
         }
 
         function drawHelicopter(o) {
-            ctx.save();
-            ctx.translate(o.x, o.y);
+            ctx.save(); ctx.translate(o.x, o.y);
             ctx.fillStyle = '#3e4a36'; ctx.beginPath(); ctx.ellipse(60, 25, 52, 20, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.fillRect(95, 18, 38, 10);
-            ctx.fillStyle = '#111'; ctx.fillRect(130, 8, 5, 24);
-            ctx.fillStyle = '#81d4fa'; ctx.fillRect(20, 14, 24, 14); ctx.fillRect(50, 16, 12, 10); ctx.fillRect(68, 16, 12, 10);
-            ctx.fillStyle = '#111'; ctx.fillRect(55, 0, 6, 8);
-            let bladeW = 95 + Math.sin(frame * 0.5) * 15;
-            ctx.fillRect(58 - bladeW/2, 0, bladeW, 3);
-            ctx.strokeStyle = '#222'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(30, 42); ctx.lineTo(30, 48); ctx.lineTo(90, 48); ctx.lineTo(90, 42); ctx.stroke();
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace'; ctx.fillText('T-315', 60, 28);
-            ctx.fillStyle = '#111'; ctx.fillRect(35, -36, 50, 24);
-            ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(`0/${o.reqZombies}`, 60, -19);
+            ctx.fillRect(95, 18, 38, 10); ctx.fillStyle = '#81d4fa'; ctx.fillRect(20, 14, 24, 14);
+            let bladeW = 95 + Math.sin(frame * 0.5) * 15; ctx.fillStyle = '#111'; ctx.fillRect(58 - bladeW/2, 0, bladeW, 3);
+            ctx.fillRect(35, -36, 50, 24); ctx.fillStyle = '#ff3d00'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`0/${o.reqZombies}`, 60, -19);
             ctx.restore();
         }
 
@@ -1113,7 +905,7 @@ game_code = """
             }
 
             coinTrails.forEach(c => drawCoin(c));
-            powerups.forEach(pw => drawPowerup(pw));
+            powerups.forEach(pw => drawMysteryBox(pw));
             humans.forEach(h => drawHuman(h));
 
             obstacles.forEach(o => {
@@ -1123,14 +915,23 @@ game_code = """
                 else if (o.type === 'HELI') drawHelicopter(o);
             });
 
-            zombies.forEach(z => drawZombie(z));
+            if (giantActive) {
+                drawGiantMonster();
+            } else {
+                // VẼ ZOMBIE XEN KẼ THU NHỎ THEO CHIỀU SÂU (Z-ORDERING CỰC ĐẸP)
+                zombies.forEach((z, idx) => {
+                    let depthScale = 1 - Math.min(idx * 0.012, 0.25); // Thu nhỏ nhẹ về sau
+                    let offsetY = (idx % 2 === 1) ? -Math.min(idx * 1.8, 18) : 0; // Lệch lên/xuống nhẹ
+                    let offsetX = (idx % 3 === 2) ? -6 : 0;
+                    drawZombie(z, depthScale, offsetX, offsetY);
+                });
+            }
 
             particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4);
             });
 
-            // HUD UI trong khi chơi
+            // HUD UI
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(15, 12, 170, 70);
             ctx.fillStyle = '#fbc02d'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`🪙 ${totalCoins}`, 25, 40);
             ctx.fillStyle = '#76ba1b'; ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
