@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Authentic Masterpiece", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami PowerUp Edition", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - MASTERPIECE EDITION 🌊🌆</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - POWER-UP EDITION ⚡</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -86,24 +86,25 @@ game_code = """
             padding: 20px; box-sizing: border-box;
         }
         .modal-box {
-            width: 680px; height: 380px; background: #1e272e; border: 4px solid #fbc02d; border-radius: 16px;
+            width: 720px; height: 400px; background: #1e272e; border: 4px solid #fbc02d; border-radius: 16px;
             display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(251, 192, 45, 0.4);
         }
-        .modal-header { background: #fbc02d; color: #000; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 24px; font-weight: bold; }
+        .modal-header { background: #fbc02d; color: #000; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; font-weight: bold; }
         .close-btn { background: #d32f2f; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 18px; }
         
         .market-tabs { display: flex; background: #0f171e; border-bottom: 2px solid #333; }
-        .tab-btn { flex: 1; padding: 12px; text-align: center; color: #aaa; font-size: 18px; cursor: pointer; border-right: 1px solid #222; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 10px; text-align: center; color: #aaa; font-size: 16px; cursor: pointer; border-right: 1px solid #222; font-weight: bold; }
         .tab-btn.active { background: #1e272e; color: #76ba1b; border-bottom: 3px solid #76ba1b; }
-        .market-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; gap: 20px; justify-content: center; align-items: center; }
+        .market-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; gap: 15px; justify-content: center; align-items: center; }
         
-        .shop-item { width: 200px; height: 220px; background: #2f3640; border: 3px solid #485460; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px; box-sizing: border-box; position: relative; }
+        .shop-item { width: 210px; height: 230px; background: #2f3640; border: 3px solid #485460; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12px; box-sizing: border-box; position: relative; }
         .shop-item.coming-soon { filter: brightness(0.4); }
         .cs-tag { position: absolute; top: 80px; background: #ff1744; color: #fff; padding: 4px 12px; font-size: 14px; font-weight: bold; border-radius: 4px; transform: rotate(-10deg); }
-        .shop-img { font-size: 48px; margin-top: 10px; }
-        .shop-title { color: #fff; font-size: 16px; margin-top: 5px; }
-        .buy-btn { background: #4cd137; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 0 #44bd32; width: 100%; }
-        .buy-btn.equipped { background: #00a8ff; color: #fff; box-shadow: 0 4px 0 #0097e6; }
+        .shop-img { font-size: 42px; margin-top: 5px; }
+        .shop-title { color: #fff; font-size: 14px; text-align: center; margin-top: 2px; font-weight: bold; }
+        .shop-desc { color: #aaa; font-size: 11px; text-align: center; }
+        .buy-btn { background: #4cd137; color: #000; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 0 #44bd32; width: 100%; }
+        .buy-btn.maxed { background: #718093; color: #fff; box-shadow: none; cursor: not-allowed; }
         .buy-btn:disabled { background: #718093; box-shadow: none; cursor: not-allowed; color: #ccc; }
 
         .mission-list { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
@@ -160,12 +161,14 @@ game_code = """
                 <div class="market-tabs">
                     <div class="tab-btn active" id="tabOutfits">TRANG PHỤC</div>
                     <div class="tab-btn" id="tabHats">PHỤ KIỆN</div>
+                    <div class="tab-btn" id="tabPowers">SỨC MẠNH</div>
                 </div>
                 
                 <div class="market-content" id="contentOutfits">
                     <div class="shop-item">
                         <div class="shop-img">🩹</div>
                         <div class="shop-title">Xác Ướp (Mummy)</div>
+                        <div class="shop-desc">Trang phục cao cấp</div>
                         <button class="buy-btn" id="buyMummyBtn">300 Xu</button>
                     </div>
                     <div class="shop-item coming-soon">
@@ -180,12 +183,29 @@ game_code = """
                     <div class="shop-item">
                         <div class="shop-img">🤠</div>
                         <div class="shop-title">Mũ Cao Bồi</div>
+                        <div class="shop-desc">Phụ kiện phong cách</div>
                         <button class="buy-btn" id="buyHatBtn">200 Xu</button>
                     </div>
                     <div class="shop-item">
                         <div class="shop-img">🎃</div>
                         <div class="shop-title">Đầu Bí Ngô</div>
+                        <div class="shop-desc">Phụ kiện Halloween</div>
                         <button class="buy-btn" id="buyPumpkinBtn">200 Xu</button>
+                    </div>
+                </div>
+
+                <div class="market-content" id="contentPowers" style="display: none;">
+                    <div class="shop-item">
+                        <div class="shop-img">🧠</div>
+                        <div class="shop-title">Zombie Ban Đầu</div>
+                        <div class="shop-desc">Cấp hiện tại: <span id="p1LevelLabel">1</span>/3</div>
+                        <button class="buy-btn" id="buyPower1Btn">50 Xu</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="shop-img">⏱️</div>
+                        <div class="shop-title">Thời Gian Bổ Trợ</div>
+                        <div class="shop-desc">Cấp hiện tại: <span id="p2LevelLabel">1</span>/3</div>
+                        <button class="buy-btn" id="buyPower2Btn">50 Xu</button>
                     </div>
                 </div>
             </div>
@@ -271,12 +291,18 @@ game_code = """
 
         const tabOutfits = document.getElementById('tabOutfits');
         const tabHats = document.getElementById('tabHats');
+        const tabPowers = document.getElementById('tabPowers');
         const contentOutfits = document.getElementById('contentOutfits');
         const contentHats = document.getElementById('contentHats');
+        const contentPowers = document.getElementById('contentPowers');
 
         const buyMummyBtn = document.getElementById('buyMummyBtn');
         const buyHatBtn = document.getElementById('buyHatBtn');
         const buyPumpkinBtn = document.getElementById('buyPumpkinBtn');
+        const buyPower1Btn = document.getElementById('buyPower1Btn');
+        const buyPower2Btn = document.getElementById('buyPower2Btn');
+        const p1LevelLabel = document.getElementById('p1LevelLabel');
+        const p2LevelLabel = document.getElementById('p2LevelLabel');
 
         let gameState = 'MENU'; 
         let score = 0;
@@ -294,6 +320,10 @@ game_code = """
         let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';
         let ownedItems = JSON.parse(localStorage.getItem('zt_owned_items') || '[]');
 
+        // NÂNG CẤP SỨC MẠNH (LEVEL 1 ĐẾN 3)
+        let power1Level = parseInt(localStorage.getItem('zt_p1_level') || '1'); // Số zombie ban đầu: 1->2->3->4
+        let power2Level = parseInt(localStorage.getItem('zt_p2_level') || '1'); // Thời gian bổ trợ: 6s->8s->10s (tương ứng 360, 480, 600 frames)
+
         let currentMap = 'BEACH'; 
         let mapTimer = 0; 
 
@@ -306,6 +336,8 @@ game_code = """
             localStorage.setItem('zt_equipped_outfit', equippedOutfit);
             localStorage.setItem('zt_equipped_hat', equippedHat);
             localStorage.setItem('zt_owned_items', JSON.stringify(ownedItems));
+            localStorage.setItem('zt_p1_level', power1Level);
+            localStorage.setItem('zt_p2_level', power2Level);
             updateMarketUI();
             updateMissionUI();
         }
@@ -326,6 +358,28 @@ game_code = """
                 buyPumpkinBtn.innerText = equippedHat === 'PUMPKIN' ? 'Đang Đội' : 'Đội Vào';
                 buyPumpkinBtn.className = equippedHat === 'PUMPKIN' ? 'buy-btn equipped' : 'buy-btn';
             } else buyPumpkinBtn.innerText = '200 Xu';
+
+            p1LevelLabel.innerText = power1Level;
+            if (power1Level >= 3) {
+                buyPower1Btn.innerText = 'ĐÃ TỐI ĐA';
+                buyPower1Btn.className = 'buy-btn maxed';
+                buyPower1Btn.disabled = true;
+            } else {
+                buyPower1Btn.innerText = '50 Xu';
+                buyPower1Btn.className = 'buy-btn';
+                buyPower1Btn.disabled = false;
+            }
+
+            p2LevelLabel.innerText = power2Level;
+            if (power2Level >= 3) {
+                buyPower2Btn.innerText = 'ĐÃ TỐI ĐA';
+                buyPower2Btn.className = 'buy-btn maxed';
+                buyPower2Btn.disabled = true;
+            } else {
+                buyPower2Btn.innerText = '50 Xu';
+                buyPower2Btn.className = 'buy-btn';
+                buyPower2Btn.disabled = false;
+            }
         }
 
         function updateMissionUI() {
@@ -348,6 +402,22 @@ game_code = """
             }
         }
 
+        buyPower1Btn.addEventListener('click', () => {
+            if (power1Level < 3) {
+                if (totalCoins >= 50) {
+                    totalCoins -= 50; power1Level++; saveUserData();
+                } else alert('Bạn không đủ 50 xu!');
+            }
+        });
+
+        buyPower2Btn.addEventListener('click', () => {
+            if (power2Level < 3) {
+                if (totalCoins >= 50) {
+                    totalCoins -= 50; power2Level++; saveUserData();
+                } else alert('Bạn không đủ 50 xu!');
+            }
+        });
+
         m1Btn.addEventListener('click', () => {
             if (!m1Claimed && totalEatenHumans >= 100) {
                 m1Claimed = true; totalCoins += 100; saveUserData();
@@ -361,12 +431,17 @@ game_code = """
         });
 
         tabOutfits.addEventListener('click', () => {
-            tabOutfits.classList.add('active'); tabHats.classList.remove('active');
-            contentOutfits.style.display = 'flex'; contentHats.style.display = 'none';
+            tabOutfits.classList.add('active'); tabHats.classList.remove('active'); tabPowers.classList.remove('active');
+            contentOutfits.style.display = 'flex'; contentHats.style.display = 'none'; contentPowers.style.display = 'none';
         });
         tabHats.addEventListener('click', () => {
-            tabHats.classList.add('active'); tabOutfits.classList.remove('active');
-            contentHats.style.display = 'flex'; contentOutfits.style.display = 'none';
+            tabHats.classList.add('active'); tabOutfits.classList.remove('active'); tabPowers.classList.remove('active');
+            contentHats.style.display = 'flex'; contentOutfits.style.display = 'none'; contentPowers.style.display = 'none';
+        });
+        tabPowers.addEventListener('click', () => {
+            tabPowers.classList.add('active'); tabOutfits.classList.remove('active'); tabHats.classList.remove('active');
+            contentPowers.style.display = 'flex'; contentOutfits.style.display = 'none'; contentHats.style.display = 'none';
+            updateMarketUI();
         });
 
         openMarketBtn.addEventListener('click', () => { updateMarketUI(); marketModal.style.display = 'flex'; });
@@ -406,7 +481,7 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
-        let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0, variant: 0 }];
+        let zombies = [];
         let humans = [];
         let obstacles = [];
         let pits = [];
@@ -464,7 +539,14 @@ game_code = """
 
         function resetGame() {
             score = 0; currentCoins = 0; speed = 4.5; frame = 0;
-            zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0, variant: 0 }];
+            
+            // TẠO SỐ ZOMBIE BAN ĐẦU DỰA TRÊN CẤP NÂNG CẤP (power1Level: 1->1, 2->2, 3->3, 4->4)
+            let initialCount = power1Level; // 1, 2, 3 hoặc 4
+            zombies = [];
+            for (let i = 0; i < initialCount; i++) {
+                zombies.push({ x: 180 - (i * 22), y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: i * 0.5, variant: i % 3 });
+            }
+
             humans = []; obstacles = []; pits = []; powerups = []; coinTrails = []; particles = [];
             tsunamiActive = false; tsunamiTimer = 0;
             giantActive = false; giantTimer = 0;
@@ -496,6 +578,9 @@ game_code = """
             }
 
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
+
+            // XÁC ĐỊNH THỜI GIAN BỔ TRỢ DỰA VÀO power2Level (Level 1: 6s = 360f, Level 2: 8s = 480f, Level 3: 10s = 600f)
+            let bonusDuration = power2Level === 1 ? 360 : (power2Level === 2 ? 480 : 600);
 
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
@@ -563,10 +648,10 @@ game_code = """
                 if (!pw.collected && leader && Math.abs(leader.x - pw.x) < 35 && Math.abs(leader.y - pw.y) < 40) {
                     pw.collected = true;
                     if (Math.random() < 0.5) {
-                        tsunamiActive = true; tsunamiTimer = 260; giantActive = false;
+                        tsunamiActive = true; tsunamiTimer = bonusDuration; giantActive = false;
                         addParticles(pw.x, pw.y, '#00e5ff', 35);
                     } else {
-                        giantActive = true; giantTimer = 260; tsunamiActive = false;
+                        giantActive = true; giantTimer = bonusDuration; tsunamiActive = false;
                         addParticles(pw.x, pw.y, '#76ba1b', 35);
                     }
                 }
@@ -766,27 +851,30 @@ game_code = """
             }
         }
 
-        // MAP THÀNH PHỐ ĐÚNG CHUẨN ẢNH 1 (CẦU VƯỢT, TÒA NHÀ & ĐÈN NEON KHÔNG CHỮ)
+        // MAP THÀNH PHỐ: TÒA NHÀ ĐỎ & CẦU VƯỢT LẶP LẠI LIÊN TỤC KHÔNG GIỚI HẠN
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#5c3d75'); skyGrad.addColorStop(0.5, '#95508c'); skyGrad.addColorStop(1, '#e08ba0');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // Đám mây hồng tím hoàng hôn
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             let cloudX = (200 - bgOffset * 0.1) % 900; if (cloudX < -100) cloudX += 900;
             ctx.beginPath(); ctx.arc(cloudX, 40, 18, 0, Math.PI*2); ctx.arc(cloudX + 25, 35, 24, 0, Math.PI*2); ctx.fill();
 
-            // Cầu vượt bê tông uốn lượn phía hậu cảnh (Chuẩn Ảnh 1)
-            ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 14;
-            ctx.beginPath(); ctx.moveTo(0, 210); ctx.quadraticCurveTo(400, 140, 800, 220); ctx.stroke();
-            ctx.strokeStyle = '#37474f'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(0, 216); ctx.quadraticCurveTo(400, 146, 800, 226); ctx.stroke();
+            // Cầu vượt lặp lại liên tục theo bgOffset
+            let bridgeSpacing = 500;
+            let startBridgeX = - (bgOffset * 0.5 % bridgeSpacing);
+            for (let bx = startBridgeX; bx < canvas.width + bridgeSpacing; bx += bridgeSpacing) {
+                ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 14;
+                ctx.beginPath(); ctx.moveTo(bx, 210); ctx.quadraticCurveTo(bx + 250, 140, bx + 500, 220); ctx.stroke();
+                ctx.strokeStyle = '#37474f'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(bx, 216); ctx.quadraticCurveTo(bx + 250, 146, bx + 500, 226); ctx.stroke();
+            }
 
-            // Các tòa nhà chọc trời phía xa (Không có chữ HOTEL/BAR)
-            for (let b = 0; b < 4; b++) {
-                let bX = (b * 260 - bgOffset * 0.25) % 1040; if (bX < -160) bX += 1040;
-                let bH = 100 + (b * 40) % 80;
+            // Các tòa nhà chọc trời hậu cảnh lặp lại
+            for (let b = 0; b < 6; b++) {
+                let bX = (b * 220 - bgOffset * 0.25) % 1320; if (bX < -160) bX += 1320;
+                let bH = 100 + (b * 40) % 90;
                 ctx.fillStyle = '#263238'; ctx.fillRect(bX, 220 - bH, 110, bH);
                 ctx.fillStyle = '#ffeb3b';
                 for (let r = 0; r < Math.floor(bH / 16); r++) {
@@ -796,13 +884,16 @@ game_code = """
                 }
             }
 
-            // Tòa nhà gạch đỏ cổ điển ở bên phải (Chuẩn Ảnh 1)
-            let redBuildingX = (600 - bgOffset * 0.5) % 900;
-            ctx.fillStyle = '#b71c1c'; ctx.fillRect(redBuildingX, 110, 150, 170);
-            ctx.fillStyle = '#331a00';
-            for(let rx=0; rx<3; rx++) {
-                for(let ry=0; ry<4; ry++) {
-                    ctx.fillRect(redBuildingX + 15 + rx * 42, 130 + ry * 35, 28, 22);
+            // Tòa nhà gạch đỏ lặp lại liên tục theo chu kỳ 450px
+            let redBuildingSpacing = 450;
+            let startRedX = - (bgOffset * 0.6 % redBuildingSpacing);
+            for (let rxPos = startRedX; rxPos < canvas.width + redBuildingSpacing; rxPos += redBuildingSpacing) {
+                ctx.fillStyle = '#b71c1c'; ctx.fillRect(rxPos, 110, 150, 170);
+                ctx.fillStyle = '#331a00';
+                for(let rx=0; rx<3; rx++) {
+                    for(let ry=0; ry<4; ry++) {
+                        ctx.fillRect(rxPos + 15 + rx * 42, 130 + ry * 35, 28, 22);
+                    }
                 }
             }
 
@@ -835,7 +926,6 @@ game_code = """
                 }
             }
 
-            // HOẠT ẢNH SÓNG THẦN SỐNG ĐỘNG (XANH BIỂN SÂU KẾT HỢP BỌT TRẮNG - ẢNH 3)
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 80, 0, defaultGroundY + 50);
@@ -849,7 +939,6 @@ game_code = """
                 ctx.closePath(); 
                 ctx.fill();
 
-                // Bọt sóng trắng cuồn cuộn đỉnh sóng
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath(); ctx.arc(waveX + 10, 150, 18 + Math.sin(frame*0.3)*4, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(waveX - 10, 140, 14, 0, Math.PI*2); ctx.fill();
@@ -857,28 +946,23 @@ game_code = """
             }
         }
 
-        // QUÁI VẬT LỚN CỰC KỲ CHI TIẾT ĐÚNG MẪU (CÓ MŨ ẢO THUẬT, MẮT, XÚC TU VÀ MIỆNG - ẢNH 2)
         function drawGiantMonster() {
             ctx.save();
             let gX = 180; let gY = defaultGroundY - 50;
 
-            // Thân quái vật / bộ não xanh khổng lồ
             let brainGrad = ctx.createRadialGradient(gX - 12, gY - 25, 8, gX, gY, 72);
             brainGrad.addColorStop(0, '#ccff90'); brainGrad.addColorStop(0.5, '#76ba1b'); brainGrad.addColorStop(1, '#1b5e20');
             ctx.fillStyle = brainGrad; ctx.beginPath(); ctx.arc(gX, gY - 10, 72, 0, Math.PI * 2); ctx.fill();
 
-            // Mũ ảo thuật lịch lãm trên đầu (Ảnh 2)
             ctx.fillStyle = '#111111';
-            ctx.fillRect(gX - 18, gY - 78, 36, 6); // Vành mũ
-            ctx.fillRect(gX - 11, gY - 105, 22, 27); // Chóp mũ
-            ctx.fillStyle = '#b71c1c'; ctx.fillRect(gX - 11, gY - 84, 22, 5); // Ruy băng đỏ
+            ctx.fillRect(gX - 18, gY - 78, 36, 6);
+            ctx.fillRect(gX - 11, gY - 105, 22, 27);
+            ctx.fillStyle = '#b71c1c'; ctx.fillRect(gX - 11, gY - 84, 22, 5);
 
-            // Đôi chân ngắn quái vật bước đi
             ctx.fillStyle = '#fbc02d';
             ctx.fillRect(gX - 22, gY + 52, 16, 12);
             ctx.fillRect(gX + 6, gY + 52, 16, 12);
 
-            // Hệ thống mắt to nhiều tròng ngầu (Ảnh 2)
             let eyes = [
                 {x: gX - 35, y: gY - 32, r: 20}, {x: gX + 12, y: gY - 40, r: 22},
                 {x: gX + 42, y: gY - 14, r: 16}, {x: gX - 10, y: gY - 8, r: 26}
@@ -890,21 +974,17 @@ game_code = """
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(e.x + 1, e.y - 3, 2, 0, Math.PI*2); ctx.fill();
             });
 
-            // Miệng quái vật há rộng màu tím đen đáng sợ
             ctx.fillStyle = '#110022'; 
             ctx.beginPath(); ctx.ellipse(gX + 18, gY + 28, 30, 16, 0.1, 0, Math.PI * 2); ctx.fill();
-            // Răng nanh sắc nhọn
             ctx.fillStyle = '#ffffff';
             ctx.beginPath(); ctx.moveTo(gX, gY + 20); ctx.lineTo(gX + 6, gY + 30); ctx.lineTo(gX + 12, gY + 20); ctx.fill();
 
-            // Xúc tu màu tím đen vươn dài quắp lấy mục tiêu (Ảnh 2)
             ctx.strokeStyle = '#4a148c'; ctx.lineWidth = 14; ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(gX + 35, gY + 30);
             ctx.bezierCurveTo(gX + 80, gY + 40, gX + 130, gY + 10, gX + 180, gY + 25);
             ctx.stroke();
 
-            // Tia laser hồng tím siêu mạnh bắn ra từ mắt (Ảnh 2)
             let laserGrad = ctx.createLinearGradient(gX + 30, gY - 20, 800, gY - 20);
             laserGrad.addColorStop(0, '#ffffff'); laserGrad.addColorStop(0.15, '#ff007f'); laserGrad.addColorStop(0.7, '#e040fb'); laserGrad.addColorStop(1, '#ffffff');
             ctx.strokeStyle = laserGrad; ctx.lineWidth = 26 + Math.sin(frame * 0.4) * 6;
@@ -912,7 +992,6 @@ game_code = """
             ctx.restore();
         }
 
-        // HÀM VẼ ZOMBIE NGUYÊN TÁC
         function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
             ctx.save();
             ctx.translate(z.x + offsetX, z.y + offsetY);
