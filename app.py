@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Mission & Dual Map Update", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Dual Map Fixed HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAP & MISSIONS 📜🌊</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - FIXED MAP & SLOWER PIT 🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -78,7 +78,7 @@ game_code = """
         .best-score-title { font-size: 15px; color: #ddd; margin: 0; }
         .best-score-val { font-size: 26px; color: #ffeb3b; font-weight: bold; margin: 0; }
 
-        /* MODAL POPUP CUNG (MARKET & MISSION) */
+        /* MODAL POPUPS */
         .modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85);
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
@@ -105,20 +105,13 @@ game_code = """
         .buy-btn.equipped { background: #00a8ff; color: #fff; box-shadow: 0 4px 0 #0097e6; }
         .buy-btn:disabled { background: #718093; box-shadow: none; cursor: not-allowed; color: #ccc; }
 
-        /* MISSION STYLES (HÌNH 2) */
         .mission-list { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
-        .mission-card {
-            background: #2f3640; border: 3px solid #485460; border-radius: 12px; display: flex; align-items: center; padding: 12px 18px; gap: 15px;
-        }
-        .mission-icon {
-            width: 50px; height: 50px; background: #111; border: 2px solid #fff; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 28px;
-        }
+        .mission-card { background: #2f3640; border: 3px solid #485460; border-radius: 12px; display: flex; align-items: center; padding: 12px 18px; gap: 15px; }
+        .mission-icon { width: 50px; height: 50px; background: #111; border: 2px solid #fff; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 28px; }
         .mission-info { flex: 1; color: #fff; }
         .mission-title { font-size: 16px; font-weight: bold; margin-bottom: 6px; }
         .mission-progress { font-size: 14px; color: #ffeb3b; }
-        .collect-btn {
-            background: #fbc02d; color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 0 #f57f17;
-        }
+        .collect-btn { background: #fbc02d; color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 0 #f57f17; }
         .collect-btn:disabled { background: #718093; box-shadow: none; cursor: not-allowed; color: #aaa; }
     </style>
 </head>
@@ -190,7 +183,7 @@ game_code = """
             </div>
         </div>
 
-        <!-- MISSION MODAL (HÌNH 2) -->
+        <!-- MISSION MODAL -->
         <div id="missionModal" class="modal-overlay">
             <div class="modal-box">
                 <div class="modal-header">
@@ -198,7 +191,6 @@ game_code = """
                     <div class="close-btn" id="closeMissionBtn">✖</div>
                 </div>
                 <div class="mission-list">
-                    <!-- Mission 1 -->
                     <div class="mission-card">
                         <div class="mission-icon">🧟</div>
                         <div class="mission-info">
@@ -208,7 +200,6 @@ game_code = """
                         <button class="collect-btn" id="m1Btn" disabled>COLLECT</button>
                     </div>
 
-                    <!-- Mission 2 -->
                     <div class="mission-card">
                         <div class="mission-icon">🧠</div>
                         <div class="mission-info">
@@ -229,7 +220,6 @@ game_code = """
         const playBtn = document.getElementById('playBtn');
         const bestScoreText = document.getElementById('bestScoreText');
 
-        // Modals
         const marketModal = document.getElementById('marketModal');
         const openMarketBtn = document.getElementById('openMarketBtn');
         const closeMarketBtn = document.getElementById('closeMarketBtn');
@@ -378,7 +368,7 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
-        let currentMap = Math.random() < 0.5 ? 'BEACH' : 'MOUNTAIN'; // Ngẫu nhiên khi bắt đầu
+        let currentMap = Math.random() < 0.5 ? 'BEACH' : 'MOUNTAIN';
         let mapSwitchTimer = 0;
 
         let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
@@ -458,7 +448,7 @@ game_code = """
 
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
 
-            // Chuyển đổi Map sau mỗi 20 Giây (60fps * 20s = 1200 frame)
+            // Chuyển Đổi Map sau 20s (1200 frame)
             mapSwitchTimer++;
             if (mapSwitchTimer >= 1200) {
                 mapSwitchTimer = 0;
@@ -613,11 +603,11 @@ game_code = """
                 }
             });
 
-            // Rơi hố trừ dần
+            // THỜI GIAN RƠI HỐ CHẬM HƠN (~0.4s/CON) ĐỂ KỊP NHẢY
             let leaderOverPit = isOverPit(zombies[0].x, 10);
             if (leaderOverPit && !tsunamiActive && !giantActive) {
                 pitKillTimer++;
-                if (pitKillTimer % 12 === 0) {
+                if (pitKillTimer % 24 === 0) { // Giảm nhịp trừ để nhảy kịp
                     let diedZ = zombies.shift();
                     if (diedZ) addParticles(diedZ.x, defaultGroundY + 40, '#76ba1b', 15);
                     if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
@@ -705,7 +695,6 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // VẼ MAP BÃI BIỂN
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
@@ -737,31 +726,35 @@ game_code = """
             }
         }
 
-        // VẼ MAP NÚI ĐÁ RUSHMORE / NÚI ĐÁ CỔ ĐIỂN (HÌNH 1)
+        // VẼ MAP NÚI ĐÁ NÂNG CẤP CHUẨN ĐẸP KHÔNG LỖI KÉO DÀI (HÌNH 1)
         function drawMountainMap() {
-            // Bầu trời đêm sương thẫm
+            // Nền bầu trời
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#0d47a1'); skyGrad.addColorStop(1, '#1976d2');
+            skyGrad.addColorStop(0, '#1a237e'); skyGrad.addColorStop(1, '#283593');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // Dãy Núi Đá Điêu Khắc Tượng Mặt Cổ Đại (Hình 1)
-            for (let m = 0; m < 2; m++) {
-                let mX = (120 + m * 450 - bgOffset * 0.5) % 900;
-                if (mX < -200) mX += 900;
+            // Dãy Núi Đá Vàng Kim 3D Chi Tiết
+            let mountX1 = (100 - bgOffset * 0.4) % 800; if (mountX1 < -400) mountX1 += 800;
+            let mountX2 = (500 - bgOffset * 0.4) % 800; if (mountX2 < -400) mountX2 += 800;
 
-                // Vách núi đá màu vàng cát vàng kim
+            [mountX1, mountX2].forEach(mX => {
+                ctx.save();
                 ctx.fillStyle = '#d7ccc8';
                 ctx.beginPath();
-                ctx.moveTo(mX - 60, 250); ctx.lineTo(mX, 110); ctx.lineTo(mX + 80, 80); ctx.lineTo(mX + 180, 130); ctx.lineTo(mX + 260, 250);
+                ctx.moveTo(mX, 280); ctx.lineTo(mX + 60, 120); ctx.lineTo(mX + 180, 80); ctx.lineTo(mX + 300, 150); ctx.lineTo(mX + 380, 280);
                 ctx.fill();
 
-                // Các khuôn mặt đá điêu khắc tượng Rushmore
+                // Các khuôn mặt đá điêu khắc Tượng Rushmore khổng lồ
                 ctx.fillStyle = '#bcaaa4';
-                ctx.beginPath(); ctx.arc(mX + 40, 130, 25, 0, Math.PI*2); ctx.fill(); // Đầu tượng
-                ctx.fillStyle = '#8d6e63';
-                ctx.fillRect(mX + 35, 125, 15, 6); // Mắt
-                ctx.fillRect(mX + 45, 135, 12, 12); // Mũi
-            }
+                ctx.beginPath(); ctx.arc(mX + 120, 140, 32, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(mX + 220, 160, 28, 0, Math.PI*2); ctx.fill();
+
+                // Chi tiết mắt mũi đá
+                ctx.fillStyle = '#5d4037';
+                ctx.fillRect(mX + 110, 130, 14, 6); ctx.fillRect(mX + 125, 140, 10, 16);
+                ctx.fillRect(mX + 210, 152, 12, 5); ctx.fillRect(mX + 222, 160, 8, 14);
+                ctx.restore();
+            });
         }
 
         function drawBackground() {
@@ -823,13 +816,11 @@ game_code = """
             ctx.restore();
         }
 
-        // VẼ ZOMBIE VỚI HOẠT ẢNH HÁ MIỆNG KHI LẠI GẦN NGƯỜI
         function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
             ctx.save();
             ctx.translate(z.x + offsetX, z.y + offsetY);
             ctx.scale(scale, scale);
 
-            // Kiểm tra khoảng cách xem có người đứng gần phía trước không để HÁ MIỆNG
             let isNearHuman = humans.some(h => h.x - z.x > 0 && h.x - z.x < 100);
 
             if (equippedOutfit === 'MUMMY') {
@@ -841,9 +832,7 @@ game_code = """
                 ctx.fillStyle = '#111111'; ctx.fillRect(-10, -21, 20, 9);
                 ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(-2, -16, 3, 0, Math.PI * 2); ctx.arc(6, -16, 3, 0, Math.PI * 2); ctx.fill();
 
-                if (isNearHuman) { // Há miệng
-                    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(8, -8, 7, 0, Math.PI*2); ctx.fill();
-                }
+                if (isNearHuman) { ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(8, -8, 7, 0, Math.PI*2); ctx.fill(); }
 
                 ctx.strokeStyle = '#a1887f'; ctx.lineWidth = 2.5;
                 ctx.beginPath(); ctx.moveTo(-15, -10); ctx.lineTo(15, -6); ctx.moveTo(-12, -22); ctx.lineTo(12, -18); ctx.stroke();
@@ -858,10 +847,9 @@ game_code = """
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(6, -17, 7.5, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(8, -17, 3.5, 0, Math.PI * 2); ctx.fill();
                 
-                // HOẠT ẢNH HÁ MIỆNG CẮN NGƯỜI
                 if (isNearHuman) {
-                    ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(8, -7, 8, 0, Math.PI*2); ctx.fill(); // Há to miệng
-                    ctx.fillStyle = '#ffffff'; // Răng nhọn
+                    ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(8, -7, 8, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#ffffff';
                     ctx.beginPath(); ctx.moveTo(4, -10); ctx.lineTo(6, -4); ctx.lineTo(8, -10); ctx.fill();
                     ctx.beginPath(); ctx.moveTo(6, -4); ctx.lineTo(8, -10); ctx.lineTo(10, -4); ctx.fill();
                 } else {
