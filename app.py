@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Refined Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami No-Small-Pits Edition", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - REFINED EDITION ⚡</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - NO SMALL PITS EDITION ⚡</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -664,8 +664,9 @@ game_code = """
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
 
-            if (frame % 250 === 0 && Math.random() > 0.35) {
-                let pitWidth = 85 + Math.random() * 65;
+            // LOẠI BỎ HỐ NHỎ: Chỉ sinh hố tiêu chuẩn (độ rộng vừa đẹp từ 110 đến 140px)
+            if (frame % 260 === 0 && Math.random() > 0.35) {
+                let pitWidth = 110 + Math.random() * 30;
                 pits.push({ x: 850, width: pitWidth });
             }
 
@@ -770,9 +771,8 @@ game_code = """
                 } else {
                     if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                         let leader = zombies[0];
-                        // SỬA HITBOX THU NHỎ & KHÔNG TÍNH KHU VỰC NÓC XE
-                        let isAboveRoof = leader && leader.y < obs.y - 12; // Nếu zombie nhảy trên cao hơn nóc xe -> KHÔNG DỊNH HITBOX NGANG
-                        let hitFrontMargin = 5; // Thu nhỏ hitbox va chạm phía trước
+                        let isAboveRoof = leader && leader.y < obs.y - 12;
+                        let hitFrontMargin = 5;
                         let hitBackMargin = 10;
 
                         if (leader && !isAboveRoof && (leader.x + hitFrontMargin >= obs.x && leader.x - hitBackMargin <= obs.x + obs.w) && leader.y >= obs.y - 10) {
@@ -909,7 +909,6 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // MAP BÃI BIỂN ĐÃ BỎ LÂU ĐÀI CÁT
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
@@ -951,7 +950,6 @@ game_code = """
                 }
             }
 
-            // Chỉ giữ lại Sao biển rải rác, đã BỎ LÂU ĐÀI CÁT
             let itemSpacing = 300;
             let startItem = - (bgOffset % itemSpacing);
             for (let ix = startItem; ix < canvas.width + itemSpacing; ix += itemSpacing) {
