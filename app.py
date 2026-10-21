@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Volcano Map HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Classic Beach HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #ff3d00;'>🧟 ZOMBIE TSUNAMI - VOLCANO MAP & SLOW PIT 🌋</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - CLASSIC BEACH EDITION 🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -15,9 +15,9 @@ game_code = """
             position: relative;
             width: 800px;
             height: 450px;
-            border: 4px solid #ff3d00;
+            border: 4px solid #76ba1b;
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(255, 61, 0, 0.4);
+            box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4);
             overflow: hidden;
             background: #111;
         }
@@ -525,10 +525,11 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // XỬ LÝ CHƯỚNG NGẠI VẬT & CHẶN XE
+            // XỬ LÝ VA CHẠM XE KHÔNG BỊ ĐƠ MÀN HÌNH
             let isBlockedByVehicle = false;
 
-            obstacles.forEach((obs, obsIdx) => {
+            for (let obsIdx = obstacles.length - 1; obsIdx >= 0; obsIdx--) {
+                let obs = obstacles[obsIdx];
                 obs.x -= speed;
                 if (obs.hitCooldown > 0) obs.hitCooldown--;
 
@@ -569,9 +570,9 @@ game_code = """
                             } else {
                                 isBlockedByVehicle = true;
                                 if (obs.hitCooldown === 0) {
-                                    obs.hitCooldown = 18;
+                                    obs.hitCooldown = 22; // Tông chết mượt mà không bị đơ
                                     let victim = zombies.pop();
-                                    addParticles(victim.x, victim.y, '#ff1744', 25);
+                                    if (victim) addParticles(victim.x, victim.y, '#ff1744', 25);
                                     if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
                                 }
                             }
@@ -588,13 +589,13 @@ game_code = """
                         }
                     }
                 }
-            });
+            }
 
-            // LÀM CHẬM TỐI ĐA THỜI GIAN RƠI HỐ (~1s/CON ĐỂ KỊP NHẢY)
-            let leaderOverPit = isOverPit(zombies[0].x, 10);
+            // LÀM CHẬM TỐI ĐA THỜI GIAN RƠI HỐ (~1s/CON)
+            let leaderOverPit = zombies[0] && isOverPit(zombies[0].x, 10);
             if (leaderOverPit && !tsunamiActive && !giantActive) {
                 pitKillTimer++;
-                if (pitKillTimer % 45 === 0) { // Tăng khung hình lên để rơi cực kỳ thong thả
+                if (pitKillTimer % 45 === 0) {
                     let diedZ = zombies.shift();
                     if (diedZ) addParticles(diedZ.x, defaultGroundY + 40, '#76ba1b', 15);
                     if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
@@ -669,7 +670,7 @@ game_code = """
                         addParticles(h.x, h.y - 10, '#76ba1b', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
-                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                         }
                     }
                 }
@@ -682,42 +683,58 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // VẼ MAP NÚI LỬA SIÊU ĐẸP & HOÀNH TRÁNG
-        function drawVolcanoMap() {
-            // Nền trời rực lửa khói
+        // VẼ MAP BÃI BIỂN CHI TIẾT NGUYÊN TÁC
+        function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#b71c1c'); skyGrad.addColorStop(0.5, '#e65100'); skyGrad.addColorStop(1, '#ff6f00');
+            skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // Các đỉnh núi lửa phun trào xa xa
-            let volX1 = (120 - bgOffset * 0.3) % 900; if (volX1 < -300) volX1 += 900;
-            let volX2 = (550 - bgOffset * 0.3) % 900; if (volX2 < -300) volX2 += 900;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            let cloudX = (300 - bgOffset * 0.15) % 900; if (cloudX < -100) cloudX += 900;
+            ctx.beginPath(); ctx.arc(cloudX, 50, 22, 0, Math.PI*2); ctx.arc(cloudX + 30, 42, 30, 0, Math.PI*2); ctx.arc(cloudX + 65, 50, 22, 0, Math.PI*2); ctx.fill();
 
-            [volX1, volX2].forEach(vX => {
-                ctx.fillStyle = '#212121';
-                ctx.beginPath();
-                ctx.moveTo(vX, 280); ctx.lineTo(vX + 90, 110); ctx.lineTo(vX + 110, 110); ctx.lineTo(vX + 220, 280);
-                ctx.fill();
+            let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
+            seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#26c6da');
+            ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
 
-                // Miệng núi lửa phun dung nham đỏ rực
-                ctx.fillStyle = '#ff3d00';
-                ctx.beginPath(); ctx.ellipse(vX + 100, 112, 18, 6, 0, 0, Math.PI*2); ctx.fill();
-            });
+            // Thuyền buồm
+            for (let b = 0; b < 3; b++) {
+                let boatX = (150 + b * 280 - bgOffset * 0.3) % 900; if (boatX < -50) boatX += 900;
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(boatX, 215); ctx.lineTo(boatX + 10, 200); ctx.lineTo(boatX + 10, 215); ctx.fill();
+                ctx.fillStyle = '#8d6e63'; ctx.fillRect(boatX + 2, 215, 16, 4);
+            }
+
+            ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
+
+            // Làng Chài Pastels
+            for (let hIdx = 0; hIdx < 3; hIdx++) {
+                let houseX = (180 + hIdx * 300 - bgOffset * 0.6) % 900; if (houseX < -120) houseX += 900;
+                ctx.fillStyle = hIdx % 2 === 0 ? '#b2dfdb' : '#ffcdd2'; ctx.fillRect(houseX, 210, 80, 70);
+                ctx.fillStyle = '#e57373'; ctx.beginPath(); ctx.moveTo(houseX - 8, 210); ctx.lineTo(houseX + 40, 165); ctx.lineTo(houseX + 88, 210); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(houseX + 12, 220, 22, 22);
+                ctx.fillStyle = '#5d4037'; ctx.fillRect(houseX + 46, 240, 20, 40);
+            }
+
+            // Cây Dừa
+            for (let tIdx = 0; tIdx < 2; tIdx++) {
+                let treeX = (90 + tIdx * 460 - bgOffset * 0.8) % 900; if (treeX < -100) treeX += 900;
+                ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 15, 230, treeX + 15, 160); ctx.stroke();
+                ctx.fillStyle = '#2e7d32';
+                for (let a = 0; a < 5; a++) {
+                    let ang = (a * Math.PI) / 2.5 - 0.2; ctx.beginPath(); ctx.ellipse(treeX + 15 + Math.cos(ang)*28, 160 + Math.sin(ang)*18, 28, 10, ang, 0, Math.PI*2); ctx.fill();
+                }
+            }
         }
 
         function drawBackground() {
-            drawVolcanoMap();
+            drawBeachMap();
 
-            // Mặt đường & Vực dung nham bên dưới
             ctx.fillStyle = '#212121'; ctx.fillRect(0, defaultGroundY, canvas.width, 16);
             ctx.fillStyle = '#37474f'; ctx.fillRect(0, defaultGroundY + 16, canvas.width, canvas.height - defaultGroundY - 16);
 
             pits.forEach(p => {
-                // Vực sâu rực sáng dòng dung nham đỏ vàng bên dưới
-                ctx.fillStyle = '#1a0000'; ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
-                let lavaGrad = ctx.createLinearGradient(0, 420, 0, 450);
-                lavaGrad.addColorStop(0, '#ff3d00'); lavaGrad.addColorStop(1, '#ffea00');
-                ctx.fillStyle = lavaGrad; ctx.fillRect(p.x, 425, p.width, 25);
+                ctx.fillStyle = '#0a0a0a'; ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
+                ctx.fillStyle = '#263238'; ctx.fillRect(p.x - 8, defaultGroundY, 8, canvas.height - defaultGroundY); ctx.fillRect(p.x + p.width, defaultGroundY, 8, canvas.height - defaultGroundY);
             });
 
             ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
@@ -732,7 +749,7 @@ game_code = """
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
-                waveGrad.addColorStop(0, '#ff9800'); waveGrad.addColorStop(0.5, '#e65100'); waveGrad.addColorStop(1, '#b71c1c');
+                waveGrad.addColorStop(0, '#00b0ff'); waveGrad.addColorStop(0.5, '#0077c2'); waveGrad.addColorStop(1, '#002984');
                 ctx.fillStyle = waveGrad;
                 ctx.beginPath(); ctx.moveTo(-100, defaultGroundY + 50); ctx.lineTo(-100, 180);
                 ctx.bezierCurveTo(waveX - 120, 160, waveX - 40, 130, waveX, 170);
