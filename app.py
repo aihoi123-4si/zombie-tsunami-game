@@ -1,35 +1,229 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Classic Beach HD", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Main Menu HD", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - CLASSIC BEACH 🌊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Đã khôi phục hoàn toàn map bãi biển nguyên bản chuẩn đẹp và ổn định!</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - MAIN MENU 🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
 <html>
 <head>
     <style>
-        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: sans-serif; height: 100vh; overflow: hidden; }
-        canvas { 
-            border: 4px solid #76ba1b; 
-            border-radius: 12px; 
-            box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4); 
-            background: #111; 
-            width: 800px; 
-            height: 450px; 
+        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: 'Arial Black', sans-serif; height: 100vh; overflow: hidden; user-select: none; }
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 450px;
+            border: 4px solid #76ba1b;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(118, 186, 27, 0.4);
+            overflow: hidden;
+            background: #111;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* GUI MENU OVERLAY */
+        #menuOverlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            padding: 15px;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        /* Logo Zombie Tsunami */
+        .logo-container {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+        .logo-title {
+            font-size: 42px;
+            color: #76ba1b;
+            text-shadow: 3px 3px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000, 0px 5px 10px rgba(0,0,0,0.8);
+            letter-spacing: 2px;
+            transform: rotate(-3deg);
+            margin: 0;
+            line-height: 1;
+        }
+        .logo-sub {
+            font-size: 32px;
+            color: #ff3d00;
+            text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, 0px 4px 8px rgba(0,0,0,0.8);
+            letter-spacing: 3px;
+            transform: rotate(2deg);
+            margin-top: -5px;
+        }
+
+        /* Nút Settings góc trên bên phải */
+        .top-right-btns {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            background: #424242;
+            border: 3px solid #fff;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #111;
+            transition: transform 0.1s;
+        }
+        .btn-icon:active { transform: translateY(3px); box-shadow: 0 1px 0 #111; }
+
+        /* Menu các nút bên phải (Mission, Market) */
+        .side-menu-right {
+            position: absolute;
+            right: 15px;
+            top: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-side {
+            width: 170px;
+            height: 42px;
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+            border: 3px solid #000;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 12px;
+            box-shadow: 3px 4px 0 #000;
+            cursor: pointer;
+            transform: rotate(2deg);
+            transition: transform 0.1s;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .btn-side:nth-child(2) { transform: rotate(-2deg); background: linear-gradient(135deg, #ec407a, #d81b60); }
+        .btn-side:active { transform: scale(0.96); }
+        .btn-side span { margin-right: 10px; font-size: 20px; }
+
+        /* Nút PLAY khổng lồ màu cam */
+        .btn-play {
+            position: absolute;
+            bottom: 25px;
+            right: 20px;
+            width: 180px;
+            height: 80px;
+            background: linear-gradient(180deg, #ff9800 0%, #ff3d00 100%);
+            border: 4px solid #fff;
+            outline: 4px solid #000;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 38px;
+            font-weight: 900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #801300, 0 12px 15px rgba(0,0,0,0.5);
+            text-shadow: 3px 3px 0 #000;
+            transform: rotate(-3deg);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-play:hover { transform: rotate(-3deg) scale(1.05); }
+        .btn-play:active {
+            transform: rotate(-3deg) translateY(6px);
+            box-shadow: 0 2px 0 #801300, 0 5px 8px rgba(0,0,0,0.5);
+        }
+
+        /* Best Score bảng dưới bên trái */
+        .best-score-box {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.65);
+            border: 3px solid #fff;
+            border-radius: 10px;
+            padding: 8px 16px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.6);
+        }
+        .best-score-title {
+            font-size: 15px;
+            color: #ddd;
+            margin: 0;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .best-score-val {
+            font-size: 26px;
+            color: #ffeb3b;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 2px 2px 0 #000;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="450"></canvas>
+    <div id="gameContainer">
+        <!-- CANVAS TRÒ CHƠI -->
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
+
+        <!-- MENU OVERLAY UI (CHỈ HIỆN KHI Ở TRẠNG THÁI MENU) -->
+        <div id="menuOverlay">
+            <div class="logo-container">
+                <h1 class="logo-title">ZOMBIE</h1>
+                <div class="logo-sub">TSUNAMI</div>
+            </div>
+
+            <div class="top-right-btns">
+                <div class="btn-icon">⚙️</div>
+            </div>
+
+            <div class="side-menu-right">
+                <div class="btn-side"><span>🧪</span> MISSION</div>
+                <div class="btn-side"><span>🪙</span> MARKET</div>
+            </div>
+
+            <div class="best-score-box">
+                <div>
+                    <div class="best-score-title">Best score:</div>
+                    <div class="best-score-val">🧠 <span id="bestScoreText">0</span></div>
+                </div>
+            </div>
+
+            <div class="btn-play" id="playBtn">PLAY</div>
+        </div>
+    </div>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const playBtn = document.getElementById('playBtn');
+        const bestScoreText = document.getElementById('bestScoreText');
 
-        let gameState = 'START';
+        let gameState = 'MENU'; // 'MENU', 'PLAYING', 'GAMEOVER'
         let score = 0;
+        let bestScore = localStorage.getItem('zt_best_score') || 0;
+        bestScoreText.innerText = bestScore;
+
         let coins = 0;
         let speed = 4.5;
         let frame = 0;
@@ -38,7 +232,6 @@ game_code = """
         const defaultGroundY = 330;
 
         let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
-
         let humans = [];
         let obstacles = [];
         let pits = [];
@@ -60,10 +253,18 @@ game_code = """
             }
         }
 
+        function startGame() {
+            resetGame();
+            gameState = 'PLAYING';
+            menuOverlay.style.display = 'none';
+        }
+
+        playBtn.addEventListener('click', startGame);
+
         function handleInput() {
-            if (gameState === 'START' || gameState === 'GAMEOVER') {
-                resetGame();
-                gameState = 'PLAYING';
+            if (gameState === 'GAMEOVER') {
+                gameState = 'MENU';
+                menuOverlay.style.display = 'flex';
             } else if (gameState === 'PLAYING') {
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
@@ -74,9 +275,14 @@ game_code = """
             }
         }
 
-        window.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') handleInput(); });
+        window.addEventListener('keydown', (e) => { 
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                if (gameState === 'MENU') startGame();
+                else handleInput();
+            }
+        });
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(); });
-        canvas.addEventListener('mousedown', handleInput);
+        canvas.addEventListener('mousedown', () => { if (gameState === 'PLAYING') handleInput(); });
 
         function resetGame() {
             score = 0;
@@ -98,11 +304,12 @@ game_code = """
         }
 
         function update() {
+            frame++;
+            bgOffset += (gameState === 'MENU' ? 1.5 : speed); // Nền trôi chậm ở Menu
+
             if (gameState !== 'PLAYING') return;
 
-            frame++;
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
-            bgOffset += speed;
 
             if (tsunamiActive) {
                 tsunamiTimer--;
@@ -153,7 +360,7 @@ game_code = """
                     addParticles(pw.x, pw.y, '#00e5ff', 30);
                 }
             });
-            powerups = powerups.filter(p => p.x > -50 && !pw.collected);
+            powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
@@ -204,6 +411,11 @@ game_code = """
 
             if (zombies.length === 0) {
                 gameState = 'GAMEOVER';
+                if (score > bestScore) {
+                    bestScore = score;
+                    localStorage.setItem('zt_best_score', bestScore);
+                    bestScoreText.innerText = bestScore;
+                }
                 return;
             }
 
@@ -238,7 +450,7 @@ game_code = """
                             for (let k = 0; k < obs.peopleInside; k++) {
                                 if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
-                                    zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                    zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                                 }
                             }
                         } else if (obs.type === 'BOMB') {
@@ -259,7 +471,7 @@ game_code = """
                                     for (let k = 0; k < obs.peopleInside; k++) {
                                         if (zombies.length < 30) {
                                             let tail = zombies[zombies.length - 1];
-                                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0 });
+                                            zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: tail.isGrounded, legAngle: 0 });
                                         }
                                     }
                                     obstacles.splice(obsIdx, 1);
@@ -272,6 +484,11 @@ game_code = """
                                         obs.x += 15;
                                         if (zombies.length === 0) {
                                             gameState = 'GAMEOVER';
+                                            if (score > bestScore) {
+                                                bestScore = score;
+                                                localStorage.setItem('zt_best_score', bestScore);
+                                                bestScoreText.innerText = bestScore;
+                                            }
                                             return;
                                         }
                                     }
@@ -292,10 +509,6 @@ game_code = """
 
             humans = humans.filter(h => h.x > -50 && !h.eaten);
             obstacles = obstacles.filter(o => o.x > -160);
-
-            if (zombies.length === 0) {
-                gameState = 'GAMEOVER';
-            }
 
             particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life--; });
             particles = particles.filter(p => p.life > 0);
@@ -492,12 +705,10 @@ game_code = """
         function draw() {
             drawBackground();
 
-            if (gameState === 'START') {
-                ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#76ba1b'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('ZOMBIE TSUNAMI', 400, 180);
-                ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif';
-                ctx.fillText('Nhấn Space / Chạm màn hình để bắt đầu chơi!', 400, 230);
+            if (gameState === 'MENU') {
+                // Ở Menu, vẽ Zombie chạy nền sinh động đằng sau logo
+                let demoZ = { x: 220, y: defaultGroundY - 20, legAngle: frame * 0.2 };
+                drawZombie(demoZ);
                 return;
             }
 
@@ -518,6 +729,7 @@ game_code = """
                 ctx.fillRect(p.x, p.y, 4, 4);
             });
 
+            // HUD UI trong khi chơi
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(15, 12, 160, 70);
             ctx.fillStyle = '#fbc02d'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`🪙 ${coins}`, 25, 40);
             ctx.fillStyle = '#76ba1b'; ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
@@ -528,7 +740,7 @@ game_code = """
                 ctx.fillText('GAME OVER', 400, 190);
                 ctx.fillStyle = '#ffffff'; ctx.font = '22px sans-serif';
                 ctx.fillText(`Số người nuốt chửng: ${score}`, 400, 240);
-                ctx.fillText('Nhấn Space / Chạm để chơi lại', 400, 260);
+                ctx.fillText('Nhấn Space / Chạm để quay về Menu', 400, 270);
             }
         }
 
