@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Master Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Refined Edition", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - MASTER EDITION ⚡</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - REFINED EDITION ⚡</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -252,7 +252,6 @@ game_code = """
         const musicToggleBtn = document.getElementById('musicToggleBtn');
         let isMuted = false;
 
-        // BỘ ÂM THANH SFX WEB AUDIO API
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -392,7 +391,6 @@ game_code = """
         let power1Level = parseInt(localStorage.getItem('zt_p1_level') || '1'); 
         let power2Level = parseInt(localStorage.getItem('zt_p2_level') || '1'); 
 
-        // 3 MAPS: BEACH, CITY, VILLAGE
         const MAP_LIST = ['BEACH', 'CITY', 'VILLAGE'];
         let currentMap = 'BEACH'; 
         let mapTimer = 0; 
@@ -633,7 +631,6 @@ game_code = """
             tsunamiActive = false; tsunamiTimer = 0;
             giantActive = false; giantTimer = 0;
 
-            // XUẤT HIỆN NGẪU NHIÊN 1 TRONG 3 MAPS
             currentMap = MAP_LIST[Math.floor(Math.random() * MAP_LIST.length)];
             mapTimer = 0;
         }
@@ -654,7 +651,6 @@ game_code = """
 
             if (gameState !== 'PLAYING') return;
 
-            // ĐỔI MAP NGẪU NHIÊN MỖI 20 GIÂY (1200 FRAMES)
             mapTimer++;
             if (mapTimer >= 1200) {
                 mapTimer = 0;
@@ -774,8 +770,12 @@ game_code = """
                 } else {
                     if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                         let leader = zombies[0];
-                        let hitMargin = obs.type === 'BUS' ? 14 : (obs.type === 'HELI' ? 18 : 8);
-                        if (leader && leader.x + hitMargin >= obs.x && leader.x - hitMargin <= obs.x + obs.w && leader.y >= obs.y - 18) {
+                        // SỬA HITBOX THU NHỎ & KHÔNG TÍNH KHU VỰC NÓC XE
+                        let isAboveRoof = leader && leader.y < obs.y - 12; // Nếu zombie nhảy trên cao hơn nóc xe -> KHÔNG DỊNH HITBOX NGANG
+                        let hitFrontMargin = 5; // Thu nhỏ hitbox va chạm phía trước
+                        let hitBackMargin = 10;
+
+                        if (leader && !isAboveRoof && (leader.x + hitFrontMargin >= obs.x && leader.x - hitBackMargin <= obs.x + obs.w) && leader.y >= obs.y - 10) {
                             if (zombies.length >= obs.reqZombies) {
                                 playSound('explode');
                                 triggerShake(15);
@@ -809,7 +809,7 @@ game_code = """
                         for (let i = zombies.length - 1; i >= 0; i--) {
                             let z = zombies[i];
                             let dist = Math.hypot(z.x - bombCenterX, z.y - bombCenterY);
-                            if (dist < 75) { 
+                            if (dist < 65) { 
                                 playSound('explode');
                                 triggerShake(18);
                                 addParticles(bombCenterX, bombCenterY, '#ff1744', 35);
@@ -909,23 +909,20 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // MAP BÃI BIỂN SIÊU CHI TIẾT
+        // MAP BÃI BIỂN ĐÃ BỎ LÂU ĐÀI CÁT
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // Mây sinh động
             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
             let cloudX = (300 - bgOffset * 0.15) % 900; if (cloudX < -100) cloudX += 900;
             ctx.beginPath(); ctx.arc(cloudX, 50, 22, 0, Math.PI*2); ctx.arc(cloudX + 30, 42, 30, 0, Math.PI*2); ctx.arc(cloudX + 65, 50, 22, 0, Math.PI*2); ctx.fill();
 
-            // Sóng biển dâng trào
             let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
             seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#26c6da');
             ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
 
-            // Bọt sóng biển vỗ bờ sống động
             ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
             ctx.beginPath();
             for (let x = 0; x < canvas.width; x += 20) {
@@ -933,46 +930,35 @@ game_code = """
             }
             ctx.fill();
 
-            // Bãi cát vàng
             ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
 
-            // Dù che nắng & Ghế nằm bãi biển
             let umbrellaSpacing = 400;
             let startU = - (bgOffset * 0.6 % umbrellaSpacing);
             for (let ux = startU; ux < canvas.width + umbrellaSpacing; ux += umbrellaSpacing) {
-                // Dù
                 ctx.fillStyle = '#e91e63'; ctx.beginPath(); ctx.arc(ux, 240, 30, Math.PI, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#ffffff'; ctx.fillRect(ux - 6, 240, 12, -28);
                 ctx.strokeStyle = '#795548'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(ux, 240); ctx.lineTo(ux, 280); ctx.stroke();
-                // Ghế bãi biển
                 ctx.fillStyle = '#00bcd4'; ctx.fillRect(ux + 20, 270, 25, 8);
             }
 
-            // Cây dừa rậm rạp & Trái dừa
             for (let tIdx = 0; tIdx < 2; tIdx++) {
                 let treeX = (120 + tIdx * 450 - bgOffset * 0.8) % 900; if (treeX < -100) treeX += 900;
                 ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 18, 230, treeX + 18, 160); ctx.stroke();
-                // Trái dừa
                 ctx.fillStyle = '#3e2723'; ctx.beginPath(); ctx.arc(treeX + 12, 168, 6, 0, Math.PI*2); ctx.arc(treeX + 22, 165, 6, 0, Math.PI*2); ctx.fill();
-                // Lá dừa
                 ctx.fillStyle = '#2e7d32';
                 for (let a = 0; a < 5; a++) {
                     let ang = (a * Math.PI) / 2.5 - 0.2; ctx.beginPath(); ctx.ellipse(treeX + 18 + Math.cos(ang)*32, 160 + Math.sin(ang)*20, 32, 12, ang, 0, Math.PI*2); ctx.fill();
                 }
             }
 
-            // Sao biển & Lâu đài cát rải rác
+            // Chỉ giữ lại Sao biển rải rác, đã BỎ LÂU ĐÀI CÁT
             let itemSpacing = 300;
             let startItem = - (bgOffset % itemSpacing);
             for (let ix = startItem; ix < canvas.width + itemSpacing; ix += itemSpacing) {
-                // Sao biển đỏ
                 ctx.fillStyle = '#ff3d00'; ctx.beginPath(); ctx.arc(ix + 50, 292, 5, 0, Math.PI*2); ctx.fill();
-                // Lâu đài cát
-                ctx.fillStyle = '#ffd54f'; ctx.fillRect(ix + 180, 270, 20, 12); ctx.fillRect(ix + 186, 262, 8, 8);
             }
         }
 
-        // MAP THÀNH PHỐ
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#5c3d75'); skyGrad.addColorStop(0.5, '#95508c'); skyGrad.addColorStop(1, '#e08ba0');
@@ -1018,53 +1004,41 @@ game_code = """
             ctx.fillStyle = '#455a64'; ctx.fillRect(0, 280, canvas.width, 50);
         }
 
-        // MAP LÀNG QUÊ VIỆT NAM (RURAL VILLAGE)
         function drawVillageMap() {
-            // Bầu trời buổi chiều hoàng hôn ấm áp
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#f9a825'); skyGrad.addColorStop(0.6, '#f57c00'); skyGrad.addColorStop(1, '#ff8f00');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // Mây hồng chiều
             ctx.fillStyle = 'rgba(255, 236, 179, 0.7)';
             let cloudX = (250 - bgOffset * 0.12) % 900; if (cloudX < -100) cloudX += 900;
             ctx.beginPath(); ctx.arc(cloudX, 45, 20, 0, Math.PI*2); ctx.arc(cloudX + 30, 40, 28, 0, Math.PI*2); ctx.fill();
 
-            // Cánh đồng lúa xa xa & Rặng núi
             ctx.fillStyle = '#558b2f';
             ctx.beginPath();
             ctx.moveTo(0, 220); ctx.quadraticCurveTo(200, 160, 400, 220);
             ctx.quadraticCurveTo(600, 170, 800, 220); ctx.lineTo(800, 280); ctx.lineTo(0, 280); ctx.fill();
 
-            // Nhà mái rơm, vách gỗ mộc mạc
             let houseSpacing = 380;
             let startH = - (bgOffset * 0.5 % houseSpacing);
             for (let hx = startH; hx < canvas.width + houseSpacing; hx += houseSpacing) {
-                // Vách gỗ
                 ctx.fillStyle = '#8d6e63'; ctx.fillRect(hx, 200, 95, 80);
-                ctx.fillStyle = '#5d4037'; ctx.fillRect(hx + 35, 235, 25, 45); // Cửa ra vào
-                ctx.fillStyle = '#3e2723'; ctx.fillRect(hx + 10, 220, 18, 18); // Cửa sổ
-                // Mái rơm vàng
+                ctx.fillStyle = '#5d4037'; ctx.fillRect(hx + 35, 235, 25, 45);
+                ctx.fillStyle = '#3e2723'; ctx.fillRect(hx + 10, 220, 18, 18);
                 ctx.fillStyle = '#fbc02d';
                 ctx.beginPath(); ctx.moveTo(hx - 12, 200); ctx.lineTo(hx + 47, 155); ctx.lineTo(hx + 107, 200); ctx.fill();
-                // Viền mái rơm
                 ctx.strokeStyle = '#f57f17'; ctx.lineWidth = 3;
                 ctx.beginPath(); ctx.moveTo(hx - 12, 200); ctx.lineTo(hx + 47, 155); ctx.lineTo(hx + 107, 200); ctx.stroke();
             }
 
-            // Hàng rào tre & Cọc rơm
             let fenceSpacing = 280;
             let startF = - (bgOffset * 0.8 % fenceSpacing);
             for (let fx = startF; fx < canvas.width + fenceSpacing; fx += fenceSpacing) {
-                // Cọc rơm
                 ctx.fillStyle = '#fbc02d'; ctx.beginPath(); ctx.arc(fx + 20, 265, 18, Math.PI, Math.PI*2); ctx.fillRect(fx + 2, 265, 36, 15); ctx.fill();
                 ctx.strokeStyle = '#e65100'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(fx + 20, 235); ctx.lineTo(fx + 20, 280); ctx.stroke();
             }
 
-            // Đất ruộng lúa vàng chín rộ
             ctx.fillStyle = '#c0ca33'; ctx.fillRect(0, 280, canvas.width, 50);
 
-            // Bụi lúa trổ bông
             ctx.strokeStyle = '#afb42b'; ctx.lineWidth = 2;
             for (let lx = 0; lx < canvas.width; lx += 15) {
                 let rx = (lx - bgOffset * 0.9) % canvas.width; if (rx < 0) rx += canvas.width;
@@ -1075,7 +1049,6 @@ game_code = """
         function drawBackground() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Rung màn hình khi kích hoạt
             ctx.save();
             if (shakeDuration > 0) {
                 shakeDuration--;
@@ -1410,9 +1383,8 @@ game_code = """
 
             particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
 
-            ctx.restore(); // Khôi phục trạng thái canvas sau khi rung
+            ctx.restore(); 
 
-            // HUD HỂN THỊ
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(15, 12, 170, 70);
             ctx.fillStyle = '#fbc02d'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`🪙 ${totalCoins}`, 25, 40);
             ctx.fillStyle = '#76ba1b'; ctx.fillText(`🧠 x${zombies.length}`, 25, 70);
