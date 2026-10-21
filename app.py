@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Beach HD Upgrade", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Mission & Dual Map Update", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - ULTIMATE BEACH FIX 🌊</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - DUAL MAP & MISSIONS 📜🌊</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
@@ -21,16 +21,11 @@ game_code = """
             overflow: hidden;
             background: #111;
         }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+        canvas { display: block; width: 100%; height: 100%; }
 
         /* GUI MENU OVERLAY */
         #menuOverlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; padding: 15px; pointer-events: auto; z-index: 10;
         }
@@ -83,22 +78,24 @@ game_code = """
         .best-score-title { font-size: 15px; color: #ddd; margin: 0; }
         .best-score-val { font-size: 26px; color: #ffeb3b; font-weight: bold; margin: 0; }
 
-        /* MARKET MODAL */
-        #marketModal {
+        /* MODAL POPUP CUNG (MARKET & MISSION) */
+        .modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85);
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
             padding: 20px; box-sizing: border-box;
         }
-        .market-box {
+        .modal-box {
             width: 680px; height: 380px; background: #1e272e; border: 4px solid #fbc02d; border-radius: 16px;
             display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(251, 192, 45, 0.4);
         }
-        .market-header { background: #fbc02d; color: #000; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 24px; font-weight: bold; }
+        .modal-header { background: #fbc02d; color: #000; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 24px; font-weight: bold; }
         .close-btn { background: #d32f2f; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 18px; }
+        
         .market-tabs { display: flex; background: #0f171e; border-bottom: 2px solid #333; }
         .tab-btn { flex: 1; padding: 12px; text-align: center; color: #aaa; font-size: 18px; cursor: pointer; border-right: 1px solid #222; font-weight: bold; }
         .tab-btn.active { background: #1e272e; color: #76ba1b; border-bottom: 3px solid #76ba1b; }
         .market-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; gap: 20px; justify-content: center; align-items: center; }
+        
         .shop-item { width: 200px; height: 220px; background: #2f3640; border: 3px solid #485460; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px; box-sizing: border-box; position: relative; }
         .shop-item.coming-soon { filter: brightness(0.4); }
         .cs-tag { position: absolute; top: 80px; background: #ff1744; color: #fff; padding: 4px 12px; font-size: 14px; font-weight: bold; border-radius: 4px; transform: rotate(-10deg); }
@@ -107,6 +104,22 @@ game_code = """
         .buy-btn { background: #4cd137; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 0 #44bd32; width: 100%; }
         .buy-btn.equipped { background: #00a8ff; color: #fff; box-shadow: 0 4px 0 #0097e6; }
         .buy-btn:disabled { background: #718093; box-shadow: none; cursor: not-allowed; color: #ccc; }
+
+        /* MISSION STYLES (HÌNH 2) */
+        .mission-list { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        .mission-card {
+            background: #2f3640; border: 3px solid #485460; border-radius: 12px; display: flex; align-items: center; padding: 12px 18px; gap: 15px;
+        }
+        .mission-icon {
+            width: 50px; height: 50px; background: #111; border: 2px solid #fff; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 28px;
+        }
+        .mission-info { flex: 1; color: #fff; }
+        .mission-title { font-size: 16px; font-weight: bold; margin-bottom: 6px; }
+        .mission-progress { font-size: 14px; color: #ffeb3b; }
+        .collect-btn {
+            background: #fbc02d; color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 0 #f57f17;
+        }
+        .collect-btn:disabled { background: #718093; box-shadow: none; cursor: not-allowed; color: #aaa; }
     </style>
 </head>
 <body>
@@ -122,7 +135,7 @@ game_code = """
             <div class="top-right-btns"><div class="btn-icon">⚙️</div></div>
 
             <div class="side-menu-right">
-                <div class="btn-side"><span>🧪</span> MISSION</div>
+                <div class="btn-side" id="openMissionBtn"><span>🧪</span> MISSION</div>
                 <div class="btn-side" id="openMarketBtn"><span>🪙</span> MARKET</div>
             </div>
 
@@ -136,9 +149,10 @@ game_code = """
             <div class="btn-play" id="playBtn">PLAY</div>
         </div>
 
-        <div id="marketModal">
-            <div class="market-box">
-                <div class="market-header">
+        <!-- MARKET MODAL -->
+        <div id="marketModal" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
                     <div>🛒 MARKET (Xu: 🪙 <span id="marketCoinText">0</span>)</div>
                     <div class="close-btn" id="closeMarketBtn">✖</div>
                 </div>
@@ -175,6 +189,37 @@ game_code = """
                 </div>
             </div>
         </div>
+
+        <!-- MISSION MODAL (HÌNH 2) -->
+        <div id="missionModal" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <div>📜 MISSIONS</div>
+                    <div class="close-btn" id="closeMissionBtn">✖</div>
+                </div>
+                <div class="mission-list">
+                    <!-- Mission 1 -->
+                    <div class="mission-card">
+                        <div class="mission-icon">🧟</div>
+                        <div class="mission-info">
+                            <div class="mission-title">Ăn thịt tổng cộng 100 người (Thưởng 100 Xu)</div>
+                            <div class="mission-progress">Tiến độ: <span id="m1Progress">0</span>/100</div>
+                        </div>
+                        <button class="collect-btn" id="m1Btn" disabled>COLLECT</button>
+                    </div>
+
+                    <!-- Mission 2 -->
+                    <div class="mission-card">
+                        <div class="mission-icon">🧠</div>
+                        <div class="mission-info">
+                            <div class="mission-title">Ăn thịt 10 người trong 1 màn chơi (Thưởng 50 Xu)</div>
+                            <div class="mission-progress">Tiến độ: Kỷ lục <span id="m2Progress">0</span>/10</div>
+                        </div>
+                        <button class="collect-btn" id="m2Btn" disabled>COLLECT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -184,10 +229,21 @@ game_code = """
         const playBtn = document.getElementById('playBtn');
         const bestScoreText = document.getElementById('bestScoreText');
 
+        // Modals
         const marketModal = document.getElementById('marketModal');
         const openMarketBtn = document.getElementById('openMarketBtn');
         const closeMarketBtn = document.getElementById('closeMarketBtn');
         const marketCoinText = document.getElementById('marketCoinText');
+
+        const missionModal = document.getElementById('missionModal');
+        const openMissionBtn = document.getElementById('openMissionBtn');
+        const closeMissionBtn = document.getElementById('closeMissionBtn');
+
+        const m1Progress = document.getElementById('m1Progress');
+        const m2Progress = document.getElementById('m2Progress');
+        const m1Btn = document.getElementById('m1Btn');
+        const m2Btn = document.getElementById('m2Btn');
+
         const tabOutfits = document.getElementById('tabOutfits');
         const tabHats = document.getElementById('tabHats');
         const contentOutfits = document.getElementById('contentOutfits');
@@ -203,21 +259,31 @@ game_code = """
         bestScoreText.innerText = bestScore;
 
         let totalCoins = parseInt(localStorage.getItem('zt_total_coins') || '0');
+        let totalEatenHumans = parseInt(localStorage.getItem('zt_total_eaten') || '0');
+        let maxSingleRunEaten = parseInt(localStorage.getItem('zt_max_single_eaten') || '0');
+
+        let m1Claimed = localStorage.getItem('zt_m1_claimed') === 'true';
+        let m2Claimed = localStorage.getItem('zt_m2_claimed') === 'true';
+
         let equippedOutfit = localStorage.getItem('zt_equipped_outfit') || 'NONE';
         let equippedHat = localStorage.getItem('zt_equipped_hat') || 'NONE';
         let ownedItems = JSON.parse(localStorage.getItem('zt_owned_items') || '[]');
 
         function saveUserData() {
             localStorage.setItem('zt_total_coins', totalCoins);
+            localStorage.setItem('zt_total_eaten', totalEatenHumans);
+            localStorage.setItem('zt_max_single_eaten', maxSingleRunEaten);
+            localStorage.setItem('zt_m1_claimed', m1Claimed);
+            localStorage.setItem('zt_m2_claimed', m2Claimed);
             localStorage.setItem('zt_equipped_outfit', equippedOutfit);
             localStorage.setItem('zt_equipped_hat', equippedHat);
             localStorage.setItem('zt_owned_items', JSON.stringify(ownedItems));
             updateMarketUI();
+            updateMissionUI();
         }
 
         function updateMarketUI() {
             marketCoinText.innerText = totalCoins;
-
             if (ownedItems.includes('MUMMY')) {
                 buyMummyBtn.innerText = equippedOutfit === 'MUMMY' ? 'Đang Mặc' : 'Mặc Vào';
                 buyMummyBtn.className = equippedOutfit === 'MUMMY' ? 'buy-btn equipped' : 'buy-btn';
@@ -234,6 +300,38 @@ game_code = """
             } else buyPumpkinBtn.innerText = '200 Xu';
         }
 
+        function updateMissionUI() {
+            m1Progress.innerText = Math.min(totalEatenHumans, 100);
+            if (m1Claimed) {
+                m1Btn.innerText = 'ĐÃ NHẬN'; m1Btn.disabled = true;
+            } else if (totalEatenHumans >= 100) {
+                m1Btn.innerText = 'NHẬN 100 XU'; m1Btn.disabled = false;
+            } else {
+                m1Btn.innerText = 'CHƯA ĐẠT'; m1Btn.disabled = true;
+            }
+
+            m2Progress.innerText = Math.min(maxSingleRunEaten, 10);
+            if (m2Claimed) {
+                m2Btn.innerText = 'ĐÃ NHẬN'; m2Btn.disabled = true;
+            } else if (maxSingleRunEaten >= 10) {
+                m2Btn.innerText = 'NHẬN 50 XU'; m2Btn.disabled = false;
+            } else {
+                m2Btn.innerText = 'CHƯA ĐẠT'; m2Btn.disabled = true;
+            }
+        }
+
+        m1Btn.addEventListener('click', () => {
+            if (!m1Claimed && totalEatenHumans >= 100) {
+                m1Claimed = true; totalCoins += 100; saveUserData();
+            }
+        });
+
+        m2Btn.addEventListener('click', () => {
+            if (!m2Claimed && maxSingleRunEaten >= 10) {
+                m2Claimed = true; totalCoins += 50; saveUserData();
+            }
+        });
+
         tabOutfits.addEventListener('click', () => {
             tabOutfits.classList.add('active'); tabHats.classList.remove('active');
             contentOutfits.style.display = 'flex'; contentHats.style.display = 'none';
@@ -245,6 +343,9 @@ game_code = """
 
         openMarketBtn.addEventListener('click', () => { updateMarketUI(); marketModal.style.display = 'flex'; });
         closeMarketBtn.addEventListener('click', () => { marketModal.style.display = 'none'; });
+
+        openMissionBtn.addEventListener('click', () => { updateMissionUI(); missionModal.style.display = 'flex'; });
+        closeMissionBtn.addEventListener('click', () => { missionModal.style.display = 'none'; });
 
         buyMummyBtn.addEventListener('click', () => {
             if (!ownedItems.includes('MUMMY')) {
@@ -277,6 +378,9 @@ game_code = """
         const gravity = 0.65;
         const defaultGroundY = 330;
 
+        let currentMap = Math.random() < 0.5 ? 'BEACH' : 'MOUNTAIN'; // Ngẫu nhiên khi bắt đầu
+        let mapSwitchTimer = 0;
+
         let zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
         let humans = [];
         let obstacles = [];
@@ -288,7 +392,6 @@ game_code = """
 
         let tsunamiActive = false; let tsunamiTimer = 0;
         let giantActive = false; let giantTimer = 0;
-
         let pitKillTimer = 0;
 
         function addParticles(x, y, color, count = 12) {
@@ -325,7 +428,7 @@ game_code = """
 
         window.addEventListener('keydown', (e) => { 
             if (e.code === 'Space' || e.code === 'ArrowUp') {
-                if (gameState === 'MENU' && marketModal.style.display !== 'flex') startGame();
+                if (gameState === 'MENU' && marketModal.style.display !== 'flex' && missionModal.style.display !== 'flex') startGame();
                 else handleInput();
             }
         });
@@ -334,6 +437,8 @@ game_code = """
 
         function resetGame() {
             score = 0; currentCoins = 0; speed = 4.5; frame = 0;
+            currentMap = Math.random() < 0.5 ? 'BEACH' : 'MOUNTAIN';
+            mapSwitchTimer = 0;
             zombies = [{ x: 180, y: defaultGroundY - 20, vy: 0, isGrounded: true, legAngle: 0 }];
             humans = []; obstacles = []; pits = []; powerups = []; coinTrails = []; particles = [];
             tsunamiActive = false; tsunamiTimer = 0;
@@ -352,6 +457,14 @@ game_code = """
             if (gameState !== 'PLAYING') return;
 
             speed = 4.5 + Math.floor(frame / 600) * 0.4;
+
+            // Chuyển đổi Map sau mỗi 20 Giây (60fps * 20s = 1200 frame)
+            mapSwitchTimer++;
+            if (mapSwitchTimer >= 1200) {
+                mapSwitchTimer = 0;
+                currentMap = (currentMap === 'BEACH') ? 'MOUNTAIN' : 'BEACH';
+                addParticles(400, 200, '#ffffff', 40);
+            }
 
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
@@ -403,7 +516,7 @@ game_code = """
             pits.forEach(p => p.x -= speed);
             pits = pits.filter(p => p.x + p.width > -50);
 
-            // Xử lý nhặt Xu
+            // Xu
             coinTrails.forEach(c => {
                 c.x -= speed;
                 if (!c.collected) {
@@ -435,7 +548,7 @@ game_code = """
             });
             powerups = powerups.filter(p => p.x > -50 && !p.collected);
 
-            // XỬ LÝ VẬT CẢN XE CỘ CỨNG (SOLID) & BỊ CHẶN VÀ TÔNG CHẾT
+            // XỬ LÝ CHƯỚNG NGẠI VẬT & CHẶN XE
             let isBlockedByVehicle = false;
 
             obstacles.forEach((obs, obsIdx) => {
@@ -446,7 +559,10 @@ game_code = """
                     if (Math.abs(zombies[0].x - obs.x) < 130) {
                         addParticles(obs.x + obs.w/2, obs.y, giantActive ? '#e040fb' : '#00e5ff', 30);
                         if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
-                            score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10; saveUserData();
+                            score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10;
+                            totalEatenHumans += obs.peopleInside;
+                            if (score > maxSingleRunEaten) maxSingleRunEaten = score;
+                            saveUserData();
                             for (let k = 0; k < obs.peopleInside; k++) {
                                 if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
@@ -461,9 +577,11 @@ game_code = """
                         let leader = zombies[0];
                         if (leader && leader.x + 15 >= obs.x && leader.x - 15 <= obs.x + obs.w && leader.y > obs.y - 10) {
                             if (zombies.length >= obs.reqZombies) {
-                                // Đủ zombie -> Phá tan xe
                                 addParticles(obs.x + obs.w/2, obs.y + obs.h/2, '#ff9800', 35);
-                                score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10; saveUserData();
+                                score += obs.peopleInside; currentCoins += obs.peopleInside * 10; totalCoins += obs.peopleInside * 10;
+                                totalEatenHumans += obs.peopleInside;
+                                if (score > maxSingleRunEaten) maxSingleRunEaten = score;
+                                saveUserData();
                                 for (let k = 0; k < obs.peopleInside; k++) {
                                     if (zombies.length < 30) {
                                         let tail = zombies[zombies.length - 1];
@@ -472,52 +590,39 @@ game_code = """
                                 }
                                 obstacles.splice(obsIdx, 1);
                             } else {
-                                // KHÔNG ĐỦ ZOMBIE -> BỊ CHẶN ĐỨNG & TÔNG CHẾT TỪNG CON!
                                 isBlockedByVehicle = true;
                                 if (obs.hitCooldown === 0) {
-                                    obs.hitCooldown = 18; // Nhịp tông chết
+                                    obs.hitCooldown = 18;
                                     let victim = zombies.pop();
                                     addParticles(victim.x, victim.y, '#ff1744', 25);
-                                    if (zombies.length === 0) {
-                                        gameState = 'GAMEOVER';
-                                        return;
-                                    }
+                                    if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
                                 }
                             }
                         }
                     } else if (obs.type === 'BOMB') {
-                        let bombCenterX = obs.x + 21;
-                        let bombCenterY = obs.y + 21;
+                        let bombCenterX = obs.x + 21; let bombCenterY = obs.y + 21;
                         for (let i = zombies.length - 1; i >= 0; i--) {
                             let z = zombies[i];
                             let dist = Math.hypot(z.x - bombCenterX, z.y - bombCenterY);
                             if (dist < 90) { 
                                 addParticles(bombCenterX, bombCenterY, '#ff1744', 35);
-                                zombies.splice(i, 1);
-                                obstacles.splice(obsIdx, 1);
-                                break;
+                                zombies.splice(i, 1); obstacles.splice(obsIdx, 1); break;
                             }
                         }
                     }
                 }
             });
 
-            // XỬ LÝ VẬT LÝ ZOMBIE & TÉ HỐ TRỪ LIÊN TỤC
+            // Rơi hố trừ dần
             let leaderOverPit = isOverPit(zombies[0].x, 10);
-
             if (leaderOverPit && !tsunamiActive && !giantActive) {
                 pitKillTimer++;
-                if (pitKillTimer % 12 === 0) { // Cứ 12 frame tiêu diệt 1 con rơi hố
+                if (pitKillTimer % 12 === 0) {
                     let diedZ = zombies.shift();
                     if (diedZ) addParticles(diedZ.x, defaultGroundY + 40, '#76ba1b', 15);
-                    if (zombies.length === 0) {
-                        gameState = 'GAMEOVER';
-                        return;
-                    }
+                    if (zombies.length === 0) { gameState = 'GAMEOVER'; return; }
                 }
-            } else {
-                pitKillTimer = 0;
-            }
+            } else { pitKillTimer = 0; }
 
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
@@ -526,11 +631,9 @@ game_code = """
                     z.y = defaultGroundY - 110 + Math.sin(frame * 0.15 + i * 0.4) * 8;
                     z.vy = 0; z.isGrounded = true;
                 } else if (giantActive) {
-                    z.y = defaultGroundY - 35;
-                    z.vy = 0; z.isGrounded = true;
+                    z.y = defaultGroundY - 35; z.vy = 0; z.isGrounded = true;
                 } else {
                     z.vy += gravity; z.y += z.vy;
-
                     let onPit = isOverPit(z.x, 10);
                     let standingOnVehicle = false;
 
@@ -548,23 +651,13 @@ game_code = """
                     if (!standingOnVehicle) {
                         if (!onPit && z.y >= defaultGroundY - 20) {
                             z.y = defaultGroundY - 20; z.vy = 0; z.isGrounded = true;
-                        } else if (onPit) {
-                            z.isGrounded = false;
-                        }
+                        } else if (onPit) { z.isGrounded = false; }
                     }
                 }
 
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
-
-                // Nếu bị kẹt sau xe cộ -> Lùi lại
-                if (isBlockedByVehicle && i === 0) {
-                    z.x = Math.max(100, z.x - speed);
-                }
-
-                if (z.y > canvas.height + 40) {
-                    addParticles(z.x, canvas.height - 10, '#76ba1b', 12);
-                    zombies.splice(i, 1);
-                }
+                if (isBlockedByVehicle && i === 0) z.x = Math.max(100, z.x - speed);
+                if (z.y > canvas.height + 40) { addParticles(z.x, canvas.height - 10, '#76ba1b', 12); zombies.splice(i, 1); }
             }
 
             if (zombies.length === 0) {
@@ -580,7 +673,10 @@ game_code = """
 
                 if (tsunamiActive || giantActive) {
                     if (h.x < 450 && !h.eaten) {
-                        h.eaten = true; score += 1; currentCoins += 5; totalCoins += 5; saveUserData();
+                        h.eaten = true; score += 1; currentCoins += 5; totalCoins += 5;
+                        totalEatenHumans += 1;
+                        if (score > maxSingleRunEaten) maxSingleRunEaten = score;
+                        saveUserData();
                         addParticles(h.x, h.y - 10, giantActive ? '#e040fb' : '#00e5ff', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
@@ -589,7 +685,10 @@ game_code = """
                     }
                 } else {
                     if (!h.eaten && leader && Math.abs(leader.x - h.x) < 35 && Math.abs(leader.y - h.y) < 60) {
-                        h.eaten = true; score += 1; currentCoins += 5; totalCoins += 5; saveUserData();
+                        h.eaten = true; score += 1; currentCoins += 5; totalCoins += 5;
+                        totalEatenHumans += 1;
+                        if (score > maxSingleRunEaten) maxSingleRunEaten = score;
+                        saveUserData();
                         addParticles(h.x, h.y - 10, '#76ba1b', 15);
                         if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
@@ -606,96 +705,77 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // VẼ MAP BÃI BIỂN CHUẨN CHI TIẾT (HÌNH 1)
+        // VẼ MAP BÃI BIỂN
         function drawBeachMap() {
-            // Bầu trời biển tươi sáng
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            // Mây xốp bồng bềnh
             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            let cloudX = (300 - bgOffset * 0.15) % 900;
-            if (cloudX < -100) cloudX += 900;
-            ctx.beginPath();
-            ctx.arc(cloudX, 50, 22, 0, Math.PI*2);
-            ctx.arc(cloudX + 30, 42, 30, 0, Math.PI*2);
-            ctx.arc(cloudX + 65, 50, 22, 0, Math.PI*2); ctx.fill();
+            let cloudX = (300 - bgOffset * 0.15) % 900; if (cloudX < -100) cloudX += 900;
+            ctx.beginPath(); ctx.arc(cloudX, 50, 22, 0, Math.PI*2); ctx.arc(cloudX + 30, 42, 30, 0, Math.PI*2); ctx.arc(cloudX + 65, 50, 22, 0, Math.PI*2); ctx.fill();
 
-            // Mặt biển trong xanh có sóng & thuyền buồm
             let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
             seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#26c6da');
             ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
 
-            // Thuyền buồm xa xa
-            for (let b = 0; b < 3; b++) {
-                let boatX = (150 + b * 280 - bgOffset * 0.3) % 900;
-                if (boatX < -50) boatX += 900;
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.moveTo(boatX, 215); ctx.lineTo(boatX + 10, 200); ctx.lineTo(boatX + 10, 215); ctx.fill();
-                ctx.fillStyle = '#8d6e63'; ctx.fillRect(boatX + 2, 215, 16, 4);
-            }
-
-            // Bờ cát vàng trải dài
             ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
 
-            // Các ngôi nhà ven biển (Làng Chài Pastels)
             for (let hIdx = 0; hIdx < 3; hIdx++) {
-                let houseX = (180 + hIdx * 300 - bgOffset * 0.6) % 900;
-                if (houseX < -120) houseX += 900;
-                
-                // Thân nhà
-                ctx.fillStyle = hIdx % 2 === 0 ? '#b2dfdb' : '#ffcdd2';
-                ctx.fillRect(houseX, 210, 80, 70);
-                
-                // Mái nhà
-                ctx.fillStyle = '#e57373'; ctx.beginPath();
-                ctx.moveTo(houseX - 8, 210); ctx.lineTo(houseX + 40, 165); ctx.lineTo(houseX + 88, 210); ctx.fill();
-                
-                // Ban công & Cửa
-                ctx.fillStyle = '#ffffff'; ctx.fillRect(houseX + 12, 220, 22, 22);
-                ctx.fillStyle = '#5d4037'; ctx.fillRect(houseX + 46, 240, 20, 40);
+                let houseX = (180 + hIdx * 300 - bgOffset * 0.6) % 900; if (houseX < -120) houseX += 900;
+                ctx.fillStyle = hIdx % 2 === 0 ? '#b2dfdb' : '#ffcdd2'; ctx.fillRect(houseX, 210, 80, 70);
+                ctx.fillStyle = '#e57373'; ctx.beginPath(); ctx.moveTo(houseX - 8, 210); ctx.lineTo(houseX + 40, 165); ctx.lineTo(houseX + 88, 210); ctx.fill();
             }
 
-            // Cây Dừa Bờ Biển Nghiêng Xinh Đẹp
             for (let tIdx = 0; tIdx < 2; tIdx++) {
-                let treeX = (90 + tIdx * 460 - bgOffset * 0.8) % 900;
-                if (treeX < -100) treeX += 900;
-                
-                // Thân dừa uốn
-                ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14;
-                ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 15, 230, treeX + 15, 160); ctx.stroke();
-                
-                // Tán lá dừa xòe
+                let treeX = (90 + tIdx * 460 - bgOffset * 0.8) % 900; if (treeX < -100) treeX += 900;
+                ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 15, 230, treeX + 15, 160); ctx.stroke();
                 ctx.fillStyle = '#2e7d32';
                 for (let a = 0; a < 5; a++) {
-                    let ang = (a * Math.PI) / 2.5 - 0.2;
-                    ctx.beginPath();
-                    ctx.ellipse(treeX + 15 + Math.cos(ang)*28, 160 + Math.sin(ang)*18, 28, 10, ang, 0, Math.PI*2);
-                    ctx.fill();
+                    let ang = (a * Math.PI) / 2.5 - 0.2; ctx.beginPath(); ctx.ellipse(treeX + 15 + Math.cos(ang)*28, 160 + Math.sin(ang)*18, 28, 10, ang, 0, Math.PI*2); ctx.fill();
                 }
             }
         }
 
+        // VẼ MAP NÚI ĐÁ RUSHMORE / NÚI ĐÁ CỔ ĐIỂN (HÌNH 1)
+        function drawMountainMap() {
+            // Bầu trời đêm sương thẫm
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
+            skyGrad.addColorStop(0, '#0d47a1'); skyGrad.addColorStop(1, '#1976d2');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
+
+            // Dãy Núi Đá Điêu Khắc Tượng Mặt Cổ Đại (Hình 1)
+            for (let m = 0; m < 2; m++) {
+                let mX = (120 + m * 450 - bgOffset * 0.5) % 900;
+                if (mX < -200) mX += 900;
+
+                // Vách núi đá màu vàng cát vàng kim
+                ctx.fillStyle = '#d7ccc8';
+                ctx.beginPath();
+                ctx.moveTo(mX - 60, 250); ctx.lineTo(mX, 110); ctx.lineTo(mX + 80, 80); ctx.lineTo(mX + 180, 130); ctx.lineTo(mX + 260, 250);
+                ctx.fill();
+
+                // Các khuôn mặt đá điêu khắc tượng Rushmore
+                ctx.fillStyle = '#bcaaa4';
+                ctx.beginPath(); ctx.arc(mX + 40, 130, 25, 0, Math.PI*2); ctx.fill(); // Đầu tượng
+                ctx.fillStyle = '#8d6e63';
+                ctx.fillRect(mX + 35, 125, 15, 6); // Mắt
+                ctx.fillRect(mX + 45, 135, 12, 12); // Mũi
+            }
+        }
+
         function drawBackground() {
-            drawBeachMap();
+            if (currentMap === 'BEACH') drawBeachMap();
+            else drawMountainMap();
 
-            // Mặt đường Asphalt đen xám & Vách đá gồ ghề (Hình 1)
-            ctx.fillStyle = '#212121'; ctx.fillRect(0, defaultGroundY, canvas.width, 16); // Mặt đường
-            ctx.fillStyle = '#37474f'; ctx.fillRect(0, defaultGroundY + 16, canvas.width, canvas.height - defaultGroundY - 16); // Lòng đường
+            ctx.fillStyle = '#212121'; ctx.fillRect(0, defaultGroundY, canvas.width, 16);
+            ctx.fillStyle = '#37474f'; ctx.fillRect(0, defaultGroundY + 16, canvas.width, canvas.height - defaultGroundY - 16);
 
-            // Vách đá trầm tích sắc nét bên dưới
             pits.forEach(p => {
-                ctx.fillStyle = '#0a0a0a';
-                ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
-
-                // Mép vách đá gồ ghề sắc nét
-                ctx.fillStyle = '#263238';
-                ctx.fillRect(p.x - 8, defaultGroundY, 8, canvas.height - defaultGroundY);
-                ctx.fillRect(p.x + p.width, defaultGroundY, 8, canvas.height - defaultGroundY);
+                ctx.fillStyle = '#0a0a0a'; ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
+                ctx.fillStyle = '#263238'; ctx.fillRect(p.x - 8, defaultGroundY, 8, canvas.height - defaultGroundY); ctx.fillRect(p.x + p.width, defaultGroundY, 8, canvas.height - defaultGroundY);
             });
 
-            // Dải phân cách vàng đứt đoạn
             ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
             let dashWidth = 30; let dashGap = 20;
             let startX = - (bgOffset % (dashWidth + dashGap));
@@ -710,96 +790,66 @@ game_code = """
                 let waveGrad = ctx.createLinearGradient(0, 100, 0, defaultGroundY + 50);
                 waveGrad.addColorStop(0, '#00b0ff'); waveGrad.addColorStop(0.5, '#0077c2'); waveGrad.addColorStop(1, '#002984');
                 ctx.fillStyle = waveGrad;
-                ctx.beginPath();
-                ctx.moveTo(-100, defaultGroundY + 50); ctx.lineTo(-100, 180);
+                ctx.beginPath(); ctx.moveTo(-100, defaultGroundY + 50); ctx.lineTo(-100, 180);
                 ctx.bezierCurveTo(waveX - 120, 160, waveX - 40, 130, waveX, 170);
                 ctx.bezierCurveTo(waveX + 30, 200, waveX + 50, 270, waveX + 20, defaultGroundY + 50);
                 ctx.closePath(); ctx.fill();
-
-                ctx.fillStyle = '#ffffff';
-                for (let f = 0; f < 18; f++) {
-                    let foamX = waveX - 40 + Math.sin(frame * 0.3 + f) * 25;
-                    let foamY = 165 + Math.cos(frame * 0.2 + f) * 15;
-                    let foamR = 10 + (f % 5) * 4;
-                    ctx.beginPath(); ctx.arc(foamX, foamY, foamR, 0, Math.PI * 2); ctx.fill();
-                }
             }
         }
 
-        // VẼ QUÁI VẬT NÃO KHỔNG LỒ NÂNG CẤP ĐẸP MẮT (HÌNH 2)
         function drawGiantMonster() {
             ctx.save();
-            let gX = 180;
-            let gY = defaultGroundY - 50;
-
-            // Cơ thể Não Xanh neon nhiều rãnh 3D
+            let gX = 180; let gY = defaultGroundY - 50;
             let brainGrad = ctx.createRadialGradient(gX - 12, gY - 25, 8, gX, gY, 68);
             brainGrad.addColorStop(0, '#eeff41'); brainGrad.addColorStop(0.6, '#76ba1b'); brainGrad.addColorStop(1, '#1b5e20');
-            ctx.fillStyle = brainGrad;
-            ctx.beginPath(); ctx.arc(gX, gY - 10, 68, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = brainGrad; ctx.beginPath(); ctx.arc(gX, gY - 10, 68, 0, Math.PI * 2); ctx.fill();
 
-            // Mắt Quái Vật sắc nét rực sáng
             let eyes = [
                 {x: gX - 32, y: gY - 28, r: 18}, {x: gX + 10, y: gY - 35, r: 20},
                 {x: gX + 38, y: gY - 12, r: 15}, {x: gX - 8, y: gY - 5, r: 24}
             ];
-
             eyes.forEach(e => {
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#00e5ff'; ctx.beginPath(); ctx.arc(e.x + 3, e.y, e.r * 0.55, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(e.x + 4, e.y, e.r * 0.25, 0, Math.PI*2); ctx.fill();
             });
 
-            // Miệng Xúc tua
-            ctx.fillStyle = '#1b5e20';
-            ctx.beginPath(); ctx.ellipse(gX + 15, gY + 28, 32, 14, 0.1, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.ellipse(gX + 15, gY + 28, 32, 14, 0.1, 0, Math.PI * 2); ctx.fill();
 
-            // TIA LASER PHẢN QUANG CỰC ĐẸP
             let laserGrad = ctx.createLinearGradient(gX + 40, gY - 10, 800, gY - 10);
             laserGrad.addColorStop(0, '#ffffff'); laserGrad.addColorStop(0.2, '#ff007f'); laserGrad.addColorStop(0.7, '#e040fb'); laserGrad.addColorStop(1, '#ffffff');
             ctx.strokeStyle = laserGrad; ctx.lineWidth = 22 + Math.sin(frame * 0.4) * 6;
             ctx.beginPath(); ctx.moveTo(gX + 40, gY - 10); ctx.lineTo(800, gY - 10); ctx.stroke();
-
             ctx.restore();
         }
 
-        // VẼ TRANG PHỤC XÁC ƯỚP NÂNG CẤP ĐẸP MẮT (MUMMY OUTFIT)
+        // VẼ ZOMBIE VỚI HOẠT ẢNH HÁ MIỆNG KHI LẠI GẦN NGƯỜI
         function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
             ctx.save();
             ctx.translate(z.x + offsetX, z.y + offsetY);
             ctx.scale(scale, scale);
 
-            if (equippedOutfit === 'MUMMY') {
-                // Chân băng gạc
-                ctx.strokeStyle = '#d7ccc8'; ctx.lineWidth = 5;
-                ctx.beginPath(); 
-                ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); 
-                ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); 
-                ctx.stroke();
+            // Kiểm tra khoảng cách xem có người đứng gần phía trước không để HÁ MIỆNG
+            let isNearHuman = humans.some(h => h.x - z.x > 0 && h.x - z.x < 100);
 
-                // Thân quấn băng xám kem 3D
+            if (equippedOutfit === 'MUMMY') {
+                ctx.strokeStyle = '#d7ccc8'; ctx.lineWidth = 5;
+                ctx.beginPath(); ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); ctx.stroke();
                 ctx.fillStyle = '#efebe9'; ctx.fillRect(-9, -5, 18, 14);
-                
-                // Đầu Xác Ướp Băng Gạc
                 ctx.fillStyle = '#d7ccc8'; ctx.beginPath(); ctx.arc(0, -15, 16, 0, Math.PI * 2); ctx.fill();
                 
-                // Mặt khe mắt đen rực lửa đỏ
                 ctx.fillStyle = '#111111'; ctx.fillRect(-10, -21, 20, 9);
                 ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(-2, -16, 3, 0, Math.PI * 2); ctx.arc(6, -16, 3, 0, Math.PI * 2); ctx.fill();
 
-                // Dải băng quấn chéo chuẩn xác ướp
+                if (isNearHuman) { // Há miệng
+                    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(8, -8, 7, 0, Math.PI*2); ctx.fill();
+                }
+
                 ctx.strokeStyle = '#a1887f'; ctx.lineWidth = 2.5;
-                ctx.beginPath(); 
-                ctx.moveTo(-15, -10); ctx.lineTo(15, -6);
-                ctx.moveTo(-12, -22); ctx.lineTo(12, -18);
-                ctx.moveTo(-8, -2); ctx.lineTo(8, 2);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-15, -10); ctx.lineTo(15, -6); ctx.moveTo(-12, -22); ctx.lineTo(12, -18); ctx.stroke();
             } else {
                 ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 4.5;
-                ctx.beginPath(); 
-                ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); 
-                ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); 
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-4, 6); ctx.lineTo(-4 + Math.sin(z.legAngle)*7, 18); ctx.moveTo(4, 6); ctx.lineTo(4 - Math.sin(z.legAngle)*7, 18); ctx.stroke();
 
                 ctx.fillStyle = '#fbc02d'; ctx.fillRect(-7, 2, 14, 7);
                 ctx.fillStyle = '#8d2626'; ctx.fillRect(-8, -5, 16, 9);
@@ -807,9 +857,18 @@ game_code = """
                 ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(6, -17, 9, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(6, -17, 7.5, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(8, -17, 3.5, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(8.5, -17, 1.5, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(7, -8, 5, 0, Math.PI); ctx.fill();
-                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(4, -8); ctx.lineTo(6, -4); ctx.lineTo(8, -8); ctx.fill();
+                
+                // HOẠT ẢNH HÁ MIỆNG CẮN NGƯỜI
+                if (isNearHuman) {
+                    ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(8, -7, 8, 0, Math.PI*2); ctx.fill(); // Há to miệng
+                    ctx.fillStyle = '#ffffff'; // Răng nhọn
+                    ctx.beginPath(); ctx.moveTo(4, -10); ctx.lineTo(6, -4); ctx.lineTo(8, -10); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(6, -4); ctx.lineTo(8, -10); ctx.lineTo(10, -4); ctx.fill();
+                } else {
+                    ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(7, -8, 5, 0, Math.PI); ctx.fill();
+                    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(4, -8); ctx.lineTo(6, -4); ctx.lineTo(8, -8); ctx.fill();
+                }
+
                 ctx.strokeStyle = '#76ba1b'; ctx.lineWidth = 3.5;
                 ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(12, 2); ctx.stroke();
             }
@@ -839,29 +898,24 @@ game_code = """
         }
 
         function drawBomb(o) {
-            ctx.save();
-            ctx.translate(o.x + 21, o.y + 21);
-
+            ctx.save(); ctx.translate(o.x + 21, o.y + 21);
             let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 20);
             bombGrad.addColorStop(0, '#555'); bombGrad.addColorStop(0.7, '#222'); bombGrad.addColorStop(1, '#000');
             ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 19, 0, Math.PI*2); ctx.fill();
 
             ctx.fillStyle = '#111';
             for (let a = 0; a < 8; a++) {
-                let angle = (a * Math.PI) / 4;
-                ctx.beginPath(); ctx.arc(Math.cos(angle) * 19, Math.sin(angle) * 19, 4, 0, Math.PI*2); ctx.fill();
+                let angle = (a * Math.PI) / 4; ctx.beginPath(); ctx.arc(Math.cos(angle) * 19, Math.sin(angle) * 19, 4, 0, Math.PI*2); ctx.fill();
             }
 
             let glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 10);
             glowGrad.addColorStop(0, '#ffffff'); glowGrad.addColorStop(0.5, '#ff1744'); glowGrad.addColorStop(1, '#b71c1c');
             ctx.fillStyle = glowGrad; ctx.beginPath(); ctx.arc(0, 0, 10 + Math.sin(frame * 0.3) * 2, 0, Math.PI*2); ctx.fill();
-
             ctx.restore();
         }
 
         function drawCoin(c) {
-            ctx.save();
-            ctx.translate(c.x, c.y);
+            ctx.save(); ctx.translate(c.x, c.y);
             ctx.fillStyle = '#fbc02d'; ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#fff59d'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#f57f17'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('$', 0, 3.5);
@@ -869,8 +923,7 @@ game_code = """
         }
 
         function drawHuman(h) {
-            ctx.save();
-            ctx.translate(h.x, h.y);
+            ctx.save(); ctx.translate(h.x, h.y);
             ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, -16, 7, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = h.gender === 'MALE' ? '#5d4037' : '#fbc02d'; ctx.beginPath(); ctx.arc(0, -19, 7, Math.PI, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2.5, -16, 1.2, 0, Math.PI*2); ctx.arc(2.5, -16, 1.2, 0, Math.PI*2); ctx.fill();
@@ -940,9 +993,7 @@ game_code = """
                 });
             }
 
-            particles.forEach(p => {
-                ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4);
-            });
+            particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
 
             // HUD UI
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(15, 12, 170, 70);
