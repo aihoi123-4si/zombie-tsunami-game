@@ -1,4 +1,15 @@
-import streamlit as st
+game_code = """
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- GẮN ĐOẠN ÂM THANH NÀY VÀO ĐẦU PHẦN HTML -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://actions.google.com/sounds/v1/ambiences/beach_waves.ogg" type="audio/ogg">
+    </audio>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: 'Arial Black', sans-serif; height: 100vh; overflow: hidden; user-select: none; }
+        /* Các style khác giữ nguyên... */import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Zombie Tsunami Ultimate Edition", layout="centered")
