@@ -9,10 +9,6 @@ game_code = """
 <!DOCTYPE html>
 <html>
 <head>
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://actions.google.com/sounds/v1/ambiences/beach_waves.ogg" type="audio/ogg">
-    </audio>
-
     <style>
         body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: 'Arial Black', sans-serif; height: 100vh; overflow: hidden; user-select: none; }
         #gameContainer {
@@ -123,7 +119,7 @@ game_code = """
 </head>
 <body>
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://actions.google.com/sounds/v1/ambiences/beach_waves.ogg" type="audio/ogg">
+        <source src="https://ia801503.us.archive.org/15/items/zombie-tsunami-theme-song/Zombie%20Tsunami%20Theme%20Song.mp3" type="audio/mpeg">
     </audio>
 
     <div id="gameContainer">
@@ -806,6 +802,7 @@ game_code = """
                 }
             }
 
+            // FIX LỖI RƠI HỐ & DỊCH CHUYỂN ZOMBIE NGOÀI MÀN HÌNH
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
 
@@ -842,13 +839,16 @@ game_code = """
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
                 if (isBlockedByVehicle && i === 0) z.x = Math.max(100, z.x - speed);
                 
+                // Rơi xuống hố -> CHẾT LUÔN, KHÔNG DỊCH CHUYỂN KÉO LÊN
                 if (z.y > canvas.height + 30) { 
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 12); 
                     zombies.splice(i, 1); 
                 }
             }
 
+            // Dịch chuyển zombie ngoài màn hình (xếp hàng phía sau) lên dồn vào khi có zombie trong màn hình mất/chết
             if (zombies.length > 0 && zombies[0].x < 80 && zombies.length > 1) {
+                // Đảm bảo đội hình không bị đứt đoạn quá xa
                 for (let k = 1; k < zombies.length; k++) {
                     if (zombies[k].x - zombies[k-1].x > 30) {
                         zombies[k].x -= 2;
@@ -903,6 +903,7 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
+        // MAP BÃI BIỂN VỚI NHỮNG NGÔI NHÀ VEN BIỂN (ẢNH 2)
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
             skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
@@ -923,24 +924,30 @@ game_code = """
             }
             ctx.fill();
 
+            // CÁC CĂN NHÀ VEN BIỂN (ĐÚNG THEO YÊU CẦU ẢNH 2)
             let houseSpacing = 360;
             let startH = - (bgOffset * 0.45 % houseSpacing);
             for (let hx = startH; hx < canvas.width + houseSpacing; hx += houseSpacing) {
+                // Nhà màu hồng/cam nhạt
                 ctx.fillStyle = '#ff8a80'; ctx.fillRect(hx, 210, 85, 70);
-                ctx.fillStyle = '#37474f'; ctx.fillRect(hx + 30, 240, 22, 40);
-                ctx.fillStyle = '#b3e5fc'; ctx.fillRect(hx + 12, 220, 16, 16);
+                ctx.fillStyle = '#37474f'; ctx.fillRect(hx + 30, 240, 22, 40); // Cửa
+                ctx.fillStyle = '#b3e5fc'; ctx.fillRect(hx + 12, 220, 16, 16); // Cửa sổ
+                // Mái nhà đỏ
                 ctx.fillStyle = '#d32f2f';
                 ctx.beginPath(); ctx.moveTo(hx - 8, 210); ctx.lineTo(hx + 42, 165); ctx.lineTo(hx + 93, 210); ctx.fill();
 
+                // Nhà thứ 2 liền kề (màu xanh lá pastel)
                 ctx.fillStyle = '#a7ffeb'; ctx.fillRect(hx + 100, 195, 95, 85);
                 ctx.fillStyle = '#00695c'; ctx.fillRect(hx + 135, 235, 24, 45);
                 ctx.fillStyle = '#ffffff'; ctx.fillRect(hx + 112, 210, 18, 18); ctx.fillRect(hx + 162, 210, 18, 18);
+                // Mái nhà cam
                 ctx.fillStyle = '#f57c00';
                 ctx.beginPath(); ctx.moveTo(hx + 90, 195); ctx.lineTo(hx + 147, 145); ctx.lineTo(hx + 205, 195); ctx.fill();
             }
 
             ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
 
+            // Cây dừa bãi biển
             let treeX = (180 - bgOffset * 0.7) % 900; if (treeX < -100) treeX += 900;
             ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 18, 230, treeX + 18, 160); ctx.stroke();
             ctx.fillStyle = '#2e7d32';
@@ -979,6 +986,7 @@ game_code = """
                 }
             }
 
+            // HIỆU ỨNG SÓNG THẦN ĐẸP MẮT (LẤY CẢM HỨNG TỪ HÌNH 3 - KHÔNG CHỮ, KHÔNG THUYỀN)
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
                 let waveGrad = ctx.createLinearGradient(0, 40, 0, defaultGroundY + 50);
@@ -996,6 +1004,7 @@ game_code = """
                 ctx.closePath(); 
                 ctx.fill();
 
+                // Sủi bọt trắng xóa trên đỉnh sóng
                 ctx.fillStyle = '#ffffff';
                 for(let b=0; b<6; b++) {
                     ctx.beginPath(); 
@@ -1060,6 +1069,7 @@ game_code = """
             ctx.restore();
         }
 
+        // HIỆU ỨNG HÁ MỒM KHI SĂN NGƯỜI / ĂN THỊT ĐÚNG HÌNH 1
         function drawZombie(z, scale = 1, offsetX = 0, offsetY = 0) {
             ctx.save();
             ctx.translate(z.x + offsetX, z.y + offsetY);
@@ -1098,11 +1108,13 @@ game_code = """
                 ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(10, -18, 2.5, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(8, -20, 1.5, 0, Math.PI * 2); ctx.fill();
                 
+                // CẬP NHẬT HOẠT ẢNH HÁ MỒM RỘNG KHI GẦN NGƯỜI (NHƯ HÌNH 1)
                 if (isNearHuman) {
                     ctx.fillStyle = '#111111'; 
                     ctx.beginPath(); 
                     ctx.arc(12, -8, 11, 0, Math.PI * 2); 
                     ctx.fill();
+                    // Răng nanh sắc nhọn
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath(); 
                     ctx.moveTo(6, -13); ctx.lineTo(9, -6); ctx.lineTo(12, -13); 
