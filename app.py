@@ -1387,5 +1387,5 @@ try:
 except Exception:
     # Streamlit cũ: dùng components.html
     import streamlit.components.v1 as components
-    components.html(html_doc, height=480, scrolling=False
+    components.html html_doc, height=480, scrolling=False
  
