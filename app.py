@@ -1,4 +1,4 @@
-
+import streamlit as st
  
 st.set_page_config(page_title="Zombie Tsunami Perfect Edition", layout="centered")
 st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - PERFECT EDITION ⚡</h1>", unsafe_allow_html=True)
@@ -1081,3 +1081,4 @@ except Exception:
     # Streamlit cũ: dùng components.html
     import streamlit.components.v1 as components
     components.html(html_doc, height=480, scrolling=False)
+ 
