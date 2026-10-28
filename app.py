@@ -1,9 +1,57 @@
-
 import streamlit as st
 import base64, os
- 
+
 st.set_page_config(page_title="Zombie Tsunami Perfect Edition", layout="centered")
 st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - PERFECT EDITION ⚡</h1>", unsafe_allow_html=True)
+
+# ================= NHẠC NỀN =================
+# Cách 1: đặt file nhạc (mp3/ogg/wav/m4a) cùng thư mục với file .py này
+#         (hoặc trong thư mục con music/ assets/ static/). Game tự tìm và nhúng vào.
+# Cách 2: dùng ô "Nhạc nền" bên dưới để tải file lên.
+AUDIO_MIME = {".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".wav": "audio/wav",
+              ".m4a": "audio/mp4", ".aac": "audio/aac", ".flac": "audio/flac"}
+MAX_MB = 25
+
+def _find_music():
+    here = os.path.dirname(os.path.abspath(__file__)) if "__file__" in globals() else os.getcwd()
+    folders = [here, os.path.join(here, "music"), os.path.join(here, "assets"),
+               os.path.join(here, "static"), os.getcwd()]
+    found, seen = [], set()
+    for folder in folders:
+        if folder in seen or not os.path.isdir(folder):
+            continue
+        seen.add(folder)
+        for name in sorted(os.listdir(folder)):
+            if os.path.splitext(name)[1].lower() in AUDIO_MIME:
+                found.append(os.path.join(folder, name))
+    pref = ("zombie", "tsunami", "theme", "music", "bgm", "nhac", "song")
+    found.sort(key=lambda p: (0 if any(k in os.path.basename(p).lower() for k in pref) else 1))
+    return found[0] if found else None
+
+@st.cache_data(show_spinner=False)
+def _file_to_uri(path, mtime):
+    ext = os.path.splitext(path)[1].lower()
+    with open(path, "rb") as f:
+        data = f.read()
+    return f"data:{AUDIO_MIME.get(ext, 'audio/mpeg')};base64," + base64.b64encode(data).decode()
+
+music_uri, music_label = "", "Chưa có file nhạc -> dùng nhạc tổng hợp dự phòng"
+with st.expander("🎵 Nhạc nền (bấm để tải file nhạc nếu game chưa có tiếng)"):
+    up = st.file_uploader("Chọn file nhạc", type=[e[1:] for e in AUDIO_MIME])
+    if up is not None:
+        if up.size > MAX_MB * 1024 * 1024:
+            st.warning(f"File lớn hơn {MAX_MB} MB, hãy chọn file nhỏ hơn.")
+        else:
+            ext = os.path.splitext(up.name)[1].lower()
+            music_uri = f"data:{AUDIO_MIME.get(ext, 'audio/mpeg')};base64," + base64.b64encode(up.getvalue()).decode()
+            music_label = f"Đang dùng file đã tải lên: {up.name}"
+    if not music_uri:
+        p = _find_music()
+        if p and os.path.getsize(p) <= MAX_MB * 1024 * 1024:
+            music_uri = _file_to_uri(p, os.path.getmtime(p))
+            music_label = f"Đang dùng file: {os.path.basename(p)}"
+    st.caption(music_label + "  •  Bấm PLAY trong game để nhạc bắt đầu phát.")
+
 game_code = r"""
 <!DOCTYPE html>
 <html>
@@ -70,7 +118,7 @@ canvas{display:block;width:800px;height:450px}
 <audio id="bgMusic" loop preload="auto"></audio>
 <div id="gameContainer">
 <canvas id="gameCanvas" width="800" height="450"></canvas>
- 
+
 <div id="menuOverlay">
   <div class="pill"><div class="coin">Z</div><span id="menuCoins">0</span></div>
   <div class="logo-container">
@@ -88,7 +136,7 @@ canvas{display:block;width:800px;height:450px}
   <div class="best-score-box"><div class="best-score-title">Best score:</div><div class="best-score-val">🧠 <span id="bestScoreText">0</span></div></div>
   <div class="btn-play" id="playBtn">PLAY</div>
 </div>
- 
+
 <div id="marketModal" class="modal-overlay"><div class="modal-box">
   <div class="modal-header"><div>🛒 MARKET (Xu: 🪙 <span id="marketCoinText">0</span>)</div><div class="close-btn" id="closeMarketBtn">✖</div></div>
   <div class="market-tabs">
@@ -99,16 +147,16 @@ canvas{display:block;width:800px;height:450px}
   </div>
   <div class="shop-grid" id="shopGrid"></div>
 </div></div>
- 
+
 <div id="missionModal" class="modal-overlay"><div class="modal-box">
   <div class="modal-header"><div>📜 MISSIONS</div><div class="close-btn" id="closeMissionBtn">✖</div></div>
   <div class="mission-list" id="missionList"></div>
 </div></div>
 <div id="toast"></div>
 </div>
- 
+
 <script>
- 
+
 const MUSIC_SRC = "__MUSIC_SRC__";
 // ---------- Storage an toàn (iframe có thể chặn localStorage) ----------
 const store = {
@@ -125,7 +173,7 @@ const menuOverlay=$('menuOverlay'), playBtn=$('playBtn'), bestScoreText=$('bestS
 const bgMusic=$('bgMusic'), musicToggleBtn=$('musicToggleBtn'), sfxBtn=$('sfxBtn');
 let isMuted = store.getItem('zt_muted')==='1', sfxOn = store.getItem('zt_sfx')!=='0';
 musicToggleBtn.innerText = isMuted ? '🔇' : '🔊'; sfxBtn.innerText = sfxOn ? '🔔' : '🔕';
- 
+
 // ---------- Âm thanh hiệu ứng ----------
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
@@ -149,7 +197,7 @@ function playSound(type){
   gain.gain.setValueAtTime(vol, now); gain.gain.linearRampToValueAtTime(.01, now+dur);
   osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now+dur);
 }
- 
+
 // ---------- Nhạc nền: file nhạc nhúng từ Python; nếu lỗi thì dùng nhạc tổng hợp ----------
 let useSynth = !MUSIC_SRC || MUSIC_SRC.indexOf('__MUSIC')===0, musicStarted=false, synthTimer=null, synthStep=0;
 if(!useSynth){
@@ -172,7 +220,7 @@ musicToggleBtn.addEventListener('click', e => {
   musicToggleBtn.innerText = isMuted?'🔇':'🔊'; if(isMuted) pauseMusic(); else playMusic();
 });
 sfxBtn.addEventListener('click', e => { e.stopPropagation(); sfxOn=!sfxOn; store.setItem('zt_sfx', sfxOn?'1':'0'); sfxBtn.innerText = sfxOn?'🔔':'🔕'; });
- 
+
 // ---------- Dữ liệu người chơi ----------
 let gameState='MENU', score=0, distance=0;
 let bestScore = parseInt(store.getItem('zt_best_score')||'0'); bestScoreText.innerText = bestScore;
@@ -193,7 +241,7 @@ const MAP_NAMES={BEACH:'🌊 Bãi Biển',CITY:'🌆 Thành Phố',VILLAGE:'🌾
 let currentMap = MAP_LIST[Math.floor(Math.random()*MAP_LIST.length)], mapTimer=0, shakeDuration=0;
 function triggerShake(d=12){ shakeDuration=d; }
 let spriteCache = {};
- 
+
 function persist(){
   store.setItem('zt_total_coins',totalCoins); store.setItem('zt_total_eaten',totalEatenHumans);
   store.setItem('zt_max_single_eaten',maxSingleRunEaten); store.setItem('zt_stats',JSON.stringify(stat));
@@ -208,7 +256,7 @@ function saveUserData(){
 }
 let toastT=null;
 function toast(msg){ const t=$('toast'); t.innerText=msg; t.style.display='block'; clearTimeout(toastT); toastT=setTimeout(()=>{ t.style.display='none'; },1600); }
- 
+
 // ---------- Market ----------
 const SHOP = {
   outfit:[
@@ -273,7 +321,7 @@ $('shopGrid').addEventListener('click', e => { const b=e.target.closest('button'
 ['outfit','hat','skin','power'].forEach(t => $('tab_'+t).addEventListener('click', () => { shopTab=t; renderShop(); }));
 $('openMarketBtn').addEventListener('click', () => { renderShop(); $('marketModal').style.display='flex'; });
 $('closeMarketBtn').addEventListener('click', () => { $('marketModal').style.display='none'; });
- 
+
 // ---------- Missions ----------
 const MISSIONS = [
   {id:'eat100',icon:'🧟',t:'Ăn thịt tổng cộng 100 người',goal:100,reward:100,val:()=>totalEatenHumans},
@@ -308,7 +356,7 @@ $('missionList').addEventListener('click', e => {
 });
 $('openMissionBtn').addEventListener('click', () => { renderMissions(); $('missionModal').style.display='flex'; });
 $('closeMissionBtn').addEventListener('click', () => { $('missionModal').style.display='none'; });
- 
+
 // ---------- Trạng thái game ----------
 let currentCoins=0, speed=4.5, frame=0, holding=false, paused=false, tutSpawned=false, grace=0, fade=0, groundRef=330;
 let bullets=[], slashes=[], zombies=[], humans=[], obstacles=[], powerups=[], coinTrails=[], particles=[], ground=[], humanXs=[];
@@ -320,12 +368,12 @@ let banner={t:'',life:0};
 const bonusDur=()=>360+(lv.time-1)*120;
 const gravity=.65, defaultGroundY=330, LVL=[262,296,330,364];
 let tsunamiActive=false,tsunamiTimer=0,giantActive=false,giantTimer=0,ninjaActive=false,ninjaTimer=0,lionActive=false,lionTimer=0;
- 
+
 function addParticles(x,y,color,count=12){
   if(particles.length>200) return;
   for(let i=0;i<count;i++) particles.push({x,y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,life:25,color});
 }
- 
+
 // ---------- Địa hình lúc cao lúc thấp ----------
 function initTerrain(){ ground=[{x:-300,w:1700,y0:330,y1:330}]; genTerrain(); groundRef=330; }
 function genTerrain(){
@@ -345,7 +393,7 @@ function segAt(x){ for(let i=0;i<ground.length;i++){ const g=ground[i]; if(x>=g.
 function terrainY(x){ const g=segAt(x); if(!g||g.pit) return null; return g.y0+(g.y1-g.y0)*(x-g.x)/g.w; }
 function pitSurf(x){ const g=segAt(x); return (g&&g.pit)?g.y0:null; }
 function flatAt(x,w){ const g=segAt(x); return (g && !g.pit && g.y0===g.y1 && x+w<g.x+g.w) ? g.y0 : null; }
- 
+
 // ---------- Điều khiển ----------
 function startGame(){ resetGame(); gameState='PLAYING'; menuOverlay.style.display='none'; playMusic(); }
 playBtn.addEventListener('click', startGame);
@@ -388,7 +436,7 @@ function pointerDown(e){
 }
 canvas.addEventListener('touchstart', e => { e.preventDefault(); pointerDown(e); });
 canvas.addEventListener('mousedown', pointerDown);
- 
+
 function switchRandomMap(){ const a=MAP_LIST.filter(m=>m!==currentMap); currentMap=a[Math.floor(Math.random()*a.length)]; fade=1; }
 function clearModes(){ tsunamiActive=giantActive=ninjaActive=lionActive=false; tsunamiTimer=giantTimer=ninjaTimer=lionTimer=0; }
 function resetGame(){
@@ -425,19 +473,19 @@ function collectBonus(x,y,dur){
   else if(roll===4){ buffs.shield=dur; addParticles(x,y,'#40c4ff',30); banner={t:'🛡️ KHIÊN BẢO VỆ!',life:80}; }
   else { for(let q=0;q<6;q++) addZombie(20); addParticles(x,y,'#8bc34a',30); banner={t:'🧟 +6 ZOMBIE!',life:80}; }
 }
- 
+
 // ---------- Update ----------
 function update(){
   if(paused) return;
   frame++;
   bgOffset += (gameState==='MENU' ? 1.5 : speed);
   if(gameState!=='PLAYING') return;
- 
+
   distance += speed/10;
   if(frame%90===0) persist();
   mapTimer++; if(mapTimer>=1500){ mapTimer=0; switchRandomMap(); }
   speed = 4.5+Math.floor(frame/600)*.4; if(ninjaActive) speed*=1.35; speed=Math.min(speed,9);
- 
+
   if(tsunamiActive && --tsunamiTimer<=0){ tsunamiActive=false; grace=70; }
   if(giantActive && --giantTimer<=0){ giantActive=false; grace=70; }
   if(ninjaActive && --ninjaTimer<=0){ ninjaActive=false; grace=40; }
@@ -445,12 +493,12 @@ function update(){
   if(buffs.shield>0) buffs.shield--; if(grace>0) grace--;
   const power=tsunamiActive||giantActive, rush=power||ninjaActive||lionActive, bonusDuration=bonusDur();
   if(zombies.length>stat.maxHorde) stat.maxHorde=zombies.length;
- 
+
   // địa hình
   ground.forEach(g => g.x-=speed);
   while(ground.length>2 && ground[0].x+ground[0].w<-150) ground.shift();
   genTerrain();
- 
+
   // xu
   if(frame%160===0 && Math.random()<.6){
     const gy=flatAt(850,200);
@@ -478,7 +526,7 @@ function update(){
       else obstacles.push({x:X,y:G-72,w:36,h:72,type:'WALL',reqZombies:3,peopleInside:0,hitCooldown:0});
     }
   }
- 
+
   coinTrails.forEach(c => {
     c.x-=speed;
     if(!c.collected && zombies.some(z => Math.abs(z.x-c.x)<25 && Math.abs(z.y-c.y)<30)){
@@ -486,14 +534,14 @@ function update(){
     }
   });
   coinTrails=coinTrails.filter(c => c.x>-30 && !c.collected);
- 
+
   powerups.forEach(pw => {
     pw.x-=speed;
     const picker=zombies.find(z => Math.abs(z.x-pw.x)<35 && Math.abs(z.y-pw.y)<40);
     if(!pw.collected && picker){ pw.collected=true; stat.boxes++; playSound('powerup'); triggerShake(16); collectBonus(pw.x,pw.y,bonusDuration); }
   });
   powerups=powerups.filter(p => p.x>-50 && !p.collected);
- 
+
   // vật cản
   let blocked=false;
   for(let oi=obstacles.length-1;oi>=0;oi--){
@@ -541,7 +589,7 @@ function update(){
     }
   }
   if(zombies.length===0){ triggerGameOver(); return; }
- 
+
   // vật lý zombie + địa hình + rơi xuống hố
   { const g0=terrainY(zombies[0].x); if(g0!==null) groundRef+=(g0-groundRef)*.15; }
   for(let i=zombies.length-1;i>=0;i--){
@@ -573,14 +621,14 @@ function update(){
     if(z.y>canvas.height+30) zombies.splice(i,1);
   }
   if(zombies.length===0){ triggerGameOver(); return; }
- 
+
   // đội hình
   zombies.forEach((z,i) => {
     if(i===0){ z.x += (180-z.x)*.05; return; }
     const ring=Math.ceil(Math.sqrt(i)), slot=zombies[0].x-ring*18+(i%3)*7;
     z.x += (slot-z.x)*.12;
   });
- 
+
   // người & cảnh sát
   const lead=zombies[0];
   humans.forEach(h => {
@@ -616,7 +664,7 @@ function update(){
   particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.life--; });
   particles=particles.filter(p => p.life>0);
 }
- 
+
 function drawMysteryBox(pw){
   ctx.save(); ctx.translate(pw.x+pw.w/2,pw.y+pw.h/2+Math.sin(frame*.1)*4); ctx.rotate(-.08);
   ctx.fillStyle='#dcdde1'; ctx.fillRect(-pw.w/2+4,-pw.h/2+4,pw.w,pw.h);
@@ -625,7 +673,7 @@ function drawMysteryBox(pw){
   ctx.fillStyle='#00a8ff'; ctx.font='900 26px sans-serif'; ctx.textAlign='center'; ctx.fillText('?',0,9);
   ctx.restore();
 }
- 
+
 function drawBomb(o){
   ctx.save(); ctx.translate(o.x+22,o.y+22);
   let bg = ctx.createRadialGradient(-4,-4,2,0,0,22); bg.addColorStop(0,'#555'); bg.addColorStop(.7,'#222'); bg.addColorStop(1,'#000');
@@ -636,7 +684,7 @@ function drawBomb(o){
   ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(0,0,11+Math.sin(frame*.3)*2,0,7); ctx.fill();
   ctx.restore();
 }
- 
+
 function drawCoin(c){
   ctx.save(); ctx.translate(c.x,c.y);
   ctx.fillStyle='#fbc02d'; ctx.beginPath(); ctx.arc(0,0,9,0,7); ctx.fill();
@@ -644,16 +692,16 @@ function drawCoin(c){
   ctx.fillStyle='#f57f17'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.fillText('$',0,3.5);
   ctx.restore();
 }
- 
+
 // ================= ĐỒ HỌA MỚI =================
- 
+
 function outText(t,x,y,size,fill,align){
   ctx.font='900 '+size+'px "Arial Black",sans-serif'; ctx.textAlign=align||'left';
   ctx.lineWidth=5; ctx.lineJoin='round'; ctx.strokeStyle='#3a1500'; ctx.strokeText(t,x,y);
   ctx.fillStyle=fill; ctx.fillText(t,x,y);
 }
- 
- 
+
+
 function drawHuman(h){
   const m=h.gender==='MALE', cop=h.cop, pan=h.panic, st=h.step||0;
   ctx.save(); ctx.translate(h.x,h.y+20); ctx.scale(-1.15,1.15);
@@ -681,8 +729,8 @@ function drawHuman(h){
   ctx.restore();
   if(pan && !cop){ ctx.fillStyle='#ff1744'; ctx.font='bold 18px sans-serif'; ctx.textAlign='center'; ctx.fillText('!',h.x,h.y-30+Math.sin(st)*2); }
 }
- 
- 
+
+
 function miniHead(x,y,sc,f){
   ctx.save(); ctx.translate(x,y); ctx.scale(f*sc,sc);
   ctx.fillStyle='#8cc63f'; ctx.beginPath(); ctx.ellipse(0,0,15,13,0,0,7); ctx.fill();
@@ -692,7 +740,7 @@ function miniHead(x,y,sc,f){
   ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(4,8); ctx.lineTo(7,14); ctx.lineTo(10,8); ctx.fill();
   ctx.restore();
 }
- 
+
 function drawBadge(x,y,req){
   const ok=zombies.length>=req;
   miniHead(x-6,y+8,.9,1); miniHead(x+102,y+10,.9,-1);
@@ -701,8 +749,8 @@ function drawBadge(x,y,req){
   outText(String(zombies.length),x+38,y+37,30,ok?'#8bff3a':'#ff6a00','right');
   outText('/'+req,x+42,y+40,22,'#ffb000','left');
 }
- 
- 
+
+
 function drawCar(o){
   ctx.save(); ctx.translate(o.x,o.y);
   ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(50,49,52,5,0,0,7); ctx.fill();
@@ -727,8 +775,8 @@ function drawCar(o){
   [24,76].forEach(x=>{ ctx.fillStyle='#16161c'; ctx.beginPath(); ctx.arc(x,38,10,0,7); ctx.fill(); ctx.fillStyle='#c9ced6'; ctx.beginPath(); ctx.arc(x,38,4.5,0,7); ctx.fill(); });
   drawBadge(2,-70,o.reqZombies); ctx.restore();
 }
- 
- 
+
+
 function drawBus(o){
   ctx.save(); ctx.translate(o.x,o.y);
   ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(80,63,84,5,0,0,7); ctx.fill();
@@ -745,8 +793,8 @@ function drawBus(o){
   [32,128].forEach(x=>{ ctx.fillStyle='#16161c'; ctx.beginPath(); ctx.arc(x,52,10,0,7); ctx.fill(); ctx.fillStyle='#c9ced6'; ctx.beginPath(); ctx.arc(x,52,4.5,0,7); ctx.fill(); });
   drawBadge(32,-76,o.reqZombies); ctx.restore();
 }
- 
- 
+
+
 function drawHelicopter(o){
   ctx.save(); ctx.translate(o.x,o.y);
   ctx.fillStyle='#fff'; ctx.strokeStyle='#90a4ae'; ctx.lineWidth=2;
@@ -766,8 +814,8 @@ function drawHelicopter(o){
   ctx.strokeStyle='#546e7a'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(40,58); ctx.lineTo(180,58); ctx.moveTo(70,36); ctx.lineTo(70,58); ctx.moveTo(150,36); ctx.lineTo(150,58); ctx.stroke();
   drawBadge(57,-100,o.reqZombies); ctx.restore();
 }
- 
- 
+
+
 function drawWall(o){
   ctx.save(); ctx.translate(o.x,o.y);
   ctx.fillStyle='#b5523b'; ctx.fillRect(0,0,o.w,o.h); ctx.strokeStyle='#5d2a1c'; ctx.lineWidth=2;
@@ -775,14 +823,14 @@ function drawWall(o){
     for(let x=((y/12)%2?9:18);x<o.w;x+=18){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+12); ctx.stroke(); } }
   ctx.strokeRect(0,0,o.w,o.h); drawBadge(o.w/2-48,-70,o.reqZombies); ctx.restore();
 }
- 
+
 function drawSpike(o){
   ctx.save(); ctx.translate(o.x,o.y); ctx.fillStyle='#4a4a55'; ctx.fillRect(0,18,o.w,4);
   for(let i=0;i<5;i++){ const x=i*13; let g=ctx.createLinearGradient(x,0,x+13,0); g.addColorStop(0,'#e0e6ec'); g.addColorStop(1,'#8a949e');
     ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(x,20); ctx.lineTo(x+6.5,0); ctx.lineTo(x+13,20); ctx.fill(); }
   ctx.restore();
 }
- 
+
 function drawSpring(o){
   ctx.save(); ctx.translate(o.x,o.y); const top=2+(o.comp||0)*.7;
   ctx.fillStyle='#37474f'; ctx.fillRect(2,12,40,4);
@@ -790,14 +838,14 @@ function drawSpring(o){
   for(let i=1;i<=5;i++) ctx.lineTo(i%2?36:8,12-(12-top-5)*i/5);
   ctx.stroke(); ctx.fillStyle='#e53935'; ctx.fillRect(0,top,44,5); ctx.restore();
 }
- 
+
 function drawBullet(b){ ctx.fillStyle='#ffe082'; ctx.fillRect(b.x-8,b.y-2,14,4); ctx.fillStyle='#fff'; ctx.fillRect(b.x-8,b.y-1,6,2); }
- 
- 
+
+
 function rnd(k,n){ const v=Math.sin(k*127.1+n*311.7)*43758.5453; return v-Math.floor(v); }
- 
+
 function cloud(x,y,sc,a){ ctx.fillStyle='rgba(255,255,255,'+a+')'; ctx.beginPath(); ctx.arc(x,y,16*sc,0,7); ctx.arc(x+20*sc,y-8*sc,22*sc,0,7); ctx.arc(x+44*sc,y,17*sc,0,7); ctx.arc(x+22*sc,y+6*sc,18*sc,0,7); ctx.fill(); }
- 
+
 function birds(col){
   ctx.strokeStyle=col; ctx.lineWidth=2; ctx.lineCap='round';
   for(let i=0;i<5;i++){
@@ -805,7 +853,7 @@ function birds(col){
     ctx.beginPath(); ctx.moveTo(x-7,y-f); ctx.quadraticCurveTo(x-3,y-4,x,y); ctx.quadraticCurveTo(x+3,y-4,x+7,y-f); ctx.stroke();
   }
 }
- 
+
 function winGrid(x,y,w,h,cols,rows,seed,lit,off){
   const cw=w/cols, ch=h/rows;
   for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
@@ -813,8 +861,8 @@ function winGrid(x,y,w,h,cols,rows,seed,lit,off){
     ctx.fillRect(x+c*cw+cw*.2,y+r*ch+ch*.2,cw*.6,ch*.55);
   }
 }
- 
- 
+
+
 function drawGiantMonster(){
   const gX=180, gY=groundRef-50;
   let bg = ctx.createRadialGradient(gX-12,gY-25,8,gX,gY,72); bg.addColorStop(0,'#ccff90'); bg.addColorStop(.5,'#76ba1b'); bg.addColorStop(1,'#1b5e20');
@@ -858,7 +906,7 @@ function hillPoly(sp,y0,amp,col,f){
   ctx.lineTo(800,400); ctx.fill();
 }
 function cloudC(x,y,sc,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,16*sc,0,7); ctx.arc(x+20*sc,y-8*sc,22*sc,0,7); ctx.arc(x+44*sc,y,17*sc,0,7); ctx.arc(x+22*sc,y+6*sc,18*sc,0,7); ctx.fill(); }
- 
+
 // ================= BÃI BIỂN =================
 function drawBeachMap(){
   let g=ctx.createLinearGradient(0,0,0,215); g.addColorStop(0,'#2f9de0'); g.addColorStop(.6,'#8fd8f5'); g.addColorStop(1,'#fff0c2'); ctx.fillStyle=g; ctx.fillRect(0,0,800,215);
@@ -928,7 +976,7 @@ function drawBeachMap(){
   });
   birds('#ffffff');
 }
- 
+
 // ================= NGHĨA ĐỊA (HALLOWEEN) =================
 function drawGraveMap(){
   let g=ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'#060a22'); g.addColorStop(.55,'#2b1553'); g.addColorStop(1,'#80407f'); ctx.fillStyle=g; ctx.fillRect(0,0,800,400);
@@ -990,7 +1038,7 @@ function drawGraveMap(){
     ctx.fillStyle='#1a1030'; ctx.beginPath(); ctx.arc(gx-6,gy-2,3,0,7); ctx.arc(gx+6,gy-2,3,0,7); ctx.fill(); ctx.beginPath(); ctx.ellipse(gx,gy+9,3,4,0,0,7); ctx.fill(); }
   for(let i=0;i<10;i++){ const x=((i*97-bgOffset*.5)%800+800)%800, y=270+Math.sin(frame*.05+i)*18; ctx.fillStyle='rgba(150,255,170,'+(.4+.4*Math.sin(frame*.1+i))+')'; ctx.beginPath(); ctx.arc(x,y,2.5,0,7); ctx.fill(); }
 }
- 
+
 // ================= MẶT ĐẤT THEO ĐỊA HÌNH =================
 const GTHEME={
   BEACH:{lip:'#f0d08e',road:'#b98a52',dash:'#8f6a3a',dirt:'#7a5a3a',dirt2:'#8d6a46'},
@@ -1020,7 +1068,7 @@ function drawGround(){
     for(let i=0;i<5;i++){ const x=((i*173-bgOffset)%900+900)%900-50; if(x>x0+4 && x<x1-24){ const b=sy(x); ctx.beginPath(); ctx.moveTo(x,b+20); ctx.lineTo(x+10,b+30); ctx.lineTo(x+4,b+38); ctx.lineTo(x+16,b+52); ctx.stroke(); } }
   }
 }
- 
+
 function drawBackground(){
   if(layerMap!==currentMap){ layerCache={}; layerMap=currentMap; }
   tileIdx=0;
@@ -1037,7 +1085,7 @@ function drawBackground(){
     for(let b=0;b<8;b++){ ctx.beginPath(); ctx.arc(wx+12+b*11,95-b*5,16-b*1.3,0,7); ctx.fill(); }
   }
 }
- 
+
 function drawCityMap(){
   let g=ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'#7fb8e0'); g.addColorStop(1,'#e2f3fa'); ctx.fillStyle=g; ctx.fillRect(0,0,800,400);
   let sg=ctx.createRadialGradient(640,80,5,640,80,130); sg.addColorStop(0,'rgba(255,255,230,.9)'); sg.addColorStop(1,'rgba(255,255,230,0)'); ctx.fillStyle=sg; ctx.fillRect(480,0,320,230);
@@ -1096,8 +1144,8 @@ function drawCityMap(){
   },true);
   birds('#46566e');
 }
- 
- 
+
+
 function drawVillageMap(){
   let g=ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'#ff8f5a'); g.addColorStop(.5,'#ffc27a'); g.addColorStop(1,'#ffeab8'); ctx.fillStyle=g; ctx.fillRect(0,0,800,400);
   let sg=ctx.createRadialGradient(560,200,10,560,200,170); sg.addColorStop(0,'rgba(255,250,200,.95)'); sg.addColorStop(1,'rgba(255,220,150,0)'); ctx.fillStyle=sg; ctx.fillRect(300,30,520,270);
@@ -1171,8 +1219,8 @@ function drawVillageMap(){
   ctx.fillStyle='#a58660'; ctx.fillRect(0,282,800,4); ctx.fillRect(0,291,800,4);
   birds('#4a3a5a');
 }
- 
- 
+
+
 // ---------- Zombie: vẽ 1 lần vào sprite rồi dán lại (giảm lag khi đông) ----------
 const SW=110, SH=140, AX=50, AY=128;
 const SKINS={ICE:['#8fdcff','#4fa9d6','#d3f3ff'],GOLD:['#ffd54a','#c79a12','#fff0a0'],PURPLE:['#b57bff','#7a45c9','#dcc2ff'],PINK:['#ff8fb8','#d05a86','#ffc9de'],RED:['#ff7a6b','#c4443a','#ffb3a9']};
@@ -1258,7 +1306,7 @@ function drawZombie(z,scale=1,ox=0,oy=0){
   const sp=zombieSprite((z.variant||0)%3,fi,near,ninjaActive?'N':'');
   ctx.drawImage(sp,z.x+ox-AX*scale,z.y+19+oy-AY*scale,SW*scale,SH*scale);
 }
- 
+
 function drawLion(){
   const z0=zombies[0]; if(!z0) return;
   const n=Math.min(zombies.length,14), t=frame*.2;
@@ -1288,13 +1336,13 @@ function drawSlashes(){
   slashes.forEach(s => { const a=s.life/14; ctx.strokeStyle='rgba(255,255,255,'+a+')'; ctx.lineWidth=5*a; ctx.lineCap='round';
     const r=38*(1.2-a*.3); ctx.beginPath(); ctx.arc(s.x,s.y,r,-2.3,-.6); ctx.stroke(); ctx.beginPath(); ctx.arc(s.x,s.y,r,.8,2.5); ctx.stroke(); });
 }
- 
+
 function drawMenuScene(){
   humanXs=[]; const base=defaultGroundY-20;
   [{x:340,g:'MALE'},{x:400,g:'FEMALE'}].forEach(o => drawHuman({x:o.x+Math.sin(frame*.05)*4,y:base,gender:o.g,panic:true,step:frame*.35}));
   for(let i=5;i>=0;i--) drawZombie({x:230-i*30+(i%2)*10,y:base,legAngle:frame*.22+i*.9,variant:i%3,isGrounded:true},1-i*.02,0,(i%2)?-4:0);
 }
- 
+
 function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,.6)'; ctx.beginPath(); ctx.roundRect(0,0,150,84,[0,0,16,0]); ctx.fill();
   ctx.fillStyle='#caa020'; ctx.beginPath(); ctx.arc(26,24,15,0,7); ctx.fill();
@@ -1336,7 +1384,7 @@ function drawHUD(){
     outText('Nhấn P / chạm để tiếp tục',400,255,18,'#fff','center');
   }
 }
- 
+
 const D={BOMB:drawBomb,CAR:drawCar,BUS:drawBus,HELI:drawHelicopter,SPIKE:drawSpike,SPRING:drawSpring,WALL:drawWall};
 function draw(){
   humanXs=humans.map(h=>h.x);
@@ -1370,22 +1418,22 @@ function draw(){
     ctx.fillText('Nhấn Space / Chạm để quay về Menu',400,315);
   }
 }
- 
+
 function loop(){ update(); draw(); requestAnimationFrame(loop); }
 initTerrain(); saveUserData();
 loop();
- 
+
 </script>
 </body>
 </html>
 """
- 
+
 html_doc = game_code.strip().replace("__MUSIC_SRC__", music_uri)
-try:
-    # Streamlit mới (>= 1.56): components.html đã bị deprecated -> dùng st.iframe
+
+if hasattr(st, "iframe"):
+    # Streamlit moi (>= 1.56): components.html da bi deprecated -> dung st.iframe
     st.iframe(html_doc, height=480)
-except Exception:
-    # Streamlit cũ: dùng components.html
-    import streamlit.components.v1 as components
-    components.html html_doc, height=480, scrolling=False
- 
+else:
+    # Streamlit cu
+    from streamlit.components.v1 import html as _components_html
+    _components_html(html_doc, height=480, scrolling=False)
