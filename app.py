@@ -1,18 +1,14 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Zombie Tsunami Perfect Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami No-Small-Pits Edition", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - PERFECT EDITION ⚡</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - NO SMALL PITS EDITION ⚡</h1>", unsafe_allow_html=True)
 
 game_code = """
 <!DOCTYPE html>
 <html>
 <head>
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://actions.google.com/sounds/v1/ambiences/beach_waves.ogg" type="audio/ogg">
-    </audio>
-
     <style>
         body { margin: 0; padding: 0; background-color: #0d1b2a; display: flex; justify-content: center; align-items: center; font-family: 'Arial Black', sans-serif; height: 100vh; overflow: hidden; user-select: none; }
         #gameContainer {
@@ -123,7 +119,7 @@ game_code = """
 </head>
 <body>
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://actions.google.com/sounds/v1/ambiences/beach_waves.ogg" type="audio/ogg">
+        <source src="https://ia801503.us.archive.org/15/items/zombie-tsunami-theme-song/Zombie%20Tsunami%20Theme%20Song.mp3" type="audio/mpeg">
     </audio>
 
     <div id="gameContainer">
@@ -396,8 +392,8 @@ game_code = """
         let power2Level = parseInt(localStorage.getItem('zt_p2_level') || '1'); 
 
         const MAP_LIST = ['BEACH', 'CITY', 'VILLAGE'];
-        let currentMap = 'BEACH';
-        let mapTimer = 0;
+        let currentMap = 'BEACH'; 
+        let mapTimer = 0; 
         let shakeDuration = 0;
 
         function triggerShake(duration = 12) {
@@ -596,17 +592,15 @@ game_code = """
                 menuOverlay.style.display = 'flex';
                 stopMusic();
             } else if (gameState === 'PLAYING') {
+                let jumped = false;
                 zombies.forEach((z, idx) => {
                     if (z.isGrounded) {
-                        setTimeout(() => {
-                            if (z.isGrounded) {
-                                z.vy = -13.5 - (idx * 0.02);
-                                z.isGrounded = false;
-                                playSound('jump');
-                            }
-                        }, idx * 45);
+                        z.vy = -13.5 - (idx * 0.04);
+                        z.isGrounded = false;
+                        jumped = true;
                     }
                 });
+                if (jumped) playSound('jump');
             }
         }
 
@@ -637,7 +631,6 @@ game_code = """
             tsunamiActive = false; tsunamiTimer = 0;
             giantActive = false; giantTimer = 0;
 
-            // Mới vào game random 1 trong 3 map
             currentMap = MAP_LIST[Math.floor(Math.random() * MAP_LIST.length)];
             mapTimer = 0;
         }
@@ -658,7 +651,6 @@ game_code = """
 
             if (gameState !== 'PLAYING') return;
 
-            // Sau 20 giây (tương đương 1200 frame) thì đổi sang 1 trong 2 map còn lại
             mapTimer++;
             if (mapTimer >= 1200) {
                 mapTimer = 0;
@@ -672,7 +664,8 @@ game_code = """
             if (tsunamiActive) { tsunamiTimer--; if (tsunamiTimer <= 0) tsunamiActive = false; }
             if (giantActive) { giantTimer--; if (giantTimer <= 0) giantActive = false; }
 
-            if (frame % 280 === 0 && Math.random() > 0.35) {
+            // LOẠI BỎ HỐ NHỎ: Chỉ sinh hố tiêu chuẩn (độ rộng vừa đẹp từ 110 đến 140px)
+            if (frame % 260 === 0 && Math.random() > 0.35) {
                 let pitWidth = 110 + Math.random() * 30;
                 pits.push({ x: 850, width: pitWidth });
             }
@@ -695,19 +688,19 @@ game_code = """
 
             if (frame % 130 === 0) {
                 let spawnX = 850;
-                if (!isOverPit(spawnX, 200)) {
+                if (!isOverPit(spawnX, 170)) {
                     let rand = Math.random();
                     if (rand < 0.32) {
                         let gender = Math.random() > 0.5 ? 'MALE' : 'FEMALE';
                         humans.push({ x: spawnX, y: defaultGroundY - 20, gender: gender, eaten: false });
                     } else if (rand < 0.60) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 48, w: 100, h: 48, type: 'CAR', reqZombies: 4, peopleInside: 3, hitCooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 90, h: 42, type: 'CAR', reqZombies: 4, peopleInside: 3, hitCooldown: 0 });
                     } else if (rand < 0.78) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 62, w: 160, h: 62, type: 'BUS', reqZombies: 6, peopleInside: 6, hitCooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 55, w: 145, h: 52, type: 'BUS', reqZombies: 6, peopleInside: 6, hitCooldown: 0 });
                     } else if (rand < 0.88) {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 78, w: 210, h: 68, type: 'HELI', reqZombies: 8, peopleInside: 8, hitCooldown: 0 });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 82, w: 195, h: 62, type: 'HELI', reqZombies: 8, peopleInside: 8, hitCooldown: 0 });
                     } else {
-                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 45, h: 45, type: 'BOMB' });
+                        obstacles.push({ x: spawnX, y: defaultGroundY - 45, w: 42, h: 42, type: 'BOMB' });
                     }
                 }
             }
@@ -766,7 +759,7 @@ game_code = """
                             if (score > maxSingleRunEaten) maxSingleRunEaten = score;
                             saveUserData();
                             for (let k = 0; k < obs.peopleInside; k++) {
-                                if (zombies.length < 35) {
+                                if (zombies.length < 30) {
                                     let tail = zombies[zombies.length - 1];
                                     let newVariant = Math.floor(Math.random() * 3);
                                     zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0, variant: newVariant });
@@ -779,10 +772,10 @@ game_code = """
                     if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                         let leader = zombies[0];
                         let isAboveRoof = leader && leader.y < obs.y - 12;
-                        let hitFrontMargin = 8;
-                        let hitBackMargin = 12;
+                        let hitFrontMargin = 5;
+                        let hitBackMargin = 10;
 
-                        if (leader && !isAboveRoof && (leader.x + hitFrontMargin >= obs.x && leader.x - hitBackMargin <= obs.x + obs.w) && leader.y >= obs.y - 15) {
+                        if (leader && !isAboveRoof && (leader.x + hitFrontMargin >= obs.x && leader.x - hitBackMargin <= obs.x + obs.w) && leader.y >= obs.y - 10) {
                             if (zombies.length >= obs.reqZombies) {
                                 playSound('explode');
                                 triggerShake(15);
@@ -792,7 +785,7 @@ game_code = """
                                 if (score > maxSingleRunEaten) maxSingleRunEaten = score;
                                 saveUserData();
                                 for (let k = 0; k < obs.peopleInside; k++) {
-                                    if (zombies.length < 35) {
+                                    if (zombies.length < 30) {
                                         let tail = zombies[zombies.length - 1];
                                         let newVariant = Math.floor(Math.random() * 3);
                                         zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: true, legAngle: 0, variant: newVariant });
@@ -812,14 +805,14 @@ game_code = """
                             }
                         }
                     } else if (obs.type === 'BOMB') {
-                        let bombCenterX = obs.x + 22; let bombCenterY = obs.y + 22;
+                        let bombCenterX = obs.x + 21; let bombCenterY = obs.y + 21;
                         for (let i = zombies.length - 1; i >= 0; i--) {
                             let z = zombies[i];
                             let dist = Math.hypot(z.x - bombCenterX, z.y - bombCenterY);
-                            if (dist < 85) { 
+                            if (dist < 65) { 
                                 playSound('explode');
-                                triggerShake(20);
-                                addParticles(bombCenterX, bombCenterY, '#ff1744', 45);
+                                triggerShake(18);
+                                addParticles(bombCenterX, bombCenterY, '#ff1744', 35);
                                 zombies.splice(i, 1); obstacles.splice(obsIdx, 1); break;
                             }
                         }
@@ -843,7 +836,7 @@ game_code = """
                     obstacles.forEach((obs) => {
                         if (obs.type === 'CAR' || obs.type === 'BUS' || obs.type === 'HELI') {
                             if (z.x >= obs.x - 5 && z.x <= obs.x + obs.w + 5) {
-                                let roofY = obs.y - 18;
+                                let roofY = obs.y - 16;
                                 if (z.y >= roofY - 5 && z.y <= obs.y + 12 && z.vy >= 0) {
                                     z.y = roofY; z.vy = 0; z.isGrounded = true; standingOnVehicle = true;
                                 }
@@ -863,18 +856,9 @@ game_code = """
                 z.legAngle += z.isGrounded ? 0.22 : 0.08;
                 if (isBlockedByVehicle && i === 0) z.x = Math.max(100, z.x - speed);
                 
-                // Rơi xuống hố -> Té xuống và mất mạng (trừ zombie) chuẩn cơ chế cũ
                 if (z.y > canvas.height + 30) { 
                     addParticles(z.x, canvas.height - 10, '#76ba1b', 12); 
                     zombies.splice(i, 1); 
-                }
-            }
-
-            if (zombies.length > 0 && zombies[0].x < 80 && zombies.length > 1) {
-                for (let k = 1; k < zombies.length; k++) {
-                    if (zombies[k].x - zombies[k-1].x > 30) {
-                        zombies[k].x -= 2;
-                    }
                 }
             }
 
@@ -895,7 +879,7 @@ game_code = """
                         saveUserData();
                         playSound('eat');
                         addParticles(h.x, h.y - 10, giantActive ? '#e040fb' : '#00e5ff', 15);
-                        if (zombies.length < 35) {
+                        if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
                             let newVariant = Math.floor(Math.random() * 3);
                             zombies.push({ x: tail.x - 20, y: tail.y, vy: 0, isGrounded: true, legAngle: 0, variant: newVariant });
@@ -909,7 +893,7 @@ game_code = """
                         saveUserData();
                         playSound('eat');
                         addParticles(h.x, h.y - 10, '#76ba1b', 15);
-                        if (zombies.length < 35) {
+                        if (zombies.length < 30) {
                             let tail = zombies[zombies.length - 1];
                             let newVariant = Math.floor(Math.random() * 3);
                             zombies.push({ x: tail.x - 22, y: tail.y, vy: 0, isGrounded: h.isGrounded, legAngle: 0, variant: newVariant });
@@ -925,93 +909,139 @@ game_code = """
             particles = particles.filter(p => p.life > 0);
         }
 
-        // MAP BÃI BIỂN: Màu cát đậm hơn, có nhà, cây dừa, ghế nằm và sóng biển
         function drawBeachMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#0288d1'); skyGrad.addColorStop(1, '#81d4fa');
+            skyGrad.addColorStop(0, '#00b0ff'); skyGrad.addColorStop(1, '#80d8ff');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
             let cloudX = (300 - bgOffset * 0.15) % 900; if (cloudX < -100) cloudX += 900;
             ctx.beginPath(); ctx.arc(cloudX, 50, 22, 0, Math.PI*2); ctx.arc(cloudX + 30, 42, 30, 0, Math.PI*2); ctx.arc(cloudX + 65, 50, 22, 0, Math.PI*2); ctx.fill();
 
-            let seaGrad = ctx.createLinearGradient(0, 170, 0, 295);
-            seaGrad.addColorStop(0, '#00838f'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#4dd0e1');
-            ctx.fillStyle = seaGrad; ctx.fillRect(0, 170, canvas.width, 125);
+            let seaGrad = ctx.createLinearGradient(0, 190, 0, 310);
+            seaGrad.addColorStop(0, '#0097a7'); seaGrad.addColorStop(0.5, '#00acc1'); seaGrad.addColorStop(1, '#26c6da');
+            ctx.fillStyle = seaGrad; ctx.fillRect(0, 190, canvas.width, 120);
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
             ctx.beginPath();
-            for (let x = 0; x < canvas.width; x += 22) {
-                ctx.arc(x, 260 + Math.sin((x + bgOffset * 2.5) * 0.06) * 4, 9, 0, Math.PI * 2);
+            for (let x = 0; x < canvas.width; x += 20) {
+                ctx.arc(x, 276 + Math.sin((x + bgOffset * 2) * 0.05) * 3, 8, 0, Math.PI * 2);
             }
             ctx.fill();
 
-            let houseSpacing = 380;
-            let startH = - (bgOffset * 0.45 % houseSpacing);
-            for (let hx = startH; hx < canvas.width + houseSpacing; hx += houseSpacing) {
-                ctx.fillStyle = '#ffccbc'; ctx.fillRect(hx, 195, 90, 85);
-                ctx.fillStyle = '#37474f'; ctx.fillRect(hx + 32, 230, 24, 50);
-                ctx.fillStyle = '#e1f5fe'; ctx.fillRect(hx + 12, 210, 18, 18); ctx.fillRect(hx + 60, 210, 18, 18);
-                ctx.fillStyle = '#c62828';
-                ctx.beginPath(); ctx.moveTo(hx - 8, 195); ctx.lineTo(hx + 45, 145); ctx.lineTo(hx + 98, 195); ctx.fill();
-            }
+            ctx.fillStyle = '#ffe082'; ctx.fillRect(0, 280, canvas.width, 50);
 
-            // Màu cát đậm hơn (Vàng sẫm ấm áp)
-            ctx.fillStyle = '#e0a96d'; ctx.fillRect(0, 295, canvas.width, 35);
-
-            let umbrellaSpacing = 320;
+            let umbrellaSpacing = 400;
             let startU = - (bgOffset * 0.6 % umbrellaSpacing);
             for (let ux = startU; ux < canvas.width + umbrellaSpacing; ux += umbrellaSpacing) {
-                ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(ux, 260, 26, Math.PI, Math.PI * 2); ctx.fill();
-                ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(ux, 260); ctx.lineTo(ux, 298); ctx.stroke();
-                ctx.fillStyle = '#29b6f6'; ctx.fillRect(ux + 25, 285, 28, 10);
+                ctx.fillStyle = '#e91e63'; ctx.beginPath(); ctx.arc(ux, 240, 30, Math.PI, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(ux - 6, 240, 12, -28);
+                ctx.strokeStyle = '#795548'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(ux, 240); ctx.lineTo(ux, 280); ctx.stroke();
+                ctx.fillStyle = '#00bcd4'; ctx.fillRect(ux + 20, 270, 25, 8);
             }
 
-            let treeX = (200 - bgOffset * 0.75) % 900; if (treeX < -100) treeX += 900;
-            ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 16; ctx.lineCap = 'round';
-            ctx.beginPath(); ctx.moveTo(treeX, 305); ctx.quadraticCurveTo(treeX - 22, 220, treeX + 25, 145); ctx.stroke();
-            ctx.fillStyle = '#1b5e20';
-            for (let a = 0; a < 6; a++) {
-                let ang = (a * Math.PI) / 3;
-                ctx.beginPath(); ctx.ellipse(treeX + 25 + Math.cos(ang)*36, 145 + Math.sin(ang)*22, 38, 14, ang, 0, Math.PI*2); ctx.fill();
+            for (let tIdx = 0; tIdx < 2; tIdx++) {
+                let treeX = (120 + tIdx * 450 - bgOffset * 0.8) % 900; if (treeX < -100) treeX += 900;
+                ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(treeX, 310); ctx.quadraticCurveTo(treeX - 18, 230, treeX + 18, 160); ctx.stroke();
+                ctx.fillStyle = '#3e2723'; ctx.beginPath(); ctx.arc(treeX + 12, 168, 6, 0, Math.PI*2); ctx.arc(treeX + 22, 165, 6, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#2e7d32';
+                for (let a = 0; a < 5; a++) {
+                    let ang = (a * Math.PI) / 2.5 - 0.2; ctx.beginPath(); ctx.ellipse(treeX + 18 + Math.cos(ang)*32, 160 + Math.sin(ang)*20, 32, 12, ang, 0, Math.PI*2); ctx.fill();
+                }
+            }
+
+            let itemSpacing = 300;
+            let startItem = - (bgOffset % itemSpacing);
+            for (let ix = startItem; ix < canvas.width + itemSpacing; ix += itemSpacing) {
+                ctx.fillStyle = '#ff3d00'; ctx.beginPath(); ctx.arc(ix + 50, 292, 5, 0, Math.PI*2); ctx.fill();
             }
         }
 
-        // MAP THÀNH PHỐ: Giữ nguyên thiết kế ban đầu
         function drawCityMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#1a237e'); skyGrad.addColorStop(1, '#4a148c');
+            skyGrad.addColorStop(0, '#5c3d75'); skyGrad.addColorStop(0.5, '#95508c'); skyGrad.addColorStop(1, '#e08ba0');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            let cloudX = (200 - bgOffset * 0.1) % 900; if (cloudX < -100) cloudX += 900;
+            ctx.beginPath(); ctx.arc(cloudX, 40, 18, 0, Math.PI*2); ctx.arc(cloudX + 25, 35, 24, 0, Math.PI*2); ctx.fill();
+
+            let bridgeWidth = 600;
+            let startBridgeX = - (bgOffset * 0.5 % bridgeWidth);
+            for (let bx = startBridgeX; bx < canvas.width + bridgeWidth; bx += bridgeWidth) {
+                ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 14;
+                ctx.beginPath(); ctx.moveTo(bx, 210); ctx.quadraticCurveTo(bx + 300, 140, bx + 600, 210); ctx.stroke();
+                ctx.strokeStyle = '#37474f'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(bx, 216); ctx.quadraticCurveTo(bx + 300, 146, bx + 600, 216); ctx.stroke();
+            }
+
             for (let b = 0; b < 6; b++) {
-                let bX = (b * 200 - bgOffset * 0.2) % 1200; if (bX < -150) bX += 1200;
-                let bH = 100 + (b * 40) % 100;
-                ctx.fillStyle = '#263238'; ctx.fillRect(bX, 220 - bH, 100, bH);
+                let bX = (b * 220 - bgOffset * 0.25) % 1320; if (bX < -160) bX += 1320;
+                let bH = 100 + (b * 40) % 90;
+                ctx.fillStyle = '#263238'; ctx.fillRect(bX, 220 - bH, 110, bH);
                 ctx.fillStyle = '#ffeb3b';
-                for (let r = 0; r < Math.floor(bH / 18); r++) {
+                for (let r = 0; r < Math.floor(bH / 16); r++) {
                     for (let c = 0; c < 3; c++) {
-                        if ((b + r + c) % 2 === 0) ctx.fillRect(bX + 12 + c * 26, 220 - bH + 10 + r * 18, 12, 10);
+                        if ((b + r + c) % 2 === 0) ctx.fillRect(bX + 12 + c * 30, 220 - bH + 10 + r * 16, 14, 8);
                     }
                 }
             }
-            ctx.fillStyle = '#37474f'; ctx.fillRect(0, 295, canvas.width, 35);
+
+            let redBuildingWidth = 450;
+            let startRedX = - (bgOffset * 0.6 % redBuildingWidth);
+            for (let rxPos = startRedX; rxPos < canvas.width + redBuildingWidth; rxPos += redBuildingWidth) {
+                ctx.fillStyle = '#b71c1c'; ctx.fillRect(rxPos, 110, 150, 170);
+                ctx.fillStyle = '#331a00';
+                for(let rx=0; rx<3; rx++) {
+                    for(let ry=0; ry<4; ry++) {
+                        ctx.fillRect(rxPos + 15 + rx * 42, 130 + ry * 35, 28, 22);
+                    }
+                }
+            }
+
+            ctx.fillStyle = '#455a64'; ctx.fillRect(0, 280, canvas.width, 50);
         }
 
-        // MAP LÀNG QUÊ: Giữ nguyên thiết kế ban đầu
         function drawVillageMap() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, 220);
-            skyGrad.addColorStop(0, '#f57c00'); skyGrad.addColorStop(1, '#ffb300');
+            skyGrad.addColorStop(0, '#f9a825'); skyGrad.addColorStop(0.6, '#f57c00'); skyGrad.addColorStop(1, '#ff8f00');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 220);
 
-            let houseSpacing = 350;
-            let startH = - (bgOffset * 0.45 % houseSpacing);
+            ctx.fillStyle = 'rgba(255, 236, 179, 0.7)';
+            let cloudX = (250 - bgOffset * 0.12) % 900; if (cloudX < -100) cloudX += 900;
+            ctx.beginPath(); ctx.arc(cloudX, 45, 20, 0, Math.PI*2); ctx.arc(cloudX + 30, 40, 28, 0, Math.PI*2); ctx.fill();
+
+            ctx.fillStyle = '#558b2f';
+            ctx.beginPath();
+            ctx.moveTo(0, 220); ctx.quadraticCurveTo(200, 160, 400, 220);
+            ctx.quadraticCurveTo(600, 170, 800, 220); ctx.lineTo(800, 280); ctx.lineTo(0, 280); ctx.fill();
+
+            let houseSpacing = 380;
+            let startH = - (bgOffset * 0.5 % houseSpacing);
             for (let hx = startH; hx < canvas.width + houseSpacing; hx += houseSpacing) {
-                ctx.fillStyle = '#5d4037'; ctx.fillRect(hx, 215, 80, 80);
-                ctx.fillStyle = '#3e2723'; ctx.fillRect(hx + 28, 245, 24, 50);
-                ctx.fillStyle = '#ff8f00';
-                ctx.beginPath(); ctx.moveTo(hx - 10, 215); ctx.lineTo(hx + 40, 160); ctx.lineTo(hx + 90, 215); ctx.fill();
+                ctx.fillStyle = '#8d6e63'; ctx.fillRect(hx, 200, 95, 80);
+                ctx.fillStyle = '#5d4037'; ctx.fillRect(hx + 35, 235, 25, 45);
+                ctx.fillStyle = '#3e2723'; ctx.fillRect(hx + 10, 220, 18, 18);
+                ctx.fillStyle = '#fbc02d';
+                ctx.beginPath(); ctx.moveTo(hx - 12, 200); ctx.lineTo(hx + 47, 155); ctx.lineTo(hx + 107, 200); ctx.fill();
+                ctx.strokeStyle = '#f57f17'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(hx - 12, 200); ctx.lineTo(hx + 47, 155); ctx.lineTo(hx + 107, 200); ctx.stroke();
             }
-            ctx.fillStyle = '#558b2f'; ctx.fillRect(0, 295, canvas.width, 35);
+
+            let fenceSpacing = 280;
+            let startF = - (bgOffset * 0.8 % fenceSpacing);
+            for (let fx = startF; fx < canvas.width + fenceSpacing; fx += fenceSpacing) {
+                ctx.fillStyle = '#fbc02d'; ctx.beginPath(); ctx.arc(fx + 20, 265, 18, Math.PI, Math.PI*2); ctx.fillRect(fx + 2, 265, 36, 15); ctx.fill();
+                ctx.strokeStyle = '#e65100'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(fx + 20, 235); ctx.lineTo(fx + 20, 280); ctx.stroke();
+            }
+
+            ctx.fillStyle = '#c0ca33'; ctx.fillRect(0, 280, canvas.width, 50);
+
+            ctx.strokeStyle = '#afb42b'; ctx.lineWidth = 2;
+            for (let lx = 0; lx < canvas.width; lx += 15) {
+                let rx = (lx - bgOffset * 0.9) % canvas.width; if (rx < 0) rx += canvas.width;
+                ctx.beginPath(); ctx.moveTo(rx, 290); ctx.lineTo(rx - 4, 275); ctx.moveTo(rx, 290); ctx.lineTo(rx + 4, 272); ctx.stroke();
+            }
         }
 
         function drawBackground() {
@@ -1033,22 +1063,12 @@ game_code = """
                 drawVillageMap();
             }
 
-            // Địa hình nhấp nhô rõ rệt
-            ctx.fillStyle = '#3e2723'; 
-            ctx.beginPath();
-            ctx.moveTo(0, defaultGroundY);
-            ctx.lineTo(canvas.width, defaultGroundY);
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.lineTo(0, canvas.height);
-            ctx.fill();
-
             ctx.fillStyle = '#212121'; ctx.fillRect(0, defaultGroundY, canvas.width, 16);
             ctx.fillStyle = '#37474f'; ctx.fillRect(0, defaultGroundY + 16, canvas.width, canvas.height - defaultGroundY - 16);
 
-            // Giao diện Hố (Pits): Khoảng trống vực sâu rõ ràng để té xuống chết
             pits.forEach(p => {
                 ctx.fillStyle = '#0a0a0a'; ctx.fillRect(p.x, defaultGroundY, p.width, canvas.height - defaultGroundY);
-                ctx.fillStyle = '#111111'; ctx.fillRect(p.x - 6, defaultGroundY, 6, canvas.height - defaultGroundY); ctx.fillRect(p.x + p.width, defaultGroundY, 6, canvas.height - defaultGroundY);
+                ctx.fillStyle = '#263238'; ctx.fillRect(p.x - 8, defaultGroundY, 8, canvas.height - defaultGroundY); ctx.fillRect(p.x + p.width, defaultGroundY, 8, canvas.height - defaultGroundY);
             });
 
             ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 4;
@@ -1062,27 +1082,21 @@ game_code = """
 
             if (tsunamiActive) {
                 let waveX = zombies[0] ? zombies[0].x + 40 : 250;
-                let waveGrad = ctx.createLinearGradient(0, 30, 0, defaultGroundY + 50);
-                waveGrad.addColorStop(0, '#ffffff'); 
-                waveGrad.addColorStop(0.25, '#80d8ff'); 
-                waveGrad.addColorStop(0.65, '#0097a7'); 
-                waveGrad.addColorStop(1, '#002f6c');
-                
+                let waveGrad = ctx.createLinearGradient(0, 80, 0, defaultGroundY + 50);
+                waveGrad.addColorStop(0, '#00e5ff'); waveGrad.addColorStop(0.4, '#0097a7'); waveGrad.addColorStop(1, '#002f6c');
                 ctx.fillStyle = waveGrad;
                 ctx.beginPath(); 
                 ctx.moveTo(-100, defaultGroundY + 50); 
-                ctx.lineTo(-100, 90);
-                ctx.bezierCurveTo(waveX - 180, 50, waveX - 30, 10, waveX + 35, 100);
-                ctx.bezierCurveTo(waveX + 90, 170, waveX + 110, 260, waveX + 40, defaultGroundY + 50);
+                ctx.lineTo(-100, 160);
+                ctx.bezierCurveTo(waveX - 140, 130, waveX - 40, 100, waveX + 10, 150);
+                ctx.bezierCurveTo(waveX + 50, 190, waveX + 70, 260, waveX + 30, defaultGroundY + 50);
                 ctx.closePath(); 
                 ctx.fill();
 
                 ctx.fillStyle = '#ffffff';
-                for(let b=0; b<8; b++) {
-                    ctx.beginPath(); 
-                    ctx.arc(waveX + 12 + b*11, 95 - b*5, 16 - b*1.3, 0, Math.PI*2); 
-                    ctx.fill();
-                }
+                ctx.beginPath(); ctx.arc(waveX + 10, 150, 18 + Math.sin(frame*0.3)*4, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(waveX - 10, 140, 14, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(waveX + 25, 165, 12, 0, Math.PI*2); ctx.fill();
             }
         }
 
@@ -1137,7 +1151,12 @@ game_code = """
             ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-2.5, -16, 1.2, 0, Math.PI*2); ctx.arc(2.5, -16, 1.2, 0, Math.PI*2); ctx.fill();
             
             ctx.fillStyle = h.gender === 'MALE' ? '#1e88e5' : '#e91e63'; ctx.fillRect(-5, -9, 10, 8);
-            ctx.fillStyle = h.gender === 'MALE' ? '#283593' : '#ad1457'; ctx.fillRect(-5, -1, 10, 7);
+            
+            ctx.fillStyle = h.gender === 'MALE' ? '#283593' : '#ad1457';
+            ctx.fillRect(-5, -1, 10, 7);
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+            ctx.strokeRect(-5, -1, 10, 7);
+
             ctx.restore();
         }
 
@@ -1146,7 +1165,7 @@ game_code = """
             ctx.translate(z.x + offsetX, z.y + offsetY);
             ctx.scale(scale, scale);
 
-            let isNearHuman = humans.some(h => h.x - z.x > 0 && h.x - z.x < 110);
+            let isNearHuman = humans.some(h => h.x - z.x > 0 && h.x - z.x < 100);
             let v = z.variant || 0;
 
             let shirtColor = v === 0 ? '#1e272e' : (v === 1 ? '#d63031' : '#f1c40f');
@@ -1180,15 +1199,9 @@ game_code = """
                 ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(8, -20, 1.5, 0, Math.PI * 2); ctx.fill();
                 
                 if (isNearHuman) {
-                    ctx.fillStyle = '#111111'; 
-                    ctx.beginPath(); 
-                    ctx.arc(13, -8, 12, 0, Math.PI * 2); 
-                    ctx.fill();
+                    ctx.fillStyle = '#111111'; ctx.beginPath(); ctx.arc(10, -8, 8, 0, Math.PI*2); ctx.fill();
                     ctx.fillStyle = '#ffffff';
-                    ctx.beginPath(); 
-                    ctx.moveTo(7, -14); ctx.lineTo(10, -6); ctx.lineTo(13, -14); 
-                    ctx.moveTo(11, -2); ctx.lineTo(14, -10); ctx.lineTo(17, -2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(6, -11); ctx.lineTo(8, -5); ctx.lineTo(10, -11); ctx.fill();
                 } else {
                     ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(8, -8, 5, 0, Math.PI); ctx.fill();
                     ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(5, -8); ctx.lineTo(7, -4); ctx.lineTo(9, -8); ctx.fill();
@@ -1224,19 +1237,19 @@ game_code = """
         }
 
         function drawBomb(o) {
-            ctx.save(); ctx.translate(o.x + 22, o.y + 22);
-            let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 22);
+            ctx.save(); ctx.translate(o.x + 21, o.y + 21);
+            let bombGrad = ctx.createRadialGradient(-4, -4, 2, 0, 0, 20);
             bombGrad.addColorStop(0, '#555'); bombGrad.addColorStop(0.7, '#222'); bombGrad.addColorStop(1, '#000');
-            ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 21, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = bombGrad; ctx.beginPath(); ctx.arc(0, 0, 19, 0, Math.PI*2); ctx.fill();
 
             ctx.fillStyle = '#111';
             for (let a = 0; a < 8; a++) {
-                let angle = (a * Math.PI) / 4; ctx.beginPath(); ctx.arc(Math.cos(angle) * 21, Math.sin(angle) * 21, 4.5, 0, Math.PI*2); ctx.fill();
+                let angle = (a * Math.PI) / 4; ctx.beginPath(); ctx.arc(Math.cos(angle) * 19, Math.sin(angle) * 19, 4, 0, Math.PI*2); ctx.fill();
             }
 
-            let glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 12);
+            let glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 10);
             glowGrad.addColorStop(0, '#ffffff'); glowGrad.addColorStop(0.5, '#ff1744'); glowGrad.addColorStop(1, '#b71c1c');
-            ctx.fillStyle = glowGrad; ctx.beginPath(); ctx.arc(0, 0, 11 + Math.sin(frame * 0.3) * 2, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = glowGrad; ctx.beginPath(); ctx.arc(0, 0, 10 + Math.sin(frame * 0.3) * 2, 0, Math.PI*2); ctx.fill();
             ctx.restore();
         }
 
@@ -1277,24 +1290,24 @@ game_code = """
 
         function drawCar(o) {
             ctx.save(); ctx.translate(o.x, o.y);
-            ctx.fillStyle = '#d32f2f'; ctx.fillRect(0, 18, o.w, 22);
-            ctx.fillStyle = '#b71c1c'; ctx.fillRect(16, 3, 58, 16);
-            ctx.fillStyle = '#81d4fa'; ctx.fillRect(20, 5, 20, 11); ctx.fillRect(48, 5, 22, 11);
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(20, 40, 9, 0, Math.PI*2); ctx.arc(o.w - 20, 40, 9, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#d32f2f'; ctx.fillRect(0, 15, o.w, 18);
+            ctx.fillStyle = '#b71c1c'; ctx.fillRect(14, 3, 52, 13);
+            ctx.fillStyle = '#81d4fa'; ctx.fillRect(18, 5, 18, 9); ctx.fillRect(42, 5, 20, 9);
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(18, 33, 8, 0, Math.PI*2); ctx.arc(o.w - 18, 33, 8, 0, Math.PI*2); ctx.fill();
             
-            drawZombieRequirementBadge(5, -55, o.reqZombies);
+            drawZombieRequirementBadge(3, -52, o.reqZombies);
             ctx.restore();
         }
 
         function drawBus(o) {
             ctx.save(); ctx.translate(o.x, o.y);
-            ctx.fillStyle = '#fbc02d'; ctx.fillRect(0, 0, o.w, 56);
-            ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 32, o.w, 6);
+            ctx.fillStyle = '#fbc02d'; ctx.fillRect(0, 0, o.w, 48);
+            ctx.fillStyle = '#f57f17'; ctx.fillRect(0, 28, o.w, 5);
             ctx.fillStyle = '#81d4fa'; 
-            for(let k=0; k<5; k++) ctx.fillRect(12 + (k * 28), 8, 20, 20);
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(24, 56, 10, 0, Math.PI*2); ctx.arc(o.w - 24, 56, 10, 0, Math.PI*2); ctx.fill();
+            for(let k=0; k<5; k++) ctx.fillRect(10 + (k * 26), 7, 18, 16);
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(22, 48, 9, 0, Math.PI*2); ctx.arc(o.w - 22, 48, 9, 0, Math.PI*2); ctx.fill();
             
-            drawZombieRequirementBadge(35, -58, o.reqZombies);
+            drawZombieRequirementBadge(30, -52, o.reqZombies);
             ctx.restore();
         }
 
@@ -1303,34 +1316,34 @@ game_code = """
             
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.moveTo(0, 36);
-            ctx.bezierCurveTo(-5, -14, 60, -28, 170, -18);
-            ctx.lineTo(210, 36);
-            ctx.lineTo(0, 36);
+            ctx.moveTo(0, 32);
+            ctx.bezierCurveTo(-5, -12, 55, -24, 160, -15);
+            ctx.lineTo(195, 32);
+            ctx.lineTo(0, 32);
             ctx.fill();
 
             ctx.fillStyle = '#76ba1b';
-            ctx.fillRect(50, 6, 145, 14);
+            ctx.fillRect(45, 6, 135, 12);
 
             ctx.fillStyle = '#263238';
-            ctx.beginPath(); ctx.arc(26, 14, 11, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(24, 12, 3.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(24, 12, 10, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(22, 10, 3, 0, Math.PI*2); ctx.fill();
 
             ctx.fillStyle = '#263238';
             for(let i=0; i<6; i++) {
-                ctx.fillRect(64 + i * 20, 9, 14, 13);
+                ctx.fillRect(58 + i * 18, 9, 12, 11);
             }
 
             ctx.fillStyle = '#2e7d32';
-            ctx.font = '900 17px sans-serif';
-            ctx.fillText("Z.AIRLINE", 75, -3);
+            ctx.font = '900 16px sans-serif';
+            ctx.fillText("Z.AIRLINE", 68, -2);
 
             ctx.fillStyle = '#cfd8dc';
-            ctx.fillRect(110, 32, 55, 24);
+            ctx.fillRect(100, 28, 50, 22);
             ctx.fillStyle = '#111111'; 
-            ctx.beginPath(); ctx.arc(125, 58, 10, 0, Math.PI*2); ctx.arc(148, 58, 10, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(115, 52, 9, 0, Math.PI*2); ctx.arc(135, 52, 9, 0, Math.PI*2); ctx.fill();
 
-            drawZombieRequirementBadge(55, -62, o.reqZombies);
+            drawZombieRequirementBadge(45, -58, o.reqZombies);
             ctx.restore();
         }
 
