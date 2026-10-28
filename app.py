@@ -4,55 +4,6 @@ import base64, os
  
 st.set_page_config(page_title="Zombie Tsunami Perfect Edition", layout="centered")
 st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - PERFECT EDITION ⚡</h1>", unsafe_allow_html=True)
- 
-# ================= NHẠC NỀN =================
-# Cách 1: đặt file nhạc (mp3/ogg/wav/m4a) cùng thư mục với file .py này
-#         (hoặc trong thư mục con music/ assets/ static/). Game tự tìm và nhúng vào.
-# Cách 2: dùng ô "Nhạc nền" bên dưới để tải file lên.
-AUDIO_MIME = {".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".wav": "audio/wav",
-              ".m4a": "audio/mp4", ".aac": "audio/aac", ".flac": "audio/flac"}
-MAX_MB = 25
- 
-def _find_music():
-    here = os.path.dirname(os.path.abspath(__file__)) if "__file__" in globals() else os.getcwd()
-    folders = [here, os.path.join(here, "music"), os.path.join(here, "assets"),
-               os.path.join(here, "static"), os.getcwd()]
-    found, seen = [], set()
-    for folder in folders:
-        if folder in seen or not os.path.isdir(folder):
-            continue
-        seen.add(folder)
-        for name in sorted(os.listdir(folder)):
-            if os.path.splitext(name)[1].lower() in AUDIO_MIME:
-                found.append(os.path.join(folder, name))
-    pref = ("zombie", "tsunami", "theme", "music", "bgm", "nhac", "song")
-    found.sort(key=lambda p: (0 if any(k in os.path.basename(p).lower() for k in pref) else 1))
-    return found[0] if found else None
- 
-@st.cache_data(show_spinner=False)
-def _file_to_uri(path, mtime):
-    ext = os.path.splitext(path)[1].lower()
-    with open(path, "rb") as f:
-        data = f.read()
-    return f"data:{AUDIO_MIME.get(ext, 'audio/mpeg')};base64," + base64.b64encode(data).decode()
- 
-music_uri, music_label = "", "Chưa có file nhạc -> dùng nhạc tổng hợp dự phòng"
-with st.expander("🎵 Nhạc nền (bấm để tải file nhạc nếu game chưa có tiếng)"):
-    up = st.file_uploader("Chọn file nhạc", type=[e[1:] for e in AUDIO_MIME])
-    if up is not None:
-        if up.size > MAX_MB * 1024 * 1024:
-            st.warning(f"File lớn hơn {MAX_MB} MB, hãy chọn file nhỏ hơn.")
-        else:
-            ext = os.path.splitext(up.name)[1].lower()
-            music_uri = f"data:{AUDIO_MIME.get(ext, 'audio/mpeg')};base64," + base64.b64encode(up.getvalue()).decode()
-            music_label = f"Đang dùng file đã tải lên: {up.name}"
-    if not music_uri:
-        p = _find_music()
-        if p and os.path.getsize(p) <= MAX_MB * 1024 * 1024:
-            music_uri = _file_to_uri(p, os.path.getmtime(p))
-            music_label = f"Đang dùng file: {os.path.basename(p)}"
-    st.caption(music_label + "  •  Bấm PLAY trong game để nhạc bắt đầu phát.")
- 
 game_code = r"""
 <!DOCTYPE html>
 <html>
