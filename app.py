@@ -1,7 +1,7 @@
 import streamlit as st
 import base64, os
 
-st.set_page_config(page_title="Zombie Tsunami Perfect Edition", layout="centered")
+st.set_page_config(page_title="Zombie Tsunami Perfect Edition", layout="wide")
 st.markdown("<h1 style='text-align: center; color: #76ba1b;'>🧟 ZOMBIE TSUNAMI - PERFECT EDITION ⚡</h1>", unsafe_allow_html=True)
 
 # ================= NHẠC NỀN =================
@@ -59,8 +59,8 @@ game_code = r"""
 <meta charset="utf-8">
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:0;background:#0d1b2a;display:flex;justify-content:center;align-items:center;font-family:'Arial Black',sans-serif;height:100vh;overflow:hidden;user-select:none}
-#gameContainer{position:relative;width:808px;height:458px;border:4px solid #76ba1b;border-radius:12px;box-shadow:0 8px 30px rgba(118,186,27,.4);overflow:hidden;background:#111}
+body{margin:0;padding:0;background:#0d1b2a;font-family:'Arial Black',sans-serif;height:100vh;overflow:hidden;user-select:none}
+#gameContainer{position:absolute;left:0;top:0;transform-origin:0 0;width:808px;height:458px;border:4px solid #76ba1b;border-radius:12px;box-shadow:0 8px 30px rgba(118,186,27,.4);overflow:hidden;background:#111}
 canvas{display:block;width:800px;height:450px}
 #menuOverlay{position:absolute;top:0;left:0;width:800px;height:450px;z-index:10}
 .pill{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border:3px solid #fff;border-radius:24px;padding:3px 16px 3px 8px;color:#ffe066;font-size:20px;display:flex;gap:8px;align-items:center;text-shadow:2px 2px 0 #000}
@@ -1420,6 +1420,13 @@ function draw(){
 }
 
 function loop(){ update(); draw(); requestAnimationFrame(loop); }
+function fitGame(){
+  const s=Math.min(window.innerWidth/816, window.innerHeight/466, 1.15);
+  if(!(s>0)) return;
+  const c=$('gameContainer'); c.style.transform='scale('+s+')';
+  c.style.left=Math.max(0,(window.innerWidth-808*s)/2)+'px'; c.style.top=Math.max(0,(window.innerHeight-458*s)/2)+'px';
+}
+window.addEventListener('resize', fitGame); fitGame();
 initTerrain(); saveUserData();
 loop();
 
